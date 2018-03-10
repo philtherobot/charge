@@ -2,4 +2,4 @@
 
 LIBS="-lboost_filesystem -lboost_system -lyaml-cpp"
 
-g++ --std=c++17 -g -I. src/qc.cpp $LIBS -o qc
+g++ --std=c++17 -g -I. src/charge.cpp $LIBS -o charge
