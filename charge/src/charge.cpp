@@ -1,12 +1,9 @@
 
-#include "charge/future.hpp"
 #include "charge/charge.hpp"
 
 #include <iostream>
 #include <memory>
 
-
-namespace ffl = charge::fu_filesystem;
 
 int main_really(int argc, char ** argv)
 {
@@ -14,14 +11,14 @@ int main_really(int argc, char ** argv)
 
     if( argc >= 2 )
     {
-        is.reset( new charge::InputStream(ffl::path(argv[1])) );
+        is.reset( new charge::InputStream(boost::filesystem::path(argv[1])) );
     }
     else
     {
         is.reset( new charge::InputStream(std::cin));
     }
 
-    auto configpath( ffl::path(getenv("HOME")) /= ".charge" );
+    auto configpath( boost::filesystem::path(getenv("HOME")) /= ".charge" );
 
     auto config( charge::load_config( configpath ) );
 
@@ -29,7 +26,7 @@ int main_really(int argc, char ** argv)
 
     // First, check if changed
 
-    fu_filesystem::path sandbox(".");
+    filesystem::path sandbox(".");
 
     auto exec_fn( exec_filename(sandobx, fn) );
 

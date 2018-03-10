@@ -2,8 +2,8 @@
 #define GUARD_443ec49651504cce9c4942eab05fa9ac
 
 
-#include "charge/future.hpp"
-
+#include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include <iostream>
@@ -23,17 +23,17 @@ class InputStream
 public:
     explicit InputStream(std::istream & is);
 
-    explicit InputStream(fu_filesystem::path const & fn);
+    explicit InputStream(boost::filesystem::path const & fn);
 
     std::istream & reset();
 
-    fu_optional::optional<fu_filesystem::path> filename() const 
+    boost::optional<boost::filesystem::path> filename() const 
     { return filename_; }
 
 private:
 
     std::string content_;
-    fu_optional::optional<fu_filesystem::path> filename_;
+    boost::optional<boost::filesystem::path> filename_;
 
     std::istringstream is_;
 };
@@ -53,7 +53,7 @@ public:
 
 Dependencies find_dependencies(YAML::Node const & config, InputStream & is);
 
-YAML::Node load_config(fu_filesystem::path const & fn);
+YAML::Node load_config(boost::filesystem::path const & fn);
 
 class Exception : public std::runtime_error
 {

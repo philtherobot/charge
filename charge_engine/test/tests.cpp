@@ -11,7 +11,7 @@ using namespace charge;
 using namespace std::string_literals;
 
 template <typename ExceptionType, typename Callable>
-fu_optional::optional<ExceptionType> catch_exception(Callable c)
+boost::optional<ExceptionType> catch_exception(Callable c)
 {
     try
     {
@@ -21,7 +21,7 @@ fu_optional::optional<ExceptionType> catch_exception(Callable c)
     {
         return ex;
     }
-    return fu_optional::optional<ExceptionType>();
+    return boost::optional<ExceptionType>();
 }
 
 BOOST_AUTO_TEST_CASE(one_header_library)
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(library_not_found)
 
     InputStream input(is);
 
-    fu_optional::optional<LibraryNotConfiguredError> opt_ex(
+    boost::optional<LibraryNotConfiguredError> opt_ex(
         catch_exception<LibraryNotConfiguredError>( 
             [&]{find_dependencies(config, input);}
         ) 

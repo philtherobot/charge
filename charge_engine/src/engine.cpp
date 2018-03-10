@@ -1,5 +1,4 @@
 
-#include "charge/future.hpp"
 #include "charge/charge.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
@@ -105,7 +104,7 @@ std::string const & LibraryNotConfiguredError::library() const
 }
 
 
-YAML::Node load_config(fu_filesystem::path const & fn)
+YAML::Node load_config(boost::filesystem::path const & fn)
 {
     try
     {
@@ -129,7 +128,7 @@ InputStream::InputStream(std::istream & is)
     while(is);
 }
 
-InputStream::InputStream(fu_filesystem::path const & filename)
+InputStream::InputStream(boost::filesystem::path const & filename)
 : filename_(filename)
 {}
 
