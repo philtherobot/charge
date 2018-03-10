@@ -14,10 +14,4 @@ target_include_directories(charge_engine PUBLIC
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
 
-add_executable(tests
-    test/tests.cpp)
-
-target_link_libraries(tests
-    charge_engine)
-
-add_test(tests tests)
+add_subdirectory(test)
