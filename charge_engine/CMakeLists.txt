@@ -5,8 +5,7 @@ add_library(charge_engine
     src/engine.cpp)
 
 target_link_libraries(charge_engine 
-	boost_filesystem
-	boost_system
+	Boost::filesystem
 	yaml-cpp)
 
 target_include_directories(charge_engine PUBLIC

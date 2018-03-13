@@ -7,5 +7,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 enable_testing()
 
+find_package(Boost REQUIRED COMPONENTS filesystem)
+add_library(boost INTERFACE IMPORTED)
+
 add_subdirectory(charge)
 add_subdirectory(charge_engine)
