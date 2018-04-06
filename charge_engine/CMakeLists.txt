@@ -5,8 +5,11 @@ add_library(charge_engine
     src/engine.cpp)
 
 target_link_libraries(charge_engine 
+    Boost::boost
 	Boost::filesystem
 	yaml-cpp)
+
+target_include_directories(charge_engine PUBLIC ${yaml-cpp_INCLUDE_DIR})
 
 target_include_directories(charge_engine PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

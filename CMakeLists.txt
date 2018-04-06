@@ -7,8 +7,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 enable_testing()
 
+set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost REQUIRED COMPONENTS filesystem)
-add_library(boost INTERFACE IMPORTED)
+
+find_package(yaml-cpp REQUIRED)
 
 add_subdirectory(charge)
 add_subdirectory(charge_engine)
