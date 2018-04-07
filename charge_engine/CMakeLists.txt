@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.5)
 project(charge_engine)
 
 add_library(charge_engine

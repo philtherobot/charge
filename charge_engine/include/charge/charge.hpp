@@ -27,8 +27,6 @@ public:
         StringList static_;
         StringList system_;
     } libraries_;
-
-    StringList included_;
 };
 
 Dependencies find_dependencies(YAML::Node const & config, std::istream & is);

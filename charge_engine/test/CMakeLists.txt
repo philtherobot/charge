@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.5)
 project(charge_engine_test)
 
 # Cygwin, under strict ANSI C, does not declare some
