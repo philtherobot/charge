@@ -7,7 +7,6 @@
 #include <yaml-cpp/yaml.h>
 
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -15,28 +14,9 @@
 namespace charge
 {
 
+
 typedef std::vector<std::string> StringList;
 
-
-class InputStream
-{
-public:
-    explicit InputStream(std::istream & is);
-
-    explicit InputStream(boost::filesystem::path const & fn);
-
-    std::istream & reset();
-
-    boost::optional<boost::filesystem::path> filename() const 
-    { return filename_; }
-
-private:
-
-    std::string content_;
-    boost::optional<boost::filesystem::path> filename_;
-
-    std::istringstream is_;
-};
 
 class Dependencies
 {
@@ -51,7 +31,7 @@ public:
     StringList included_;
 };
 
-Dependencies find_dependencies(YAML::Node const & config, InputStream & is);
+Dependencies find_dependencies(YAML::Node const & config, std::istream & is);
 
 YAML::Node load_config(boost::filesystem::path const & fn);
 

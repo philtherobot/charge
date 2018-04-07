@@ -35,9 +35,7 @@ BOOST_AUTO_TEST_CASE(one_header_library)
     auto pgm("// chargetrick import boost_filesystem\n"s);
     std::istringstream is(pgm);
 
-    InputStream input(is);
-
-    auto deps = find_dependencies(config, input);
+    auto deps = find_dependencies(config, is);
 
     BOOST_CHECK_EQUAL( deps.libraries_.headers_, 
         StringList{"/home/phil/include/boost"});
@@ -54,11 +52,9 @@ BOOST_AUTO_TEST_CASE(library_not_found)
     auto pgm("// chargetrick import boost_test\n"s);
     std::istringstream is(pgm);
 
-    InputStream input(is);
-
     boost::optional<LibraryNotConfiguredError> opt_ex(
         catch_exception<LibraryNotConfiguredError>( 
-            [&]{find_dependencies(config, input);}
+            [&]{find_dependencies(config, is);}
         ) 
     );
 
@@ -76,6 +72,8 @@ BOOST_AUTO_TEST_CASE( library_not_configured_error )
     LibraryNotConfiguredError ex("curl");
 
     LibraryNotConfiguredError copy_cons(ex);
+
+    BOOST_CHECK_EQUAL( copy_cons.what(), "library curl is not configured" );
 
     LibraryNotConfiguredError assign("a");
     assign = ex;

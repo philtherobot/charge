@@ -116,31 +116,10 @@ YAML::Node load_config(boost::filesystem::path const & fn)
     }
 }
 
-InputStream::InputStream(std::istream & is)
+
+Dependencies find_dependencies(YAML::Node const & config, std::istream & is)
 {
-    do
-    {
-        int const size(1024);
-        char buf[size];
-        is.read(buf, size);
-        content_ += std::string(buf, is.gcount());
-    }
-    while(is);
-}
-
-InputStream::InputStream(boost::filesystem::path const & filename)
-: filename_(filename)
-{}
-
-std::istream & InputStream::reset()
-{
-    return is_ = std::istringstream(content_);
-}
-
-
-Dependencies find_dependencies(YAML::Node const & config, InputStream & is)
-{
-    auto libraries = read_imported_libraries(is.reset());
+    auto libraries = read_imported_libraries(is);
 
     Dependencies deps;
 

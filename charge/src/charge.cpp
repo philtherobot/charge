@@ -1,60 +1,77 @@
 
 #include "charge/charge.hpp"
 
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 
 
 int main_really(int argc, char ** argv)
 {
-    std::unique_ptr<charge::InputStream> is;
+    std::ifstream is;
 
     if( argc >= 2 )
     {
-        is.reset( new charge::InputStream(boost::filesystem::path(argv[1])) );
+        is.open( argv[1] );
     }
     else
     {
-        is.reset( new charge::InputStream(std::cin));
+        throw charge::Exception("missing source script argument");
     }
 
-    auto configpath( boost::filesystem::path(getenv("HOME")) /= ".charge" );
+    auto configpath( boost::filesystem::path(std::getenv("HOME")) /= ".charge" );
 
     auto config( charge::load_config( configpath ) );
 
     /*
 
+
     // First, check if changed
 
-    filesystem::path sandbox(".");
+    filesystem::path cache_path("~/.charge/cache");
 
-    auto exec_fn( exec_filename(sandobx, fn) );
+    Cache cache( cache_path );
 
     // create/open charge cache file for script fn
-    Cache cache( load_cache(sandbox, fn) );
+    CacheEntry entry( fn );
 
     bool up_to_date = false;
-    if cache contains source dependencies info
+    if entry is not new (or null)
 
         auto time( exec_fn );
-        up_to_date = all time of source_deps <= time
+
+        // note: source_dependencies includes
+        // the input source file.
+        // It is the list of included files
+        up_to_date = true;
+        for(auto dep: entry.source_dependencies())
+            up_to_date &= time dep <= time
 
 
     if ! up_to_date
 
-        Compiler comp;
+        YAML::Node compiler_config; // from charge config
+        if( no compiler config in charge config )
+        {
+            compiler_config = Compiler::configure();
+        }
+        else
+        {
+            // take config from charge config
+        }
+
+        Compiler comp(compiler_config);
 
         // Rebuild
         auto library_deps(find_dependencies(*input))
 
-            grep the chargetrick import, find them in the config
-            this is options for the compiler
+        entry.source_dependencies() =
+            comp.compile(fn, library_deps, entry.executable_filename());
 
-        comp.compile(fn, library_deps, exec_fn, sandbox.cache.deps);
 
 
     // Up to date
-    execute exec_fn, with command-line arguments
+    execute entry.executable_filename(), with command-line arguments
     */
 
     return 0;
