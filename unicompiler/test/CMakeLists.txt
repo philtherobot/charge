@@ -4,10 +4,11 @@ project(charge_engine_test)
 # functions needed by Boost Test.
 set(CMAKE_CXX_EXTENSIONS ON)
 
-add_executable(tests_engine
+add_executable(tests_unicompiler
     tests.cpp)
 
-target_link_libraries(tests_engine
-    charge_engine)
+target_link_libraries(tests_unicompiler
+    Boost::filesystem
+    unicompiler)
 
-add_test(tests_engine tests_engine)
+add_test(tests_unicompiler tests_unicompiler)
