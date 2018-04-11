@@ -2,11 +2,11 @@ project(unicompiler)
 
 add_library(unicompiler
     src/unicompiler.cpp
-	src/process_win.cpp)
+    src/process_win.cpp)
 
 target_link_libraries(unicompiler 
-	Boost::filesystem
-	yaml-cpp)
+    Boost::filesystem
+    yaml-cpp)
 
 target_include_directories(unicompiler PUBLIC ${YAML_CPP_INCLUDE_DIR})
 

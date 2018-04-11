@@ -13,26 +13,26 @@ namespace unicompiler
 class ReadableStream
 {
 public:
-	virtual ~ReadableStream() {}
-	virtual boost::optional<std::string> read() = 0;
+    virtual ~ReadableStream() {}
+    virtual boost::optional<std::string> read() = 0;
 };
 
 
 class Process
 {
 public:
-	Process();
-	~Process();
+    Process();
+    ~Process();
 
-	void start(std::string const & shell_command);
+    void start(std::string const & shell_command);
 
-	int exit_code();
+    int exit_code();
 
-	std::shared_ptr<ReadableStream> child_stdout_;
+    std::shared_ptr<ReadableStream> child_stdout_;
 
 private:
-	class Implementation;
-	std::unique_ptr<Implementation> impl_;
+    class Implementation;
+    std::unique_ptr<Implementation> impl_;
 };
 
 

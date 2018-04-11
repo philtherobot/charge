@@ -38,9 +38,9 @@ StringList read_imported_libraries(std::istream & is)
 
     std::regex re("//\\s+chargetrick\\s+import\\s.*");
     std::string line;
-    while( get_line(is, line) )
+    while (get_line(is, line))
     {
-        if( std::regex_match(line, re) )
+        if (std::regex_match(line, re))
         {
             libraries.push_back(extract_trick_library(line));
         }
@@ -49,26 +49,26 @@ StringList read_imported_libraries(std::istream & is)
     return libraries;
 }
 
-StringList library_part(StringList const & libraries, 
+StringList library_part(StringList const & libraries,
     YAML::Node const & config, std::string const & part)
 {
     StringList r;
 
     auto libraries_node = config["libraries"];
 
-    for(auto lib: libraries)
+    for (auto lib : libraries)
     {
         auto node = libraries_node[lib];
-        if( !node )
+        if (!node)
         {
             throw LibraryNotConfiguredError(lib);
         }
 
         auto s = node[part];
-        if( s ) 
+        if (s)
         {
             auto v = s.as<std::string>();
-            r.push_back( v );
+            r.push_back(v);
         }
     }
 
@@ -95,8 +95,8 @@ StringList system_libraries(StringList const & libraries, YAML::Node const & con
 
 
 LibraryNotConfiguredError::LibraryNotConfiguredError(std::string const & lib)
-: Exception( "library "s + lib + " is not configured"), 
-  lib_(lib)
+    : Exception("library "s + lib + " is not configured"),
+    lib_(lib)
 {}
 
 std::string const & LibraryNotConfiguredError::library() const
@@ -111,7 +111,7 @@ YAML::Node load_config(boost::filesystem::path const & fn)
     {
         return YAML::LoadFile(fn.string());
     }
-    catch(YAML::BadFile const &)
+    catch (YAML::BadFile const &)
     {
         return YAML::Node();
     }
@@ -124,9 +124,9 @@ Dependencies find_dependencies(YAML::Node const & config, std::istream & is)
 
     Dependencies deps;
 
-    deps.libraries_.headers_ =          headers(libraries, config);
-    deps.libraries_.static_  = static_libraries(libraries, config);
-    deps.libraries_.system_  = system_libraries(libraries, config);
+    deps.libraries_.headers_ = headers(libraries, config);
+    deps.libraries_.static_ = static_libraries(libraries, config);
+    deps.libraries_.system_ = system_libraries(libraries, config);
 
     return deps;
 }
@@ -134,21 +134,21 @@ Dependencies find_dependencies(YAML::Node const & config, std::istream & is)
 
 void compile(boost::filesystem::path const & script)
 {
-	YAML::Node conf;
-	conf["family"] = "msvc";
-	unicompiler::Compiler comp(conf);
+    YAML::Node conf;
+    conf["family"] = "msvc";
+    unicompiler::Compiler comp(conf);
 
-	unicompiler::Compiler::Arguments args;
-	args.source_ = script;
+    unicompiler::Compiler::Arguments args;
+    args.source_ = script;
 
-	boost::filesystem::path cache_dir("C:\\Users\\philt\\OneDrive\\Desktop\\tmp");
+    boost::filesystem::path cache_dir("C:\\Users\\philt\\OneDrive\\Desktop\\tmp");
 
-	auto basename = script.stem();
-	basename += ".exe";
+    auto basename = script.stem();
+    basename += ".exe";
 
-	args.executable_output_fn_ = cache_dir / basename;
+    args.executable_output_fn_ = cache_dir / basename;
 
-	comp.compile(args);
+    comp.compile(args);
 
 }
 
@@ -157,17 +157,17 @@ void compile(boost::filesystem::path const & script)
 
 
 
-namespace std 
+namespace std
 {
 
-std::ostream & operator << ( std::ostream & os, charge::StringList const & ss)
+std::ostream & operator << (std::ostream & os, charge::StringList const & ss)
 {
     os << '(';
-    if( ss.size() )
+    if (ss.size())
     {
         auto set_it = ss.begin();
         os << *set_it;
-        while( ++ set_it != ss.end() )
+        while (++set_it != ss.end())
         {
             os << ',' << *set_it;
         }
@@ -181,8 +181,8 @@ std::ostream & operator << (std::ostream & os, charge::Dependencies const & deps
     os << "Dependencies(\n";
     os << "  libraries(\n";
     os << "    headers: " << deps.libraries_.headers_ << '\n';
-    os << "    static: "  << deps.libraries_.static_  << '\n';
-    os << "    system: "  << deps.libraries_.system_  << '\n';
+    os << "    static: " << deps.libraries_.static_ << '\n';
+    os << "    system: " << deps.libraries_.system_ << '\n';
     os << "  )\n";
     os << ")\n";
     return os;

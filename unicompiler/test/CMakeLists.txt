@@ -14,10 +14,10 @@ add_test(tests_unicompiler tests_unicompiler)
 
 
 add_executable(process_test
-	process_test.cpp)
+    process_test.cpp)
 
 target_include_directories(process_test
     PRIVATE ../src)
-	
+
 target_link_libraries(process_test
-	unicompiler)
+    unicompiler)

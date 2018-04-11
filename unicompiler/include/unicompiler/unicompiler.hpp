@@ -21,38 +21,38 @@ class Compiler
 public:
     explicit Compiler(YAML::Node const & config);
 
-	struct Arguments
-	{
-		boost::filesystem::path source_;
-		StringList header_paths_;
-		StringList static_libraries_;
-		StringList system_libraries_;
-		boost::filesystem::path executable_output_fn_;
-	};
-    
-	FileList compile(Arguments const & args);
+    struct Arguments
+    {
+        boost::filesystem::path source_;
+        StringList header_paths_;
+        StringList static_libraries_;
+        StringList system_libraries_;
+        boost::filesystem::path executable_output_fn_;
+    };
+
+    FileList compile(Arguments const & args);
 
 private:
-	YAML::Node config_;
+    YAML::Node config_;
 };
 
 
 class Exception : public std::runtime_error
 {
 public:
-	using runtime_error::runtime_error;
+    using runtime_error::runtime_error;
 };
 
 
 class UnsupportedFamilyError : public Exception
 {
 public:
-	explicit UnsupportedFamilyError(std::string const & family);
+    explicit UnsupportedFamilyError(std::string const & family);
 
-	std::string const & family() const;
+    std::string const & family() const;
 
 private:
-	std::string family_;
+    std::string family_;
 };
 
 
