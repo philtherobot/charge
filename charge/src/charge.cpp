@@ -4,24 +4,17 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <vector>
 
 
-int main_really(int argc, char ** argv)
+int main_really(std::vector<std::string> const & args)
 {
-    std::ifstream is;
+    //auto configpath( boost::filesystem::path(std::getenv("HOME")) /= ".charge" );
 
-    if( argc >= 2 )
-    {
-        is.open( argv[1] );
-    }
-    else
-    {
-        throw charge::Exception("missing source script argument");
-    }
+    //auto config( charge::load_config( configpath ) );
 
-    auto configpath( boost::filesystem::path(std::getenv("HOME")) /= ".charge" );
-
-    auto config( charge::load_config( configpath ) );
+	charge::compile("script.cpp");
 
     /*
 
@@ -74,6 +67,7 @@ int main_really(int argc, char ** argv)
     execute entry.executable_filename(), with command-line arguments
     */
 
+
     return 0;
 }
 
@@ -81,8 +75,13 @@ int main(int argc, char ** argv)
 {
     try
     {
-        return main_really(argc, argv);
-    }
+		std::vector<std::string> args;
+		for (int i = 0; i < argc; ++i)
+		{
+			args.push_back(argv[i]);
+		}
+		return main_really(std::move(args));
+	}
     catch(std::exception const & ex)
     {
         std::cerr << "exception: " << ex.what() << '\n';

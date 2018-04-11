@@ -1,5 +1,6 @@
 
 #include "charge/charge.hpp"
+#include "unicompiler/unicompiler.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
 
@@ -129,6 +130,28 @@ Dependencies find_dependencies(YAML::Node const & config, std::istream & is)
 
     return deps;
 }
+
+
+void compile(boost::filesystem::path const & script)
+{
+	YAML::Node conf;
+	conf["family"] = "msvc";
+	unicompiler::Compiler comp(conf);
+
+	unicompiler::Compiler::Arguments args;
+	args.source_ = script;
+
+	boost::filesystem::path cache_dir("C:\\Users\\philt\\OneDrive\\Desktop\\tmp");
+
+	auto basename = script.stem();
+	basename += ".exe";
+
+	args.executable_output_fn_ = cache_dir / basename;
+
+	comp.compile(args);
+
+}
+
 
 } // charge
 

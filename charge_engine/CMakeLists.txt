@@ -4,6 +4,7 @@ add_library(charge_engine
     src/engine.cpp)
 
 target_link_libraries(charge_engine 
+	unicompiler
 	Boost::boost
 	Boost::filesystem
 	yaml-cpp)
