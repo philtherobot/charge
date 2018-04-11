@@ -4,6 +4,8 @@
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace unicompiler
@@ -19,15 +21,41 @@ class Compiler
 public:
     explicit Compiler(YAML::Node const & config);
 
-    FileList compile(boost::filesystem::path const & source,
-        StringList const & headers_path,
-        StringList const & static_libraries,
-        StringList const & system_libraries,
-        boost::filesystem::path const & executable_output_fn);
+	struct Arguments
+	{
+		boost::filesystem::path source_;
+		StringList header_paths_;
+		StringList static_libraries_;
+		StringList system_libraries_;
+		boost::filesystem::path executable_output_fn_;
+	};
+    
+	FileList compile(Arguments const & args);
+
+private:
+	YAML::Node config_;
+};
+
+
+class Exception : public std::runtime_error
+{
+public:
+	using runtime_error::runtime_error;
+};
+
+
+class UnsupportedFamilyError : public Exception
+{
+public:
+	explicit UnsupportedFamilyError(std::string const & family);
+
+	std::string const & family() const;
+
+private:
+	std::string family_;
 };
 
 
 }
 
 #endif
-
