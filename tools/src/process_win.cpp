@@ -1,7 +1,5 @@
 
-#include "process.hpp"
-
-#include "unicompiler/unicompiler.hpp"
+#include "tools/process.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
 
@@ -9,6 +7,7 @@
 #include <cstring>
 #include <string>
 #include <sstream>
+#include <vector>
 
 #include <windows.h>
 
@@ -16,53 +15,88 @@
 using namespace std::string_literals;
 
 
-namespace unicompiler
+namespace tools
 {
-
-
-std::vector<char> strcpy(std::string const & str)
-{
-    std::vector<char> r;
-    r.resize(str.size() + 1);
-    std::strncpy(r.data(), str.c_str(), r.size());
-    return r;
-}
 
 
 std::string get_error_message(DWORD code)
 {
-    LPVOID msg_buf;
+	LPVOID msg_buf;
 
-    FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        code,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR)&msg_buf,
-        0, NULL);
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		code,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&msg_buf,
+		0, NULL);
 
-    std::string msg(static_cast<char const *>(msg_buf));
+	std::string msg(static_cast<char const *>(msg_buf));
 
-    LocalFree(msg_buf);
+	LocalFree(msg_buf);
 
-    boost::algorithm::erase_all(msg, "\r\n");
+	boost::algorithm::erase_all(msg, "\r\n");
 
-    return msg;
+	return msg;
 }
 
 
 class Win32Error : public Exception
 {
 public:
-    explicit Win32Error(std::string const & function, DWORD code = 0)
-        :
-        Exception("Win32 error \""s +
-            get_error_message(code == 0 ? GetLastError() : code) +
-            "\" in function " + function)
-    {}
+	explicit Win32Error(std::string const & function, DWORD code = 0)
+		:
+		Exception("Win32 error \""s +
+			get_error_message(code == 0 ? GetLastError() : code) +
+			"\" in function " + function)
+	{}
 };
+
+
+class ErrnoError : public Exception
+{
+public:
+	explicit ErrnoError(std::string const & function, int code = 0)
+		:
+		Exception( msg(function, code) )
+	{}
+
+private:
+	static std::string msg(std::string const & function, int code)
+	{
+		std::ostringstream os;
+		os << "system (errno) error " << code;
+		os << " in function " << function;
+		return os.str();
+	}
+};
+
+
+std::vector<char> strcpy(std::string const & str)
+{
+    std::vector<char> r;
+    r.resize(str.size() + 1);
+	std::copy(str.begin(), str.end(), r.begin());
+	r.push_back(0);
+    return r;
+}
+
+
+std::string getenv(std::string const & var)
+{
+	char * buf = 0;
+	int err = _dupenv_s(&buf, NULL, var.c_str());
+	if (err != 0) throw ErrnoError("_dupenv_s", err);
+
+	if (!buf) throw Exception("failed to find environment variable " + var);
+
+	std::string r{ buf };
+	free(buf);
+
+	return r;
+}
 
 
 class Pipe
@@ -166,7 +200,7 @@ void Process::start(std::string const & shell_command)
     child_stdout.set_inherit(child_stdout.write_);
 
 
-    std::string const cmd(std::getenv("COMSPEC"));
+    std::string const cmd(getenv("COMSPEC"));
 
     std::string exec(cmd + " /C " + shell_command);
 
@@ -229,4 +263,4 @@ int Process::exit_code()
     return int(code);
 }
 
-} //unicompiler
+} //tools

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(charge)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/externals)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,3 +17,4 @@ find_package(yaml-cpp REQUIRED)
 add_subdirectory(charge)
 add_subdirectory(charge_engine)
 add_subdirectory(unicompiler)
+add_subdirectory(tools)

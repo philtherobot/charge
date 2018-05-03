@@ -4,9 +4,10 @@
 #include <boost/optional.hpp>
 
 #include <memory>
+#include <stdexcept>
 #include <string>
 
-namespace unicompiler
+namespace tools
 {
 
 
@@ -36,6 +37,13 @@ private:
 };
 
 
-}
+class Exception : public std::runtime_error
+{
+public:
+	using runtime_error::runtime_error;
+};
+
+
+} // tools
 
 #endif

@@ -1,5 +1,5 @@
 
-#include "process.hpp"
+#include "tools/process.hpp"
 
 #include <boost/algorithm/string/join.hpp>
 
@@ -10,7 +10,7 @@
 
 int main_really(std::vector<std::string> const & args)
 {
-    unicompiler::Process p;
+    tools::Process p;
 
     auto cmd = boost::algorithm::join(std::make_pair(args.begin() + 1, args.end()), " ");
 

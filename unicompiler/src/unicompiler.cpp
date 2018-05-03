@@ -1,6 +1,6 @@
 #include "unicompiler/unicompiler.hpp"
 
-#include "process.hpp"
+#include "tools/process.hpp"
 
 #include <iostream>
 
@@ -33,7 +33,7 @@ FileList msvc_compiler(Compiler::Arguments const & args)
     cmd += quote("/Fo:" + p.string()) + " ";
     cmd += quote(args.source_.string());
 
-    Process proc;
+    tools::Process proc;
 
     proc.start(cmd);
 
