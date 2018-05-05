@@ -1,6 +1,6 @@
 #include "compiler.hpp"
 
-#include "tools/process.hpp"
+#include "process.hpp"
 
 #include <iostream>
 

@@ -2,10 +2,10 @@ project(charge_engine)
 
 add_library(charge_engine
     src/engine.cpp
-	src/compiler.cpp)
+	src/compiler.cpp
+	src/process_win.cpp)
 
 target_link_libraries(charge_engine 
-    tools
     Boost::boost
     Boost::filesystem
     yaml-cpp)

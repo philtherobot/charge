@@ -11,3 +11,10 @@ target_link_libraries(tests_engine
     charge_engine)
 
 add_test(tests_engine tests_engine)
+
+
+add_executable(process_test
+    process_test.cpp)
+
+target_link_libraries(process_test
+    charge_engine)

@@ -16,4 +16,3 @@ find_package(yaml-cpp REQUIRED)
 
 add_subdirectory(charge)
 add_subdirectory(charge_engine)
-add_subdirectory(tools)
