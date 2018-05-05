@@ -1,10 +1,11 @@
 project(charge_engine)
 
 add_library(charge_engine
-    src/engine.cpp)
+    src/engine.cpp
+	src/compiler.cpp)
 
 target_link_libraries(charge_engine 
-    unicompiler
+    tools
     Boost::boost
     Boost::filesystem
     yaml-cpp)

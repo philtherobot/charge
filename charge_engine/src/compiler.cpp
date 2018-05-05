@@ -1,4 +1,4 @@
-#include "unicompiler/unicompiler.hpp"
+#include "compiler.hpp"
 
 #include "tools/process.hpp"
 
@@ -8,7 +8,7 @@
 using namespace std::string_literals;
 
 
-namespace unicompiler
+namespace charge
 {
 
 namespace

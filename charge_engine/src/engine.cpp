@@ -1,6 +1,6 @@
 
 #include "charge/charge.hpp"
-#include "unicompiler/unicompiler.hpp"
+#include "compiler.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
 
@@ -136,9 +136,9 @@ void compile(boost::filesystem::path const & script)
 {
     YAML::Node conf;
     conf["family"] = "msvc";
-    unicompiler::Compiler comp(conf);
+    Compiler comp(conf);
 
-    unicompiler::Compiler::Arguments args;
+    Compiler::Arguments args;
     args.source_ = script;
 
     boost::filesystem::path cache_dir("C:\\Users\\philt\\OneDrive\\Desktop\\tmp");
@@ -152,6 +152,86 @@ void compile(boost::filesystem::path const & script)
 
 }
 
+
+/*
+bool is_up_to_date(bool is_new_entry, exec_time, deps_time[])
+{
+    if (is_new_entry) return false;
+
+    for (auto time : deps_times)
+    {
+        if (time > exec_time) return false;
+    }
+
+    return true;
+}
+*/
+
+int charge(boost::filesystem::path const & script, StringList const & args)
+{
+	/*
+	boost::filepath::path cache_path = get_cache_path(script);
+
+    bool is_new_cache = create_cache(cache_path);
+
+    boost::filesystem::path exec_path = get_executable_path(cache_path, script);
+
+    // Return script time if executable does not exist.
+    time exec_time = get_executable_time(exec_path, script);
+
+    std::string deps_file_contents = get_dependencies(cache_path);
+
+    FileList deps = decode_dependencies(deps_file_contents);
+
+    std::vector<time> deps_time;
+    std::transform(deps, deps_time, get_file_time();
+
+    if (!is_up_to_date(is_new_cache, exec_time deps_time))
+    {
+        // Compile
+
+        auto library_deps( find_dependencies(script) );
+
+        auto configpath( boost::filesystem::path(std::getenv("HOME")) /= ".charge" );
+        auto config( charge::load_config( configpath ) );
+
+        YAML::Node compiler_config;
+
+        if (!config["compiler"])
+        {
+            compiler_config = configure();
+            config["compiler"] = compiler_config;
+            charge::write_config(configpath, config);
+        }
+        else
+        {
+            compiler_config = config["compiler"];
+        }
+
+        Compiler compiler(compiler_config);
+
+        Compiler::Arguments compiler_args;
+        compiler_args.source_ = script;
+        compiler_args.header_paths_ = library_deps.libraries_.headers_;
+        compiler_args.static_libraries_ = library_deps.libraries_.static_;
+        compiler_args.system_libraries_ = library_deps.libraries_.system_;
+        compiler_args.executable_output_fn_ = exec_path;
+
+        FileList new_deps = compiler.compile(compiler_args);
+
+        std::string new_deps_file_contents = encode_dependencies(new_deps);
+
+        write_dependencies(cache_path, new_deps_file_contents);
+    }
+
+    Process p;
+
+    p.start(write_command(exec_path, script_args));
+
+    return p.exit_code();
+	*/
+	return 0;
+}
 
 } // charge
 

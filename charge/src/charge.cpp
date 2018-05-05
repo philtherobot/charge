@@ -10,65 +10,17 @@
 
 int main_really(std::vector<std::string> const & args)
 {
-    //auto configpath( boost::filesystem::path(std::getenv("HOME")) /= ".charge" );
+    if (args.size() < 1)
+    {
+        throw;
+    }
 
-    //auto config( charge::load_config( configpath ) );
+    std::string script(args.front());
 
-    charge::compile("script.cpp");
+    charge::StringList script_args;
+    std::copy(args.begin() + 1, args.end(), std::back_inserter(script_args));
 
-    /*
-
-
-    // First, check if changed
-
-    filesystem::path cache_path("~/.charge/cache");
-
-    Cache cache( cache_path );
-
-    // create/open charge cache file for script fn
-    CacheEntry entry( fn );
-
-    bool up_to_date = false;
-    if entry is not new (or null)
-
-        auto time( exec_fn );
-
-        // note: source_dependencies includes
-        // the input source file.
-        // It is the list of included files
-        up_to_date = true;
-        for(auto dep: entry.source_dependencies())
-            up_to_date &= time dep <= time
-
-
-    if ! up_to_date
-
-        YAML::Node compiler_config; // from charge config
-        if( no compiler config in charge config )
-        {
-            compiler_config = Compiler::configure();
-        }
-        else
-        {
-            // take config from charge config
-        }
-
-        Compiler comp(compiler_config);
-
-        // Rebuild
-        auto library_deps(find_dependencies(*input))
-
-        entry.source_dependencies() =
-            comp.compile(fn, library_deps, entry.executable_filename());
-
-
-
-    // Up to date
-    execute entry.executable_filename(), with command-line arguments
-    */
-
-
-    return 0;
+    return charge::charge(script, script_args);
 }
 
 int main(int argc, char ** argv)

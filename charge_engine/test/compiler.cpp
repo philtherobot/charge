@@ -2,11 +2,11 @@
 #define BOOST_TEST_MODULE unicompiler
 #include <boost/test/included/unit_test.hpp>
 
-#include "unicompiler/unicompiler.hpp"
+#include "compiler.hpp"
 
 BOOST_AUTO_TEST_CASE(configure_gcc)
 {
-    auto conf(unicompiler::configure());
+    auto conf(charge::configure());
 
     BOOST_CHECK_EQUAL(conf["compiler"].as<std::string>(), "/usr/bin/g++");
     BOOST_CHECK_EQUAL(conf["version"].as<std::string>(), "7.2.0");
@@ -21,9 +21,9 @@ BOOST_AUTO_TEST_CASE(compile)
     conf["version"] = "7.2.0";
     conf["family"] = "g++";
 
-    unicompiler::Compiler compiler(conf);
+    charge::Compiler compiler(conf);
 
-    unicompiler::StringList nothing;
+    charge::StringList nothing;
 
     auto deps =
         compiler.compile({ "source.cpp", nothing, nothing, nothing,

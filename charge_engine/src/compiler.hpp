@@ -1,6 +1,8 @@
 #ifndef GUARD_2cfa76ff0d7d45428f1b7c8c882d6aa3
 #define GUARD_2cfa76ff0d7d45428f1b7c8c882d6aa3
 
+#include "charge/charge.hpp"
+
 #include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
 
@@ -8,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace unicompiler
+namespace charge
 {
 
 typedef std::vector<std::string> StringList;
@@ -34,13 +36,6 @@ public:
 
 private:
     YAML::Node config_;
-};
-
-
-class Exception : public std::runtime_error
-{
-public:
-    using runtime_error::runtime_error;
 };
 
 

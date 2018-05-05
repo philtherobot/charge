@@ -18,6 +18,9 @@ namespace charge
 typedef std::vector<std::string> StringList;
 
 
+int charge(boost::filesystem::path const & script, StringList const & args);
+
+
 class Dependencies
 {
 public:
@@ -29,17 +32,22 @@ public:
     } libraries_;
 };
 
+
 Dependencies find_dependencies(YAML::Node const & config, std::istream & is);
+
 
 YAML::Node load_config(boost::filesystem::path const & fn);
 
+
 void compile(boost::filesystem::path const & script);
+
 
 class Exception : public std::runtime_error
 {
 public:
     using runtime_error::runtime_error;
 };
+
 
 class LibraryNotConfiguredError : public Exception
 {
@@ -51,6 +59,7 @@ public:
 private:
     std::string lib_;
 };
+
 
 } // charge
 
