@@ -16,7 +16,7 @@ target_link_libraries(tests
 add_test(tests tests)
 
 
-# Process testing is done through a standalone
+# ShellProcess testing is done through a standalone
 # program - not through actual unit testing.
 
 add_executable(process_test
@@ -24,3 +24,13 @@ add_executable(process_test
 
 target_link_libraries(process_test
     charge_engine)
+
+
+# exec testing is done through another standalone
+# program.
+
+add_executable(exec_test
+	exec_test.cpp)
+
+target_link_libraries(exec_test
+	charge_engine)

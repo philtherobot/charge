@@ -8,10 +8,12 @@
 #include "tools.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
+#include <boost/range/algorithm/copy.hpp>
 #include <boost/range/algorithm/max_element.hpp>
 #include <boost/range/algorithm/transform.hpp>
 
 #include <ctime>
+#include <iterator>
 #include <regex>
 
 using namespace std::string_literals;
@@ -274,15 +276,11 @@ int charge(boost::filesystem::path const & script, StringList const & args)
 
 	std::cout << "execute\n";
 
-	Process p;
+	StringList exec_args;
+	exec_args.push_back(script.string());
+	boost::copy(args, std::back_inserter(exec_args));
 
-    /*
-	p.start(write_command(exec_path, script_args));
-
-    return p.exit_code();
-	*/
-
-	return 0;
+	return exec(exec_path.string(), exec_args);
 }
 
 } // charge

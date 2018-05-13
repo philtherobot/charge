@@ -5,6 +5,9 @@
 #include "exception.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/algorithm/find_if.hpp>
+#include <boost/range/algorithm/for_each.hpp>
 
 #include <cstdlib>
 #include <cstring>
@@ -21,6 +24,8 @@ using namespace std::string_literals;
 namespace charge
 {
 
+namespace
+{
 
 std::string get_error_message(DWORD code)
 {
@@ -140,7 +145,24 @@ public:
 };
 
 
-class Process::Implementation
+bool is_space(char c)
+{
+	return std::isspace(c);
+}
+
+void quote(std::string & str)
+{
+	if (boost::range::find_if(str, is_space) != str.end())
+	{
+		str = "\""s + str + "\""s;
+	}
+}
+
+
+} // anonymous
+
+
+class ShellProcess::Implementation
 {
 public:
     Implementation() : process_handle_(INVALID_HANDLE_VALUE) {}
@@ -154,16 +176,15 @@ public:
 };
 
 
-Process::Process()
+ShellProcess::ShellProcess()
     : impl_(new Implementation())
 {}
 
 
-Process::~Process()
+ShellProcess::~ShellProcess()
 {}
 
-
-void Process::start(std::string const & shell_command)
+void ShellProcess::start(std::string const & shell_command)
 {
     Pipe child_stdout;
     child_stdout.set_inherit(child_stdout.write_);
@@ -193,17 +214,17 @@ void Process::start(std::string const & shell_command)
 
     success = CreateProcess(
         NULL,
-        exec_buf.data(),      // command line 
-        NULL,          // process security attributes 
-        NULL,          // primary thread security attributes 
-        TRUE,          // handles are inherited 
-        0,             // creation flags 
-        NULL,          // use parent's environment 
-        NULL,          // use parent's current directory 
-        &start_info,  // STARTUPINFO pointer 
-        &process_info);  // receives PROCESS_INFORMATION 
+        exec_buf.data(),  // command line 
+        NULL,             // process security attributes 
+        NULL,             // primary thread security attributes 
+        TRUE,             // handles are inherited 
+        0,                // creation flags 
+        NULL,             // use parent's environment 
+        NULL,             // use parent's current directory 
+        &start_info,      // STARTUPINFO pointer 
+        &process_info);   // receives PROCESS_INFORMATION 
 
-                       // If an error occurs, exit the application. 
+    // If an error occurs, exit the application. 
     if (!success)
     {
         throw Win32Error("CreateProcess");
@@ -221,7 +242,7 @@ void Process::start(std::string const & shell_command)
 }
 
 
-int Process::exit_code()
+int ShellProcess::exit_code()
 {
     DWORD code = 0;
     if (!GetExitCodeProcess(impl_->process_handle_, &code))
@@ -231,5 +252,65 @@ int Process::exit_code()
 
     return int(code);
 }
+
+
+int exec(std::string const & pgm, StringList const & args)
+{
+	std::string cmdline = write_arguments_string(args);
+
+	auto cmdline_buf = strcpy(cmdline);
+
+	PROCESS_INFORMATION process_info;
+	ZeroMemory(&process_info, sizeof(PROCESS_INFORMATION));
+
+	STARTUPINFO start_info;
+
+	ZeroMemory(&start_info, sizeof(STARTUPINFO));
+	start_info.cb = sizeof(STARTUPINFO);
+
+	BOOL success = FALSE;
+
+	success = CreateProcess(
+		pgm.c_str(),
+		cmdline_buf.data(),  // command line 
+		NULL,             // process security attributes 
+		NULL,             // primary thread security attributes 
+		FALSE,            // handles are inherited 
+		0,                // creation flags 
+		NULL,             // use parent's environment 
+		NULL,             // use parent's current directory 
+		&start_info,      // STARTUPINFO pointer 
+		&process_info);   // receives PROCESS_INFORMATION 
+
+	if (!success)
+	{
+		throw Win32Error("CreateProcess");
+	}
+
+	HANDLE proc_h = process_info.hProcess;
+
+	WaitForSingleObject(proc_h, INFINITE);
+
+	DWORD code = 0;
+	if (!GetExitCodeProcess(proc_h, &code))
+	{
+		throw Win32Error("GetExitCodeProcess");
+	}
+
+	CloseHandle(proc_h);
+	CloseHandle(process_info.hThread);
+
+	return int(code);
+}
+
+
+std::string write_arguments_string(StringList const & args)
+{
+	StringList local_args(args);
+	boost::for_each(local_args, quote);
+
+	return boost::algorithm::join(local_args, " ");
+}
+
 
 } // charge

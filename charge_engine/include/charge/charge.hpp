@@ -15,7 +15,7 @@ namespace charge
 {
 
 
-typedef std::vector<std::string> StringList;
+using StringList = std::vector<std::string>;
 
 
 int charge(boost::filesystem::path const & script, StringList const & args);

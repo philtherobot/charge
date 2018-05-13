@@ -10,7 +10,7 @@
 
 int main_really(std::vector<std::string> const & args)
 {
-    charge::Process p;
+    charge::ShellProcess p;
 
     auto cmd = boost::algorithm::join(std::make_pair(args.begin() + 1, args.end()), " ");
 

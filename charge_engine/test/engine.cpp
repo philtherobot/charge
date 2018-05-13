@@ -3,6 +3,7 @@
 #include "../src/cache.hpp"
 #include "../src/config.hpp"
 #include "../src/engine.hpp"
+#include "../src/process.hpp"
 
 #include <boost/test/unit_test.hpp>
 
@@ -141,6 +142,46 @@ BOOST_AUTO_TEST_CASE(decode_deps)
 	expect.push_back("/usr/local/include/yaml-cpp"s);
 
 	BOOST_CHECK_EQUAL(decode_dependencies(input), expect);
+}
+
+
+BOOST_AUTO_TEST_CASE(write_arg_string)
+{
+	BOOST_CHECK_EQUAL(write_arguments_string(StringList{}), "");
+
+	BOOST_CHECK_EQUAL(
+		write_arguments_string(
+			StringList{
+				"pgm"
+			}
+		),
+
+		"pgm"
+	);
+
+	BOOST_CHECK_EQUAL(
+		write_arguments_string(
+			StringList{
+				"pgm",
+				"arg1",
+				"arg2"
+			}
+		),
+
+		"pgm arg1 arg2"
+	);
+
+	BOOST_CHECK_EQUAL(
+		write_arguments_string(
+			StringList{
+				"pgm",
+				"arg1 space",
+				"arg2"
+			}
+		),
+
+		"pgm \"arg1 space\" arg2"
+	);
 }
 
 

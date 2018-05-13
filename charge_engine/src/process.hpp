@@ -1,8 +1,11 @@
 #ifndef GUARD_3e21f362c9b3405c8eb47d6afb878412
 #define GUARD_3e21f362c9b3405c8eb47d6afb878412
 
+#include "charge/charge.hpp"
+
 #include <boost/optional.hpp>
 
+#include <cctype>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -19,11 +22,11 @@ public:
 };
 
 
-class Process
+class ShellProcess
 {
 public:
-    Process();
-    ~Process();
+    ShellProcess();
+    ~ShellProcess();
 
     void start(std::string const & shell_command);
 
@@ -36,6 +39,12 @@ private:
     std::unique_ptr<Implementation> impl_;
 };
 
+
+int exec(std::string const & pgm, StringList const & args);
+
+
+// TODO: windows-only, remove from here
+std::string write_arguments_string(StringList const & args);
 
 } // charge
 

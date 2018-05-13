@@ -33,7 +33,7 @@ FileList msvc_compiler(Compiler::Arguments const & args)
     cmd += quote("/Fo:" + p.string()) + " ";
     cmd += quote(args.source_.string());
 
-    Process proc;
+    ShellProcess proc;
 
     proc.start(cmd);
 
