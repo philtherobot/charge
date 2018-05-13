@@ -1,8 +1,9 @@
 
-#define BOOST_TEST_MODULE unicompiler
-#include <boost/test/included/unit_test.hpp>
+#include "../src/compiler.hpp"
 
-#include "compiler.hpp"
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(compiler);
 
 BOOST_AUTO_TEST_CASE(configure_gcc)
 {
@@ -37,3 +38,5 @@ BOOST_AUTO_TEST_CASE(compile)
 
     BOOST_CHECK(deps.empty());
 }
+
+BOOST_AUTO_TEST_SUITE_END();

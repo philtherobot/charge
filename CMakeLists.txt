@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 enable_testing()
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS filesystem)
+find_package(Boost REQUIRED COMPONENTS filesystem unit_test_framework)
 
 find_package(yaml-cpp REQUIRED)
 

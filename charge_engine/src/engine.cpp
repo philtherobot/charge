@@ -1,6 +1,8 @@
 
 #include "charge/charge.hpp"
+
 #include "compiler.hpp"
+#include "tools.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
 
@@ -186,11 +188,11 @@ int charge(boost::filesystem::path const & script, StringList const & args)
     std::vector<time> deps_time;
     std::transform(deps, deps_time, get_file_time();
 
-    if (!is_up_to_date(is_new_cache, exec_time deps_time))
+    if (!is_up_to_date(is_new_cache, exec_time, deps_time))
     {
         // Compile
 
-        auto library_deps( find_dependencies(script) );
+        auto library_deps( find_dependencies(config, script) );
 
         auto configpath( boost::filesystem::path(std::getenv("HOME")) /= ".charge" );
         auto config( charge::load_config( configpath ) );

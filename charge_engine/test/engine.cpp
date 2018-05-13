@@ -1,9 +1,11 @@
 
-#define BOOST_TEST_MODULE charge_engine
-#include <boost/test/included/unit_test.hpp>
-
 #include "charge/charge.hpp"
+#include "../src/cache.hpp"
+#include "../src/config.hpp"
 
+#include <boost/test/unit_test.hpp>
+
+#include <regex>
 #include <sstream>
 #include <string>
 
@@ -23,6 +25,9 @@ boost::optional<ExceptionType> catch_exception(Callable c)
     }
     return boost::optional<ExceptionType>();
 }
+
+
+BOOST_AUTO_TEST_SUITE(engine);
 
 BOOST_AUTO_TEST_CASE(one_header_library)
 {
@@ -80,3 +85,47 @@ BOOST_AUTO_TEST_CASE( library_not_configured_error )
 
     BOOST_CHECK_EQUAL( assign.what(), "library curl is not configured" );
 }
+
+BOOST_AUTO_TEST_CASE(get_cache_pth)
+{
+
+#if defined( CHARGE_WINDOWS )
+
+	auto path{ charge::get_cache_path("hostname",
+		"C:\\Users\\philippe", 
+		"exp\\script.cpp",
+		"C:\\dev") };
+
+	auto backslash{ "\\\\"s };
+
+	std::regex expect_re{ 
+		"C:"s + backslash + 
+		"Users"s + backslash +
+		"philippe"s + backslash + 
+		".charge" + backslash + 
+		"cache" + backslash + 
+		"\\d*" };
+
+	BOOST_CHECK( std::regex_match(path.string(), expect_re) );
+
+#elif defined( CHARGE_LINUX )
+
+	auto path{ charge::get_cache_path("hostname",
+		"/home/philippe",
+		"exp/script.cpp",
+		"dev/s") };
+
+	std::regex expect_re{ "/home/philippe/.charge/cache/\\d*" };
+
+	BOOST_CHECK(std::regex_match(path.string(), expect_re));
+
+#else
+
+#  error "no test for this platform"
+
+#endif
+
+}
+
+BOOST_AUTO_TEST_SUITE_END();
+
