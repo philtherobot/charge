@@ -6,6 +6,7 @@ add_library(charge_engine
     src/engine.cpp
 	src/exception.cpp
 	src/process_win.cpp
+	src/tools.cpp
 	src/tools_win.cpp)
 
 target_link_libraries(charge_engine 

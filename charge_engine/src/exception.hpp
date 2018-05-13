@@ -19,6 +19,17 @@ private:
 	static std::string msg(std::string const & function, int code);
 };
 
+
+class AbsolutePathError : public Exception
+{
+public:
+	explicit AbsolutePathError(boost::filesystem::path const & p);
+
+private:
+	static std::string msg(boost::filesystem::path const & p);
+};
+
+
 }
 
 

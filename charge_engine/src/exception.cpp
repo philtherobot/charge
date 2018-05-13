@@ -21,4 +21,19 @@ std::string ErrnoError::msg(std::string const & function, int code)
 	return os.str();
 }
 
+
+AbsolutePathError::AbsolutePathError(boost::filesystem::path const & p)
+	:
+	Exception(msg(p))
+{}
+
+
+std::string AbsolutePathError::msg(boost::filesystem::path const & p)
+{
+	std::ostringstream os;
+	os << "path " << p << " is not absolute";
+	return os.str();
+}
+
+
 } // charge

@@ -6,14 +6,21 @@
 namespace charge
 {
 
+
 boost::filesystem::path get_cache_path(
 	std::string const & hostname,
 	boost::filesystem::path const & home,
-	boost::filesystem::path const & script,
+	boost::filesystem::path const & script_abspath);
 
-	boost::filesystem::path const & current_path = 
-		boost::filesystem::current_path()
-);
+
+bool create_cache(
+	std::string const & hostname,
+	boost::filesystem::path const & script_abspath,
+	boost::filesystem::path const & cache_abspath);
+
+
+std::string get_dependencies(boost::filesystem::path const & cache_abspath);
+
 
 } // charge
 

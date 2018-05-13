@@ -1,5 +1,6 @@
 
 #include "process.hpp"
+#include "tools.hpp"
 
 #include "exception.hpp"
 
@@ -17,7 +18,7 @@
 using namespace std::string_literals;
 
 
-namespace tools
+namespace charge
 {
 
 
@@ -231,4 +232,4 @@ int Process::exit_code()
     return int(code);
 }
 
-} //tools
+} // charge

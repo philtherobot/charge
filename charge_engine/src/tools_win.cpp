@@ -8,6 +8,7 @@
 namespace charge
 {
 
+
 std::string getenv(std::string const & var)
 {
 	char * buf = 0;
@@ -21,5 +22,18 @@ std::string getenv(std::string const & var)
 
 	return r;
 }
+
+
+std::string hostname()
+{
+	return getenv("COMPUTERNAME");
+}
+
+
+boost::filesystem::path home_path()
+{
+	return getenv("USERPROFILE");
+}
+
 
 } // charge

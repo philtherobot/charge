@@ -1,11 +1,17 @@
 
 #include "charge/charge.hpp"
 
+#include "cache.hpp"
 #include "compiler.hpp"
+#include "config.hpp"
+#include "process.hpp"
 #include "tools.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
+#include <boost/range/algorithm/max_element.hpp>
+#include <boost/range/algorithm/transform.hpp>
 
+#include <ctime>
 #include <regex>
 
 using namespace std::string_literals;
@@ -134,6 +140,20 @@ Dependencies find_dependencies(YAML::Node const & config, std::istream & is)
 }
 
 
+FileList decode_dependencies(std::string const & deps_text)
+{
+	std::istringstream is(deps_text);
+	FileList retval;
+	std::string str;
+	while (std::getline(is, str))
+	{
+		retval.push_back(boost::filesystem::path{ str });
+	}
+
+	return retval;
+}
+
+
 void compile(boost::filesystem::path const & script)
 {
     YAML::Node conf;
@@ -155,47 +175,71 @@ void compile(boost::filesystem::path const & script)
 }
 
 
-/*
-bool is_up_to_date(bool is_new_entry, exec_time, deps_time[])
+std::time_t get_maybe_file_time(boost::filesystem::path const & path)
 {
-    if (is_new_entry) return false;
+	using namespace boost::filesystem;
 
-    for (auto time : deps_times)
-    {
-        if (time > exec_time) return false;
-    }
+	if (exists(path))
+	{
+		return last_write_time(path);
+	}
 
-    return true;
+	return 0; // no file => first epoch second
 }
-*/
+
 
 int charge(boost::filesystem::path const & script, StringList const & args)
 {
-	/*
-	boost::filepath::path cache_path = get_cache_path(script);
+	//TODO: check if script exists.
 
-    bool is_new_cache = create_cache(cache_path);
+	auto script_abspath{ boost::filesystem::absolute(script) };
 
-    boost::filesystem::path exec_path = get_executable_path(cache_path, script);
+	auto hostn{ hostname() };
+	auto home{ home_path() };
 
-    // Return script time if executable does not exist.
-    time exec_time = get_executable_time(exec_path, script);
+	auto cache_path = get_cache_path(hostn, home, script_abspath);
 
-    std::string deps_file_contents = get_dependencies(cache_path);
+	bool is_new_cache = create_cache(hostn, script_abspath, cache_path);
 
-    FileList deps = decode_dependencies(deps_file_contents);
+#if defined(CHARGE_WINDOWS)
+	auto const exec_fn{ "executable.exe" };
+#else
+	auto const exec_fn{ "executable" };
+#endif
 
-    std::vector<time> deps_time;
-    std::transform(deps, deps_time, get_file_time();
+	auto exec_path = cache_path / exec_fn;
 
-    if (!is_up_to_date(is_new_cache, exec_time, deps_time))
+    auto exec_time = get_maybe_file_time(exec_path);
+
+	auto deps_file_contents = get_dependencies(cache_path);
+
+	auto deps = decode_dependencies(deps_file_contents);
+
+	std::vector<std::time_t> deps_time;
+
+    boost::transform(
+		deps,
+		std::back_inserter(deps_time), 
+		get_maybe_file_time);
+
+	deps_time.push_back( get_maybe_file_time(script) );
+
+	auto youngest_dep_time{ boost::max_element(deps_time) };
+
+	// We are guaranteed to find one because list is never empty.
+	assert(youngest_dep_time != deps_time.end());
+
+	if ( !exec_time || std::difftime(*youngest_dep_time, exec_time) > 0 )
     {
         // Compile
 
-        auto library_deps( find_dependencies(config, script) );
+		/*
+		auto config_path{ home / ".charge" / "config" };
+		auto config{ load_config(config_path) };
+		
+		auto library_deps( find_dependencies(config, script) );
 
-        auto configpath( boost::filesystem::path(std::getenv("HOME")) /= ".charge" );
-        auto config( charge::load_config( configpath ) );
+
 
         YAML::Node compiler_config;
 
@@ -224,14 +268,20 @@ int charge(boost::filesystem::path const & script, StringList const & args)
         std::string new_deps_file_contents = encode_dependencies(new_deps);
 
         write_dependencies(cache_path, new_deps_file_contents);
+		*/
+		std::cout << "compile\n";
     }
 
-    Process p;
+	std::cout << "execute\n";
 
-    p.start(write_command(exec_path, script_args));
+	Process p;
+
+    /*
+	p.start(write_command(exec_path, script_args));
 
     return p.exit_code();
 	*/
+
 	return 0;
 }
 
@@ -268,6 +318,22 @@ std::ostream & operator << (std::ostream & os, charge::Dependencies const & deps
     os << "  )\n";
     os << ")\n";
     return os;
+}
+
+std::ostream & operator << (std::ostream & os, charge::FileList const & fl)
+{
+	os << '(';
+	if (fl.size())
+	{
+		auto set_it = fl.begin();
+		os << *set_it;
+		while (++set_it != fl.end())
+		{
+			os << ',' << *set_it;
+		}
+	}
+	os << ')';
+	return os;
 }
 
 } //std

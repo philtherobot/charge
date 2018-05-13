@@ -2,6 +2,7 @@
 #include "charge/charge.hpp"
 #include "../src/cache.hpp"
 #include "../src/config.hpp"
+#include "../src/engine.hpp"
 
 #include <boost/test/unit_test.hpp>
 
@@ -93,8 +94,7 @@ BOOST_AUTO_TEST_CASE(get_cache_pth)
 
 	auto path{ charge::get_cache_path("hostname",
 		"C:\\Users\\philippe", 
-		"exp\\script.cpp",
-		"C:\\dev") };
+		"T:\\dev\\exp\\script.cpp") };
 
 	auto backslash{ "\\\\"s };
 
@@ -112,8 +112,7 @@ BOOST_AUTO_TEST_CASE(get_cache_pth)
 
 	auto path{ charge::get_cache_path("hostname",
 		"/home/philippe",
-		"exp/script.cpp",
-		"dev/s") };
+		"/home/philippe/dev/exp/script.cpp") };
 
 	std::regex expect_re{ "/home/philippe/.charge/cache/\\d*" };
 
@@ -126,6 +125,24 @@ BOOST_AUTO_TEST_CASE(get_cache_pth)
 #endif
 
 }
+
+
+BOOST_AUTO_TEST_CASE(decode_deps)
+{
+	BOOST_CHECK_EQUAL(decode_dependencies(std::string()), FileList{});
+
+	std::string input{
+		"/home/philippe/libs/include/tools.hpp\n"
+		"/usr/local/include/yaml-cpp\n"
+	};
+
+	FileList expect;
+	expect.push_back("/home/philippe/libs/include/tools.hpp"s);
+	expect.push_back("/usr/local/include/yaml-cpp"s);
+
+	BOOST_CHECK_EQUAL(decode_dependencies(input), expect);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END();
 

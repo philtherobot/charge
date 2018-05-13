@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace tools
+namespace charge
 {
 
 
@@ -37,13 +37,6 @@ private:
 };
 
 
-class Exception : public std::runtime_error
-{
-public:
-	using runtime_error::runtime_error;
-};
-
-
-} // tools
+} // charge
 
 #endif
