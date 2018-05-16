@@ -43,7 +43,7 @@ private:
 int exec(std::string const & pgm, StringList const & args);
 
 
-// TODO: windows-only, remove from here
+// TODO: if this turns out to be windows-only, remove from here
 std::string write_arguments_string(StringList const & args);
 
 } // charge

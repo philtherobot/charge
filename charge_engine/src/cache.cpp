@@ -43,7 +43,7 @@ bool create_cache(
 }
 
 
-std::string get_dependencies(boost::filesystem::path const & cache_abspath)
+std::string read_dependencies(boost::filesystem::path const & cache_abspath)
 {
 	auto depsfile{ cache_abspath / "deps" };
 
@@ -59,6 +59,17 @@ std::string get_dependencies(boost::filesystem::path const & cache_abspath)
 	std::string str;
 	std::getline(is, str, char(0));
 	return str;
+}
+
+
+void write_dependencies(boost::filesystem::path const & cache_abspath,
+	std::string const & deps_text)
+{
+	auto depsfile{ cache_abspath / "deps" };
+
+	boost::filesystem::ofstream os(depsfile);
+
+	os << deps_text;
 }
 
 

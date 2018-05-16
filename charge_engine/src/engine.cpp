@@ -9,6 +9,7 @@
 
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include <boost/range/algorithm/for_each.hpp>
 #include <boost/range/algorithm/max_element.hpp>
 #include <boost/range/algorithm/transform.hpp>
 
@@ -115,7 +116,7 @@ std::string const & LibraryNotConfiguredError::library() const
 }
 
 
-YAML::Node load_config(boost::filesystem::path const & fn)
+YAML::Node read_config(boost::filesystem::path const & fn)
 {
     try
     {
@@ -125,6 +126,14 @@ YAML::Node load_config(boost::filesystem::path const & fn)
     {
         return YAML::Node();
     }
+}
+
+
+void write_config(YAML::Node const & config, 
+		boost::filesystem::path const & fn)
+{
+	std::ofstream config_stream(fn.string());
+	config_stream << config;
 }
 
 
@@ -156,6 +165,19 @@ FileList decode_dependencies(std::string const & deps_text)
 }
 
 
+std::string encode_dependencies(FileList const & deps)
+{
+	std::ostringstream os;
+
+	boost::for_each(deps, 
+		[&os](auto const & dep) {os << dep.string() << '\n'; }
+	);
+
+	return os.str();
+}
+
+
+/*
 void compile(boost::filesystem::path const & script)
 {
     YAML::Node conf;
@@ -175,7 +197,7 @@ void compile(boost::filesystem::path const & script)
     comp.compile(args);
 
 }
-
+*/
 
 std::time_t get_maybe_file_time(boost::filesystem::path const & path)
 {
@@ -213,7 +235,7 @@ int charge(boost::filesystem::path const & script, StringList const & args)
 
     auto exec_time = get_maybe_file_time(exec_path);
 
-	auto deps_file_contents = get_dependencies(cache_path);
+	auto deps_file_contents = read_dependencies(cache_path);
 
 	auto deps = decode_dependencies(deps_file_contents);
 
@@ -235,25 +257,24 @@ int charge(boost::filesystem::path const & script, StringList const & args)
     {
         // Compile
 
-		/*
 		auto config_path{ home / ".charge" / "config" };
-		auto config{ load_config(config_path) };
+		auto config{ read_config(config_path) };
 		
-		auto library_deps( find_dependencies(config, script) );
+		std::ifstream script_stream(script.string());
 
-
+		auto library_deps( find_dependencies(config, script_stream) );
 
         YAML::Node compiler_config;
 
-        if (!config["compiler"])
-        {
+        if (config["compiler"])
+		{
+			compiler_config = config["compiler"];
+		}
+		else
+		{
             compiler_config = configure();
             config["compiler"] = compiler_config;
-            charge::write_config(configpath, config);
-        }
-        else
-        {
-            compiler_config = config["compiler"];
+            write_config(config, config_path);
         }
 
         Compiler compiler(compiler_config);
@@ -264,17 +285,15 @@ int charge(boost::filesystem::path const & script, StringList const & args)
         compiler_args.static_libraries_ = library_deps.libraries_.static_;
         compiler_args.system_libraries_ = library_deps.libraries_.system_;
         compiler_args.executable_output_fn_ = exec_path;
+		// TODO: option to output dependencies
 
         FileList new_deps = compiler.compile(compiler_args);
 
-        std::string new_deps_file_contents = encode_dependencies(new_deps);
+        auto new_deps_file_contents = encode_dependencies(new_deps);
 
         write_dependencies(cache_path, new_deps_file_contents);
-		*/
-		std::cout << "compile\n";
     }
 
-	std::cout << "execute\n";
 
 	StringList exec_args;
 	exec_args.push_back(script.string());

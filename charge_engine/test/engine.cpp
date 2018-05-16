@@ -128,6 +128,23 @@ BOOST_AUTO_TEST_CASE(get_cache_pth)
 }
 
 
+BOOST_AUTO_TEST_CASE(encode_deps)
+{
+	BOOST_CHECK_EQUAL(encode_dependencies(FileList{}), std::string());
+
+	FileList deps;
+	deps.push_back("/home/philippe/libs/include/tools.hpp"s);
+	deps.push_back("/usr/local/include/yaml-cpp"s);
+
+	std::string expect{
+		"/home/philippe/libs/include/tools.hpp\n"
+		"/usr/local/include/yaml-cpp\n"
+	};
+
+	BOOST_CHECK_EQUAL(encode_dependencies(deps), expect);
+}
+
+
 BOOST_AUTO_TEST_CASE(decode_deps)
 {
 	BOOST_CHECK_EQUAL(decode_dependencies(std::string()), FileList{});

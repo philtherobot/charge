@@ -8,6 +8,7 @@ namespace charge
 using FileList = std::vector<boost::filesystem::path>;
 
 FileList decode_dependencies(std::string const & deps_text);
+std::string encode_dependencies(FileList const & deps);
 
 } // charge
 
