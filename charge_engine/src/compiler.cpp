@@ -19,32 +19,6 @@ std::string quote(std::string const & s)
     return "\""s + s + "\""s;
 }
 
-
-FileList msvc_compiler(Compiler::Arguments const & args)
-{
-    // "cl /nologo /TP /MT /showIncludes /Fe:<exe> /Fo:<exe path\source.obj> source.cpp"
-
-    auto s = args.source_.stem(); // "script.cpp" -> "script"
-    s += ".obj";
-    auto p = args.executable_output_fn_.parent_path() / s;
-
-    auto cmd = "cl /nologo /TP /MT /showIncludes "s;
-    cmd += quote("/Fe:" + args.executable_output_fn_.string()) + " ";
-    cmd += quote("/Fo:" + p.string()) + " ";
-    cmd += quote(args.source_.string());
-
-    ShellProcess proc;
-
-    proc.start(cmd);
-
-    while (auto res = proc.child_stdout_->read())
-    {
-        std::cout << *res;
-    }
-
-    return FileList();
-}
-
 } // anonymous
 
 
@@ -70,16 +44,62 @@ FileList Compiler::compile(Arguments const & args)
 {
     auto family = config_["family"].as<std::string>();
 
+	std::string cmd;
+
     if (family == "msvc")
     {
-        return msvc_compiler(args);
+		return compile_with_msvc(args);
     }
     else
     {
         throw UnsupportedFamilyError(family);
     }
 
-    return FileList();
+	ShellProcess proc;
+
+	proc.start(cmd);
+
+	while (auto res = proc.child_stdout_->read())
+	{
+		std::cout << *res;
+	}
+
+	return FileList();
+}
+
+
+std::string Compiler::msvc_command_line(Arguments const & args) const
+{
+	// "cl /nologo /TP /MT /showIncludes /Fe:<exe> /Fo:<exe path\source.obj> source.cpp"
+
+	auto s = args.executable_output_fn_.stem(); // "fn.exe" -> "fn"
+	s += ".obj";
+	auto p = args.executable_output_fn_.parent_path() / s;
+
+	auto cmd = "cl /nologo /TP /MT /showIncludes "s;
+	cmd += quote("/Fe:" + args.executable_output_fn_.string()) + " ";
+	cmd += quote("/Fo:" + p.string()) + " ";
+	cmd += quote(args.source_.string());
+
+	return cmd;
+}
+
+
+FileList Compiler::compile_with_msvc(Arguments const & args) const
+{
+	auto cmd = msvc_command_line(args);
+
+	ShellProcess proc;
+
+	proc.start(cmd);
+
+	while (auto res = proc.child_stdout_->read())
+	{
+		std::cout << *res;
+		// TODO: extract included dependencies
+	}
+
+	return FileList();
 }
 
 

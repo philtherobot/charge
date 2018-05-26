@@ -14,6 +14,8 @@ BOOST_AUTO_TEST_CASE(configure_gcc)
     BOOST_CHECK_EQUAL(conf["family"].as<std::string>(), "g++");
 }
 
+/*
+No test because not implemented.
 BOOST_AUTO_TEST_CASE(compile)
 {
     YAML::Node conf;
@@ -38,5 +40,27 @@ BOOST_AUTO_TEST_CASE(compile)
 
     BOOST_CHECK(deps.empty());
 }
+*/
+
+BOOST_AUTO_TEST_CASE(msvc_compile_command)
+{
+	YAML::Node conf;
+
+	conf["compiler"] = "C:\\Program Files\\cl.exe";
+	conf["version"] = "14.0.0.0";
+	conf["family"] = "msvc";
+
+	charge::Compiler compiler(conf);
+
+	charge::Compiler::Arguments args;
+	args.source_ = "C:\\user\\script.cpp";
+	args.executable_output_fn_ = "C:\\cache\\123\\executable.exe";
+	
+	BOOST_CHECK_EQUAL(
+		compiler.msvc_command_line(args),
+		"\"C:\\Program Files\\cl.exe\" /nologo /TP /MT /showIncludes /Fe:..."
+	);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END();

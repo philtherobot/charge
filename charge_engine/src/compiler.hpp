@@ -34,6 +34,9 @@ public:
 
     FileList compile(Arguments const & args);
 
+	std::string msvc_command_line(Arguments const & args) const;
+	FileList compile_with_msvc(Arguments const & args) const;
+
 private:
     YAML::Node config_;
 };
