@@ -32,6 +32,7 @@ public:
         boost::filesystem::path executable_output_fn_;
     };
 
+
     FileList compile(Arguments const & args);
 
 	std::string msvc_command_line(Arguments const & args) const;
