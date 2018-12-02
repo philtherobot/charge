@@ -27,6 +27,8 @@ In the Windows implementation, exec is not implemented from ShellProcess.  There
 
 ShellProcess and exec are tested by hand.  There should be scripts (batches and shell) to automate those routines.
 
+Done for Windows.
+
 
 ## Documentation
 
