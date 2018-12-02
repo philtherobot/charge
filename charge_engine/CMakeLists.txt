@@ -9,12 +9,7 @@ add_library(charge_engine
 	src/tools.cpp
 	src/tools_win.cpp)
 
-target_link_libraries(charge_engine 
-    Boost::boost
-    Boost::filesystem
-    yaml-cpp)
-
-target_include_directories(charge_engine PUBLIC ${YAML_CPP_INCLUDE_DIR})
+target_link_libraries(charge_engine ${CONAN_LIBS})
 
 target_include_directories(charge_engine PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

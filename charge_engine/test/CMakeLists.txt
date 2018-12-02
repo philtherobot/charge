@@ -11,7 +11,7 @@ add_executable(tests
 
 target_link_libraries(tests
     charge_engine
-	Boost::unit_test_framework)
+	${CONAN_LIBS})
 
 add_test(tests tests)
 
