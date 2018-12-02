@@ -53,7 +53,7 @@ StringList read_imported_libraries(std::istream & is)
     {
         if (std::regex_match(line, re))
         {
-            libraries.push_back(extract_trick_library(line));
+            libraries.emplace_back(extract_trick_library(line));
         }
     }
 
@@ -285,7 +285,6 @@ int charge(boost::filesystem::path const & script, StringList const & args)
         compiler_args.static_libraries_ = library_deps.libraries_.static_;
         compiler_args.system_libraries_ = library_deps.libraries_.system_;
         compiler_args.executable_output_fn_ = exec_path;
-		// TODO: option to output dependencies
 
         FileList new_deps = compiler.compile(compiler_args);
 

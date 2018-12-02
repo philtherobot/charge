@@ -45,6 +45,8 @@ bool create_cache(
 
 std::string read_dependencies(boost::filesystem::path const & cache_abspath)
 {
+	check_absolute(cache_abspath);
+
 	auto depsfile{ cache_abspath / "deps" };
 
 	if (!boost::filesystem::exists(depsfile))
@@ -65,6 +67,8 @@ std::string read_dependencies(boost::filesystem::path const & cache_abspath)
 void write_dependencies(boost::filesystem::path const & cache_abspath,
 	std::string const & deps_text)
 {
+	check_absolute(cache_abspath);
+
 	auto depsfile{ cache_abspath / "deps" };
 
 	boost::filesystem::ofstream os(depsfile);
