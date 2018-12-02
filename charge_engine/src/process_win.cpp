@@ -6,7 +6,6 @@
 
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include <boost/range/algorithm/find_if.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 
 #include <cstdlib>
@@ -143,20 +142,6 @@ public:
 
     HANDLE h_;
 };
-
-
-bool is_space(char c)
-{
-	return std::isspace(c);
-}
-
-void quote(std::string & str)
-{
-	if (boost::range::find_if(str, is_space) != str.end())
-	{
-		str = "\""s + str + "\""s;
-	}
-}
 
 
 } // anonymous
@@ -307,7 +292,10 @@ int exec(std::string const & pgm, StringList const & args)
 std::string write_arguments_string(StringList const & args)
 {
 	StringList local_args(args);
-	boost::for_each(local_args, quote);
+
+	boost::for_each(local_args, 
+		[](std::string & s) { s = quote_if_needed(s);  }
+	);
 
 	return boost::algorithm::join(local_args, " ");
 }

@@ -16,6 +16,9 @@ boost::filesystem::path home_path();
 
 void check_absolute(boost::filesystem::path const & p);
 
+std::string quote(std::string const & str);
+std::string quote_if_needed(std::string const & str);
+
 } // charge
 
 #endif

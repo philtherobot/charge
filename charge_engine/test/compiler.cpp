@@ -58,7 +58,10 @@ BOOST_AUTO_TEST_CASE(msvc_compile_command)
 	
 	BOOST_CHECK_EQUAL(
 		compiler.msvc_command_line(args),
-		"\"C:\\Program Files\\cl.exe\" /nologo /TP /MT /showIncludes /Fe:..."
+		"\"C:\\Program Files\\cl.exe\" /nologo /TP /MT /showIncludes"
+		" /Fe:C:\\cache\\123\\executable.exe" 
+		" /Fo:C:\\cache\\123\\executable.obj" 
+		" C:\\user\\script.cpp"
 	);
 }
 
