@@ -1,5 +1,10 @@
 # TODO
 
+## Entry points
+
+There are three programs, all of them implement the same pattern of main with try/catch calling main_really.  Make this a reusable component.
+
+
 ## Should we use "typedef" or "using X =" ?
 
 

@@ -1,0 +1,5 @@
+repeat_args
+1: a
+2: b
+3: c
+exit code = 0

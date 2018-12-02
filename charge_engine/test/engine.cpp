@@ -162,24 +162,23 @@ BOOST_AUTO_TEST_CASE(decode_deps)
 }
 
 
-BOOST_AUTO_TEST_CASE(write_arg_string)
+BOOST_AUTO_TEST_CASE(write_cmd_string)
 {
-	BOOST_CHECK_EQUAL(write_arguments_string(StringList{}), "");
+	BOOST_CHECK_EQUAL(write_command_string(std::string(), StringList{}), "");
 
 	BOOST_CHECK_EQUAL(
-		write_arguments_string(
-			StringList{
-				"pgm"
-			}
+		write_command_string(
+			std::string("pgm"),
+			StringList{}
 		),
 
 		"pgm"
 	);
 
 	BOOST_CHECK_EQUAL(
-		write_arguments_string(
+		write_command_string(
+			std::string("pgm"),
 			StringList{
-				"pgm",
 				"arg1",
 				"arg2"
 			}
@@ -189,9 +188,9 @@ BOOST_AUTO_TEST_CASE(write_arg_string)
 	);
 
 	BOOST_CHECK_EQUAL(
-		write_arguments_string(
+		write_command_string(
+			std::string("pgm"),
 			StringList{
-				"pgm",
 				"arg1 space",
 				"arg2"
 			}

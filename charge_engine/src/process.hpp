@@ -44,7 +44,7 @@ int exec(std::string const & pgm, StringList const & args);
 
 
 // TODO: if this turns out to be windows-only, remove from here
-std::string write_arguments_string(StringList const & args);
+std::string write_command_string(std::string const & pgm, StringList const & args);
 
 } // charge
 

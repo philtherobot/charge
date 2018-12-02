@@ -23,7 +23,7 @@ int main_really(std::vector<std::string> const & args)
 
 	std::cout << "exit code = " << code << "\n";
 
-	return 0;
+	return code;
 }
 
 int main(int argc, char ** argv)

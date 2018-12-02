@@ -241,7 +241,7 @@ int ShellProcess::exit_code()
 
 int exec(std::string const & pgm, StringList const & args)
 {
-	std::string cmdline = write_arguments_string(args);
+	std::string cmdline = write_command_string(pgm, args);
 
 	auto cmdline_buf = strcpy(cmdline);
 
@@ -289,15 +289,16 @@ int exec(std::string const & pgm, StringList const & args)
 }
 
 
-std::string write_arguments_string(StringList const & args)
+std::string write_command_string(std::string const & pgm, StringList const & args)
 {
-	StringList local_args(args);
+	StringList strings(args);
+	strings.insert(strings.begin(), pgm);
 
-	boost::for_each(local_args, 
+	boost::for_each(strings, 
 		[](std::string & s) { s = quote_if_needed(s);  }
 	);
 
-	return boost::algorithm::join(local_args, " ");
+	return boost::algorithm::join(strings, " ");
 }
 
 
