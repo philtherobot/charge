@@ -1,5 +1,6 @@
 #include "compiler.hpp"
 
+#include "InclusionNotesSniffer.hpp"
 #include "process.hpp"
 #include "tools.hpp"
 
@@ -7,8 +8,6 @@
 
 #include <boost/range/algorithm/find.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string/trim.hpp>
 
 
 using namespace std::string_literals;
@@ -20,124 +19,6 @@ namespace charge
 
 namespace
 {
-
-boost::optional<std::string> consume_line(std::string & buf_inout)
-{
-	auto eol_iterator = boost::range::find(buf_inout, '\n');
-	if (eol_iterator == buf_inout.end())
-	{
-		return boost::optional<std::string>();
-	}
-
-	auto eol_pos = std::distance(buf_inout.begin(), eol_iterator);
-	auto after_eol_pos = eol_pos + 1;
-
-	std::string line = buf_inout.substr(0, after_eol_pos);
-
-	buf_inout.erase(0, after_eol_pos);
-
-	return line;
-}
-
-
-class InclusionNotesSniffer : public ReadableStream
-{
-public:
-
-	explicit InclusionNotesSniffer(ReadableStream & source);
-
-	FileList inclusions_;
-
-	virtual boost::optional<std::string> read();
-
-private:
-	std::string extract_output_from_accumulator();
-	void note(std::string const & line);
-		
-	ReadableStream & source_;
-
-	std::string const note_inclusion_;
-	std::string::size_type const note_inclusion_end_pos_;
-	std::string accumulator_;
-};
-
-
-InclusionNotesSniffer::InclusionNotesSniffer(ReadableStream & source)
-:
-	source_(source),
-	note_inclusion_("Note: including file:"),
-	note_inclusion_end_pos_(note_inclusion_.size())
-{}
-
-
-boost::optional<std::string> InclusionNotesSniffer::read()
-{
-	for (;;)
-	{
-
-		auto new_block = source_.read();
-
-		if (!new_block)
-		{
-			if (accumulator_.empty())
-			{
-				return boost::optional<std::string>();
-			}
-
-			std::string output;
-			swap(output, accumulator_);
-			return output;
-		}
-
-		// We are guaranteed to receive at least one character.
-	    assert(! (*new_block).empty());
-		accumulator_ += *new_block;
-
-		auto output = extract_output_from_accumulator();
-
-		if (!output.empty()) return output;
-		// else, wait for more data.
-
-	}
-}
-
-
-std::string InclusionNotesSniffer::extract_output_from_accumulator()
-{
-	std::string output;
-
-	for (;;)
-	{
-		auto line = consume_line(accumulator_);
-		if (!line) break;
-
-		using boost::algorithm::starts_with;
-
-		if (starts_with(*line, note_inclusion_))
-		{
-			note(*line);
-		}
-		else
-		{
-			output += *line;
-		}
-	}
-
-	return output;
-}
-
-
-void InclusionNotesSniffer::note(std::string const & line)
-{
-	auto remaining_size = line.size() - note_inclusion_end_pos_;
-
-	auto raw_header_fn = line.substr(note_inclusion_end_pos_, remaining_size);
-
-	using boost::algorithm::trim_copy;
-	auto header_fn = trim_copy(raw_header_fn);
-
-	inclusions_.push_back(header_fn);
-}
 
 
 class FirstLineFilter : public ReadableStream

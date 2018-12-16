@@ -2,6 +2,7 @@
 #define GUARD_5ea4ecbeaba3491a899bb905eb7cd8de
 
 #include <boost/filesystem/path.hpp>
+#include <boost/optional.hpp>
 
 #include <string>
 #include <vector>
@@ -21,6 +22,8 @@ void check_absolute(boost::filesystem::path const & p);
 
 std::string quote(std::string const & str);
 std::string quote_if_needed(std::string const & str);
+
+boost::optional<std::string> consume_line(std::string & buf_inout);
 
 } // charge
 

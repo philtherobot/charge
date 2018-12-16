@@ -1,6 +1,8 @@
 #ifndef GUARD_3e21f362c9b3405c8eb47d6afb878412
 #define GUARD_3e21f362c9b3405c8eb47d6afb878412
 
+#include "ReadableStream.hpp"
+
 #include "charge/charge.hpp"
 
 #include <boost/optional.hpp>
@@ -12,14 +14,6 @@
 
 namespace charge
 {
-
-
-class ReadableStream
-{
-public:
-    virtual ~ReadableStream() {}
-    virtual boost::optional<std::string> read() = 0;
-};
 
 
 class ShellProcess
