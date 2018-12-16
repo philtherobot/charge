@@ -116,6 +116,11 @@ std::string const & LibraryNotConfiguredError::library() const
 }
 
 
+CommandLineArgumentError::CommandLineArgumentError(std::string const & msg)
+	: Exception(msg)
+{}
+
+
 YAML::Node read_config(boost::filesystem::path const & fn)
 {
     try

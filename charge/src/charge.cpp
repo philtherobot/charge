@@ -12,7 +12,9 @@ int main_really(charge::StringList const & args)
 {
     if (args.size() < 2)
     {
-        throw;
+        throw charge::CommandLineArgumentError(
+			"missing script"
+		);
     }
 
     std::string script(args[1]);

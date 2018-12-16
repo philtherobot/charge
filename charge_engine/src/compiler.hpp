@@ -13,8 +13,7 @@
 namespace charge
 {
 
-typedef std::vector<std::string> StringList;
-typedef std::vector<boost::filesystem::path> FileList;
+using FileList = std::vector<boost::filesystem::path>;
 
 YAML::Node configure();
 

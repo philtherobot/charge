@@ -61,6 +61,13 @@ private:
 };
 
 
+class CommandLineArgumentError : public Exception
+{
+public:
+	explicit CommandLineArgumentError(std::string const & msg);
+};
+
+
 } // charge
 
 namespace std

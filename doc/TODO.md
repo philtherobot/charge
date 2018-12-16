@@ -1,16 +1,19 @@
 # TODO
 
+## Configure
+
+Implement part where we detect the available compilers.
+
+
+## Read MSVC dependency info
+
+
 ## Entry points
 
 There are three programs, all of them implement the same pattern of main with try/catch calling main_really.  Make this a reusable component.
 
 
 ## Should we use "typedef" or "using X =" ?
-
-
-## StringList and FileList
-
-Belongs to tools.hpp.  Move them.
 
 
 ## Declarations of the innards for tests
@@ -38,9 +41,34 @@ See the Quicksee doc.  Also the grind doc.
 ## POSIX platform support
 
 
+## Cache info file
+
+write info file with hostname and script path
+
+
+## Load MSVC environment before launching compiler
+
+It would be best to load, at least I think, to load vcvarsall.bat before
+launching the compiler.  This way, the user does not have to do this
+him/herself.  We detect the compiler, which really finds vcvarsall rather than
+cl.exe, and we launch this instead.
+
+This is compilated and possibly slower.  vcvarsall is not exactly fast.  We
+need a cmd batch script to launch both vcvarsall and then cl.
+
+
+## Compilation should be dependant on charge's version
+
+New version might have different options for the compiler, so an executable in the
+cache might be out of date when charge is upgraded.
+
+We need to version the cache (which version or charge was used to generate it).
+
+
 ## Small things
 
 - Enable stricter warnings
 - Enable _CRT_SECURE_NO_WARNINGS for MSVC
 - Check for TABs
-
+- YAML exception messages are useless
+- Process stdout capture must assume text output can "cook" it
