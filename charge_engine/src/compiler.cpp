@@ -21,68 +21,109 @@ namespace charge
 namespace
 {
 
-class InclusionNotesSniffer
+boost::optional<std::string> consume_line(std::string & buf_inout)
+{
+	auto eol_iterator = boost::range::find(buf_inout, '\n');
+	if (eol_iterator == buf_inout.end())
+	{
+		return boost::optional<std::string>();
+	}
+
+	auto eol_pos = std::distance(buf_inout.begin(), eol_iterator);
+	auto after_eol_pos = eol_pos + 1;
+
+	std::string line = buf_inout.substr(0, after_eol_pos);
+
+	buf_inout.erase(0, after_eol_pos);
+
+	return line;
+}
+
+
+class InclusionNotesSniffer : public ReadableStream
 {
 public:
 
-	InclusionNotesSniffer();
+	explicit InclusionNotesSniffer(ReadableStream & source);
 
 	FileList inclusions_;
 
-	void operator() (std::string const & new_block);
+	virtual boost::optional<std::string> read();
 
 private:
-	std::string consume_line(std::string::iterator eol_iterator);
+	std::string extract_output_from_accumulator();
 	void note(std::string const & line);
 		
+	ReadableStream & source_;
+
 	std::string const note_inclusion_;
 	std::string::size_type const note_inclusion_end_pos_;
-	std::string left_over_;
+	std::string accumulator_;
 };
 
 
-InclusionNotesSniffer::InclusionNotesSniffer()
+InclusionNotesSniffer::InclusionNotesSniffer(ReadableStream & source)
 :
+	source_(source),
 	note_inclusion_("Note: including file:"),
 	note_inclusion_end_pos_(note_inclusion_.size())
 {}
 
 
-void InclusionNotesSniffer::operator() (std::string const & new_block)
+boost::optional<std::string> InclusionNotesSniffer::read()
 {
-	left_over_ += new_block;
-
 	for (;;)
 	{
-		auto eol_iterator = boost::range::find(left_over_, '\n');
-		if (eol_iterator == left_over_.end()) return;
 
-		auto line = consume_line(eol_iterator);
+		auto new_block = source_.read();
 
-		using boost::algorithm::starts_with;
-
-		if (starts_with(line, note_inclusion_))
+		if (!new_block)
 		{
-			note(line);
+			if (accumulator_.empty())
+			{
+				return boost::optional<std::string>();
+			}
+
+			std::string output;
+			swap(output, accumulator_);
+			return output;
 		}
-		else
-		{
-			std::cout << line;
-		}
+
+		// We are guaranteed to receive at least one character.
+	    assert(! (*new_block).empty());
+		accumulator_ += *new_block;
+
+		auto output = extract_output_from_accumulator();
+
+		if (!output.empty()) return output;
+		// else, wait for more data.
+
 	}
 }
 
 
-std::string InclusionNotesSniffer::consume_line(std::string::iterator eol_iterator)
+std::string InclusionNotesSniffer::extract_output_from_accumulator()
 {
-	auto eol_pos = std::distance(left_over_.begin(), eol_iterator);
-	auto after_eol_pos = eol_pos + 1;
+	std::string output;
 
-	std::string line = left_over_.substr(0, after_eol_pos);
+	for (;;)
+	{
+		auto line = consume_line(accumulator_);
+		if (!line) break;
 
-	left_over_.erase(0, after_eol_pos);
+		using boost::algorithm::starts_with;
 
-	return line;
+		if (starts_with(*line, note_inclusion_))
+		{
+			note(*line);
+		}
+		else
+		{
+			output += *line;
+		}
+	}
+
+	return output;
 }
 
 
@@ -96,6 +137,55 @@ void InclusionNotesSniffer::note(std::string const & line)
 	auto header_fn = trim_copy(raw_header_fn);
 
 	inclusions_.push_back(header_fn);
+}
+
+
+class FirstLineFilter : public ReadableStream
+{
+public:
+	explicit FirstLineFilter(ReadableStream & source);
+
+	virtual boost::optional<std::string> read();
+
+private:
+	ReadableStream & source_;
+	std::string accumulator_;
+	bool first_line_skipped_;
+};
+
+
+FirstLineFilter::FirstLineFilter(ReadableStream & source)
+: source_(source), first_line_skipped_(false)
+{}
+
+
+boost::optional<std::string> FirstLineFilter::read()
+{
+	for (;;)
+	{
+		auto new_block = source_.read();
+
+		if (first_line_skipped_)
+		{
+			return new_block;
+		}
+
+		accumulator_ += *new_block;
+
+		auto line = consume_line(accumulator_);
+
+		if (line)
+		{
+			first_line_skipped_ = true;
+
+			if (!accumulator_.empty())
+			{
+				std::string output;
+				swap(output, accumulator_);
+				return output;
+			}
+		}
+	}
 }
 
 
@@ -180,11 +270,13 @@ FileList Compiler::compile_with_msvc(Arguments const & args) const
 
 	proc.start(cmd);
 
-	InclusionNotesSniffer sniffer;
+	InclusionNotesSniffer sniffer( *proc.child_stdout_ );
 
-	while (auto res = proc.child_stdout_->read())
+	FirstLineFilter filter(sniffer);
+
+	while (auto res = filter.read())
 	{
-		sniffer(*res);
+		std::cout << *res;
 	}
 
 	return sniffer.inclusions_;
@@ -192,7 +284,7 @@ FileList Compiler::compile_with_msvc(Arguments const & args) const
 
 
 UnsupportedFamilyError::UnsupportedFamilyError(std::string const & family)
-    :
+:
     Exception("unsupported compiler family "s + family),
     family_(family)
 {}

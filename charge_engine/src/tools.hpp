@@ -4,10 +4,13 @@
 #include <boost/filesystem/path.hpp>
 
 #include <string>
+#include <vector>
 
 namespace charge
 {
 	
+using FileList = std::vector<boost::filesystem::path>;
+
 std::string getenv(std::string const & var);
 
 std::string hostname();

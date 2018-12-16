@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(msvc_compile_command)
 {
 	YAML::Node conf;
 
-	conf["compiler"] = "C:\\Program Files\\cl.exe";
+	conf["command"] = "C:\\Program Files\\cl.exe";
 	conf["version"] = "14.0.0.0";
 	conf["family"] = "msvc";
 
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(msvc_compile_command)
 	
 	BOOST_CHECK_EQUAL(
 		compiler.msvc_command_line(args),
-		"\"C:\\Program Files\\cl.exe\" /nologo /TP /MT /showIncludes"
+		"\"C:\\Program Files\\cl.exe\" /nologo /TP /MT /showIncludes /EHsc"
 		" /Fe:C:\\cache\\123\\executable.exe" 
 		" /Fo:C:\\cache\\123\\executable.obj" 
 		" C:\\user\\script.cpp"

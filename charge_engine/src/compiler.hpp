@@ -1,6 +1,8 @@
 #ifndef GUARD_2cfa76ff0d7d45428f1b7c8c882d6aa3
 #define GUARD_2cfa76ff0d7d45428f1b7c8c882d6aa3
 
+#include "tools.hpp"
+
 #include "charge/charge.hpp"
 
 #include <boost/filesystem.hpp>
@@ -12,8 +14,6 @@
 
 namespace charge
 {
-
-using FileList = std::vector<boost::filesystem::path>;
 
 YAML::Node configure();
 
