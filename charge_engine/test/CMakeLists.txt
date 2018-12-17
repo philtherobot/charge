@@ -7,7 +7,8 @@ set(CMAKE_CXX_EXTENSIONS ON)
 add_executable(tests
     initialization.cpp
     engine.cpp
-	compiler.cpp)
+	compiler.cpp
+	InclusionNotesSniffer.cpp)
 
 target_link_libraries(tests
     charge_engine
