@@ -182,28 +182,6 @@ std::string encode_dependencies(FileList const & deps)
 }
 
 
-/*
-void compile(boost::filesystem::path const & script)
-{
-    YAML::Node conf;
-    conf["family"] = "msvc";
-    Compiler comp(conf);
-
-    Compiler::Arguments args;
-    args.source_ = script;
-
-    boost::filesystem::path cache_dir("C:\\Users\\philt\\OneDrive\\Desktop\\tmp");
-
-    auto basename = script.stem();
-    basename += ".exe";
-
-    args.executable_output_fn_ = cache_dir / basename;
-
-    comp.compile(args);
-
-}
-*/
-
 std::time_t get_maybe_file_time(boost::filesystem::path const & path)
 {
 	using namespace boost::filesystem;
@@ -312,22 +290,6 @@ int charge(boost::filesystem::path const & script, StringList const & args)
 
 namespace std
 {
-
-std::ostream & operator << (std::ostream & os, charge::StringList const & ss)
-{
-    os << '(';
-    if (ss.size())
-    {
-        auto set_it = ss.begin();
-        os << *set_it;
-        while (++set_it != ss.end())
-        {
-            os << ',' << *set_it;
-        }
-    }
-    os << ')';
-    return os;
-}
 
 std::ostream & operator << (std::ostream & os, charge::Dependencies const & deps)
 {

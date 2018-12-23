@@ -65,6 +65,20 @@ cache might be out of date when charge is upgraded.
 We need to version the cache (which version or charge was used to generate it).
 
 
+## Config should get its own inteface
+
+Right now, YAML is exposed directly, so we have no firewall between it and our code.
+
+Make a simple configuration class that is implemented with YAML.
+
+
+## namespace and details strategy
+
+Should we have a "details" namespace where things such as "ReadbleStream", which is not part of the public API of charge but rather an implementation detail, are placed?
+
+Should we simply rely on "public" versus "private" headers?  I think not, the references made in the code do not show if an identifer is part of the public API or an implementation detail.
+
+
 ## Small things
 
 - Enable stricter warnings

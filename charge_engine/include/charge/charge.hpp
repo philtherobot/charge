@@ -1,6 +1,7 @@
 #ifndef GUARD_443ec49651504cce9c4942eab05fa9ac
 #define GUARD_443ec49651504cce9c4942eab05fa9ac
 
+#include "charge/types.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
@@ -13,10 +14,6 @@
 
 namespace charge
 {
-
-
-using StringList = std::vector<std::string>;
-
 
 int charge(boost::filesystem::path const & script, StringList const & args);
 
@@ -72,7 +69,6 @@ public:
 
 namespace std
 {
-std::ostream & operator << (std::ostream & os, charge::StringList const & ss);
 std::ostream & operator << (std::ostream & os, charge::Dependencies const & deps);
 }
 
