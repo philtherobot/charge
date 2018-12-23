@@ -105,6 +105,95 @@ void Pipe::set_inherit(HANDLE h)
 }
 
 
+class StreamCookerReader : public ReadableStream
+{
+public:
+	explicit StreamCookerReader(ReadableStream & binary_stream_source)
+		: source_(binary_stream_source), state_(START)
+	{}
+
+	virtual boost::optional<std::string> read()
+	{
+		for (;;)
+		{
+			auto new_block_opt = source_.read();
+
+			if (!new_block_opt) return boost::optional<std::string>();
+
+			auto output = cook(*new_block_opt);
+
+			if (!output.empty())
+			{
+				return output;
+			}
+			// Else, go read more...
+
+		} // end forever
+	}
+
+private:
+	std::string cook(std::string const & new_block)
+	{
+		std::string::const_iterator input = new_block.begin();
+
+		std::string output;
+		output.reserve(new_block.size());
+
+		while (input != new_block.end())
+		{
+			char c = *input;
+			++input;
+
+			switch (state_)
+			{
+			case START:
+				in_start_state(c, output);
+				break;
+
+			case CR_DETECTED:
+				in_cr_detected_state(c, output);
+				break;
+			}
+		} // end while
+
+		return output;
+	}
+
+	void in_start_state(char c, std::string & output)
+	{
+		if (c == '\r')
+		{
+			state_ = CR_DETECTED;
+		}
+		else
+		{
+			output.push_back(c);
+		}
+	}
+
+	void in_cr_detected_state(char c, std::string & output)
+	{
+		if (c == '\n')
+		{
+			output.push_back('\n');
+		}
+		else
+		{
+			output.push_back(c);
+		}
+		state_ = START;
+	}
+
+	ReadableStream & source_;
+
+	enum
+	{
+		START,
+		CR_DETECTED
+	} state_;
+};
+
+
 class Reader : public ReadableStream
 {
 public:
@@ -157,6 +246,7 @@ public:
         CloseHandle(process_handle_);
     }
 
+	std::unique_ptr<Reader> raw_reader_;
     HANDLE process_handle_;
 };
 
@@ -223,7 +313,10 @@ void ShellProcess::start(std::string const & shell_command)
     // must not keep it also.
     CloseHandle(child_stdout.write_);
 
-    child_stdout_.reset(new Reader(child_stdout.read_));
+	impl_->raw_reader_.reset(new Reader(child_stdout.read_));
+	Reader * raw_reader = impl_->raw_reader_.get();
+
+    child_stdout_.reset(new StreamCookerReader(*raw_reader));
 }
 
 
