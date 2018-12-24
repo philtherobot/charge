@@ -127,17 +127,42 @@ std::string Compiler::msvc_command_line(Arguments const & args) const
 
 	auto cl_cmd = config_["command"].as<std::string>();
 
-	StringList words{
+	StringList options{
 		quote_if_needed(cl_cmd),
 		"/nologo",
 		"/TP",
-		"/MT",
+		"/MD",
 		"/showIncludes",
 		"/EHsc",
 		quote_if_needed("/Fe:" + args.executable_output_fn_.string()),
-		quote_if_needed("/Fo:" + p.string()),
-		quote_if_needed(args.source_.string())
+		quote_if_needed("/Fo:" + p.string())
 	};
+
+
+	for (auto include_path : args.header_paths_)
+	{
+		options.push_back( quote_if_needed("/I"s + include_path) );
+	}
+
+
+	StringList linker_options;
+
+	for (auto lib_path : args.lib_paths_)
+	{
+		linker_options.push_back(quote_if_needed("/LIBPATH:"s + lib_path));
+	}
+
+
+	StringList words;
+
+	words.insert(words.end(), options.begin(), options.end());
+	words.insert(words.end(), quote_if_needed(args.source_.string()));
+
+	if (!linker_options.empty())
+	{
+		words.insert(words.end(), "/link"s);
+		words.insert(words.end(), linker_options.begin(), linker_options.end());
+	}
 
 	return boost::algorithm::join(words, " ");
 }

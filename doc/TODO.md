@@ -5,12 +5,16 @@
 Implement part where we detect the available compilers.
 
 
-## Read MSVC dependency info
-
-
 ## Entry points
 
 There are three programs, all of them implement the same pattern of main with try/catch calling main_really.  Make this a reusable component.
+
+
+## MSVC - first line filter not always OK
+
+We filter the first line printed by cl because it, usually, is the source file name.
+
+Except it may be messages about the command line.
 
 
 ## Should we use "typedef" or "using X =" ?
@@ -85,4 +89,3 @@ Should we simply rely on "public" versus "private" headers?  I think not, the re
 - Enable _CRT_SECURE_NO_WARNINGS for MSVC
 - Check for TABs
 - YAML exception messages are useless
-- Process stdout capture must assume text output can "cook" it

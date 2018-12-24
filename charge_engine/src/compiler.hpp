@@ -28,6 +28,7 @@ public:
         StringList header_paths_;
         StringList static_libraries_;
         StringList system_libraries_;
+		StringList lib_paths_;
         boost::filesystem::path executable_output_fn_;
     };
 

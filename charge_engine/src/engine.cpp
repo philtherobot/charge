@@ -65,17 +65,22 @@ StringList library_part(StringList const & libraries,
 {
     StringList r;
 
-    auto libraries_node = config["libraries"];
-
     for (auto lib : libraries)
     {
-        auto node = libraries_node[lib];
+		auto libraries_node = config["libraries"];
+		if (!libraries_node)
+		{
+			throw LibraryNotConfiguredError(lib);
+		}
+
+		auto node = libraries_node[lib];
         if (!node)
         {
             throw LibraryNotConfiguredError(lib);
         }
 
-        auto s = node[part];
+		auto s = node[part];
+
         if (s)
         {
             auto v = s.as<std::string>();
@@ -88,7 +93,7 @@ StringList library_part(StringList const & libraries,
 
 StringList headers(StringList const & libraries, YAML::Node const & config)
 {
-    return library_part(libraries, config, "header");
+    return library_part(libraries, config, "include");
 }
 
 StringList static_libraries(StringList const & libraries, YAML::Node const & config)
@@ -98,7 +103,12 @@ StringList static_libraries(StringList const & libraries, YAML::Node const & con
 
 StringList system_libraries(StringList const & libraries, YAML::Node const & config)
 {
-    return library_part(libraries, config, "library");
+	return library_part(libraries, config, "library");
+}
+
+StringList libpaths(StringList const & libraries, YAML::Node const & config)
+{
+	return library_part(libraries, config, "libpath");
 }
 
 } // anonymous
@@ -151,6 +161,7 @@ Dependencies find_dependencies(YAML::Node const & config, std::istream & is)
     deps.libraries_.headers_ = headers(libraries, config);
     deps.libraries_.static_ = static_libraries(libraries, config);
     deps.libraries_.system_ = system_libraries(libraries, config);
+	deps.libraries_.paths_ = libpaths(libraries, config);
 
     return deps;
 }
@@ -266,7 +277,8 @@ int charge(boost::filesystem::path const & script, StringList const & args)
         compiler_args.source_ = script;
         compiler_args.header_paths_ = library_deps.libraries_.headers_;
         compiler_args.static_libraries_ = library_deps.libraries_.static_;
-        compiler_args.system_libraries_ = library_deps.libraries_.system_;
+		compiler_args.system_libraries_ = library_deps.libraries_.system_;
+		compiler_args.lib_paths_ = library_deps.libraries_.paths_;
         compiler_args.executable_output_fn_ = exec_path;
 
         FileList new_deps = compiler.compile(compiler_args);
@@ -277,11 +289,7 @@ int charge(boost::filesystem::path const & script, StringList const & args)
     }
 
 
-	StringList exec_args;
-	exec_args.push_back(script.string());
-	boost::copy(args, std::back_inserter(exec_args));
-
-	return exec(exec_path.string(), exec_args);
+	return exec(exec_path.string(), args);
 }
 
 } // charge

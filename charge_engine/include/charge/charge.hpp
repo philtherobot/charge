@@ -26,6 +26,7 @@ public:
         StringList headers_;
         StringList static_;
         StringList system_;
+		StringList paths_;
     } libraries_;
 };
 
