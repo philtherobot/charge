@@ -19,9 +19,9 @@ bool create_cache(
 	boost::filesystem::path const & cache_abspath);
 
 
-std::string read_dependencies(boost::filesystem::path const & cache_abspath);
+std::string read_header_dependencies(boost::filesystem::path const & cache_abspath);
 
-void write_dependencies(boost::filesystem::path const & cache_abspath,
+void write_header_dependencies(boost::filesystem::path const & cache_abspath,
 	std::string const & deps_text);
 
 

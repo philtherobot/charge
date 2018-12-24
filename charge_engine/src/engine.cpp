@@ -32,7 +32,7 @@ std::istream & get_line(std::istream & is, std::string & out)
     return is;
 }
 
-std::string extract_trick_library(std::string const & chargetrick)
+std::string extract_import_trick(std::string const & chargetrick)
 {
     std::istringstream is(chargetrick);
     std::string s;
@@ -53,7 +53,7 @@ StringList read_imported_libraries(std::istream & is)
     {
         if (std::regex_match(line, re))
         {
-            libraries.emplace_back(extract_trick_library(line));
+            libraries.emplace_back(extract_import_trick(line));
         }
     }
 
@@ -63,16 +63,20 @@ StringList read_imported_libraries(std::istream & is)
 StringList library_part(StringList const & libraries,
     YAML::Node const & config, std::string const & part)
 {
-    StringList r;
+	if (libraries.empty()) return StringList();
+
+	auto libraries_node = config["libraries"];
+	if (!libraries_node)
+	{
+		// TODO: figure out/add exception
+		// specific to missing "libraries" section in config.
+		throw LibraryNotConfiguredError(libraries.front());
+	}
+
+	StringList r;
 
     for (auto lib : libraries)
     {
-		auto libraries_node = config["libraries"];
-		if (!libraries_node)
-		{
-			throw LibraryNotConfiguredError(lib);
-		}
-
 		auto node = libraries_node[lib];
         if (!node)
         {
@@ -91,9 +95,9 @@ StringList library_part(StringList const & libraries,
     return r;
 }
 
-StringList headers(StringList const & libraries, YAML::Node const & config)
+StringList header_paths(StringList const & libraries, YAML::Node const & config)
 {
-    return library_part(libraries, config, "include");
+    return library_part(libraries, config, "header_path");
 }
 
 StringList static_libraries(StringList const & libraries, YAML::Node const & config)
@@ -108,7 +112,7 @@ StringList system_libraries(StringList const & libraries, YAML::Node const & con
 
 StringList libpaths(StringList const & libraries, YAML::Node const & config)
 {
-	return library_part(libraries, config, "libpath");
+	return library_part(libraries, config, "lib_path");
 }
 
 } // anonymous
@@ -152,22 +156,22 @@ void write_config(YAML::Node const & config,
 }
 
 
-Dependencies find_dependencies(YAML::Node const & config, std::istream & is)
+Libraries find_imports(YAML::Node const & config, std::istream & is)
 {
     auto libraries = read_imported_libraries(is);
 
-    Dependencies deps;
+    Libraries libs;
 
-    deps.libraries_.headers_ = headers(libraries, config);
-    deps.libraries_.static_ = static_libraries(libraries, config);
-    deps.libraries_.system_ = system_libraries(libraries, config);
-	deps.libraries_.paths_ = libpaths(libraries, config);
+    libs.header_paths_ = header_paths(libraries, config);
+    libs.static_ = static_libraries(libraries, config);
+    libs.system_ = system_libraries(libraries, config);
+	libs.lib_paths_ = libpaths(libraries, config);
 
-    return deps;
+    return libs;
 }
 
 
-FileList decode_dependencies(std::string const & deps_text)
+FileList decode_header_dependencies(std::string const & deps_text)
 {
 	std::istringstream is(deps_text);
 	FileList retval;
@@ -181,7 +185,7 @@ FileList decode_dependencies(std::string const & deps_text)
 }
 
 
-std::string encode_dependencies(FileList const & deps)
+std::string encode_header_dependencies(FileList const & deps)
 {
 	std::ostringstream os;
 
@@ -229,9 +233,9 @@ int charge(boost::filesystem::path const & script, StringList const & args)
 
     auto exec_time = get_maybe_file_time(exec_path);
 
-	auto deps_file_contents = read_dependencies(cache_path);
+	auto deps_file_contents = read_header_dependencies(cache_path);
 
-	auto deps = decode_dependencies(deps_file_contents);
+	auto deps = decode_header_dependencies(deps_file_contents);
 
 	std::vector<std::time_t> deps_time;
 
@@ -256,7 +260,7 @@ int charge(boost::filesystem::path const & script, StringList const & args)
 		
 		std::ifstream script_stream(script.string());
 
-		auto library_deps( find_dependencies(config, script_stream) );
+		auto libraries( find_imports(config, script_stream) );
 
         YAML::Node compiler_config;
 
@@ -275,17 +279,19 @@ int charge(boost::filesystem::path const & script, StringList const & args)
 
         Compiler::Arguments compiler_args;
         compiler_args.source_ = script;
-        compiler_args.header_paths_ = library_deps.libraries_.headers_;
-        compiler_args.static_libraries_ = library_deps.libraries_.static_;
-		compiler_args.system_libraries_ = library_deps.libraries_.system_;
-		compiler_args.lib_paths_ = library_deps.libraries_.paths_;
+        
+		compiler_args.header_paths_ = libraries.header_paths_;
+        compiler_args.static_libraries_ = libraries.static_;
+		compiler_args.system_libraries_ = libraries.system_;
+		compiler_args.lib_paths_ = libraries.lib_paths_;
+
         compiler_args.executable_output_fn_ = exec_path;
 
         FileList new_deps = compiler.compile(compiler_args);
 
-        auto new_deps_file_contents = encode_dependencies(new_deps);
+        auto new_deps_file_contents = encode_header_dependencies(new_deps);
 
-        write_dependencies(cache_path, new_deps_file_contents);
+        write_header_dependencies(cache_path, new_deps_file_contents);
     }
 
 
@@ -299,14 +305,14 @@ int charge(boost::filesystem::path const & script, StringList const & args)
 namespace std
 {
 
-std::ostream & operator << (std::ostream & os, charge::Dependencies const & deps)
+std::ostream & operator << (std::ostream & os, charge::Libraries const & libs)
 {
-    os << "Dependencies(\n";
-    os << "  libraries(\n";
-    os << "    headers: " << deps.libraries_.headers_ << '\n';
-    os << "    static: " << deps.libraries_.static_ << '\n';
-    os << "    system: " << deps.libraries_.system_ << '\n';
-    os << "  )\n";
+    os << "Libraries(\n";
+
+	os << "  header paths: " << libs.header_paths_ << '\n';
+    os << "  static: " << libs.static_ << '\n';
+	os << "  system: " << libs.system_ << '\n';
+	os << "  lib paths: " << libs.lib_paths_ << '\n';
     os << ")\n";
     return os;
 }

@@ -139,9 +139,9 @@ std::string Compiler::msvc_command_line(Arguments const & args) const
 	};
 
 
-	for (auto include_path : args.header_paths_)
+	for (auto header_path : args.header_paths_)
 	{
-		options.push_back( quote_if_needed("/I"s + include_path) );
+		options.push_back( quote_if_needed("/I"s + header_path) );
 	}
 
 

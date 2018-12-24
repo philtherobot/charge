@@ -36,15 +36,15 @@ BOOST_AUTO_TEST_CASE(one_header_library)
     YAML::Node config( YAML::Load(
         "libraries:\n"
         "  boost_filesystem:\n"
-        "    header: /home/phil/include/boost\n"
+        "    header_path: /home/phil/include/boost\n"
     ));
 
     auto pgm("// chargetrick import boost_filesystem\n"s);
     std::istringstream is(pgm);
 
-    auto deps = find_dependencies(config, is);
+    auto libs = find_imports(config, is);
 
-    BOOST_CHECK_EQUAL( deps.libraries_.headers_, 
+    BOOST_CHECK_EQUAL( libs.header_paths_, 
         StringList{"/home/phil/include/boost"});
 }
 
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(library_not_found)
     YAML::Node config( YAML::Load(
         "libraries:\n"
         "  boost_filesystem:\n"
-        "    header: /home/phil/include/boost\n"
+        "    header_path: /home/phil/include/boost\n"
     ));
 
     auto pgm("// chargetrick import boost_test\n"s);
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(library_not_found)
 
     boost::optional<LibraryNotConfiguredError> opt_ex(
         catch_exception<LibraryNotConfiguredError>( 
-            [&]{find_dependencies(config, is);}
+            [&]{find_imports(config, is);}
         ) 
     );
 
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(get_cache_pth)
 
 BOOST_AUTO_TEST_CASE(encode_deps)
 {
-	BOOST_CHECK_EQUAL(encode_dependencies(FileList{}), std::string());
+	BOOST_CHECK_EQUAL(encode_header_dependencies(FileList{}), std::string());
 
 	FileList deps;
 	deps.push_back("/home/philippe/libs/include/tools.hpp"s);
@@ -141,13 +141,13 @@ BOOST_AUTO_TEST_CASE(encode_deps)
 		"/usr/local/include/yaml-cpp\n"
 	};
 
-	BOOST_CHECK_EQUAL(encode_dependencies(deps), expect);
+	BOOST_CHECK_EQUAL(encode_header_dependencies(deps), expect);
 }
 
 
 BOOST_AUTO_TEST_CASE(decode_deps)
 {
-	BOOST_CHECK_EQUAL(decode_dependencies(std::string()), FileList{});
+	BOOST_CHECK_EQUAL(decode_header_dependencies(std::string()), FileList{});
 
 	std::string input{
 		"/home/philippe/libs/include/tools.hpp\n"
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(decode_deps)
 	expect.push_back("/home/philippe/libs/include/tools.hpp"s);
 	expect.push_back("/usr/local/include/yaml-cpp"s);
 
-	BOOST_CHECK_EQUAL(decode_dependencies(input), expect);
+	BOOST_CHECK_EQUAL(decode_header_dependencies(input), expect);
 }
 
 

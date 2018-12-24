@@ -18,20 +18,17 @@ namespace charge
 int charge(boost::filesystem::path const & script, StringList const & args);
 
 
-class Dependencies
+class Libraries
 {
 public:
-    struct
-    {
-        StringList headers_;
-        StringList static_;
-        StringList system_;
-		StringList paths_;
-    } libraries_;
+    StringList header_paths_;
+    StringList static_;
+    StringList system_;
+	StringList lib_paths_;
 };
 
 
-Dependencies find_dependencies(YAML::Node const & config, std::istream & is);
+Libraries find_imports(YAML::Node const & config, std::istream & is);
 
 
 YAML::Node load_config(boost::filesystem::path const & fn);
@@ -70,7 +67,7 @@ public:
 
 namespace std
 {
-std::ostream & operator << (std::ostream & os, charge::Dependencies const & deps);
+std::ostream & operator << (std::ostream & os, charge::Libraries const & libs);
 }
 
 #endif
