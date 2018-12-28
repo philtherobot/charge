@@ -2,7 +2,7 @@
 #include "process.hpp"
 #include "tools.hpp"
 
-#include "exception.hpp"
+#include <charge/charge.hpp>
 
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/join.hpp>

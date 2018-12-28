@@ -3,13 +3,9 @@
 
 #include "ReadableStream.hpp"
 
-#include "charge/charge.hpp"
+#include <charge/types.hpp>
 
-#include <boost/optional.hpp>
-
-#include <cctype>
 #include <memory>
-#include <stdexcept>
 #include <string>
 
 namespace charge

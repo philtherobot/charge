@@ -1,12 +1,12 @@
 #ifndef GUARD_2cfa76ff0d7d45428f1b7c8c882d6aa3
 #define GUARD_2cfa76ff0d7d45428f1b7c8c882d6aa3
 
+#include "config.hpp"
 #include "tools.hpp"
 
-#include "charge/charge.hpp"
+#include <charge/charge.hpp>
 
-#include <boost/filesystem.hpp>
-#include <yaml-cpp/yaml.h>
+#include <boost/filesystem/path.hpp>
 
 #include <stdexcept>
 #include <string>
@@ -15,12 +15,13 @@
 namespace charge
 {
 
-YAML::Node configure();
+// TODO: decide if "Config" or "CompilerConfig".
+Config configure();
 
 class Compiler
 {
 public:
-    explicit Compiler(YAML::Node const & config);
+    explicit Compiler(Config const & config);
 
     struct Arguments
     {
@@ -39,22 +40,9 @@ public:
 	FileList compile_with_msvc(Arguments const & args) const;
 
 private:
-    YAML::Node config_;
+    Config config_;
 };
 
-
-class UnsupportedFamilyError : public Exception
-{
-public:
-    explicit UnsupportedFamilyError(std::string const & family);
-
-    std::string const & family() const;
-
-private:
-    std::string family_;
-};
-
-
-}
+} // charge
 
 #endif

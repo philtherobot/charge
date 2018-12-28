@@ -3,9 +3,12 @@ project(charge_engine)
 add_library(charge_engine
     src/cache.cpp
 	src/compiler.cpp
+	src/config.cpp
     src/engine.cpp
 	src/InclusionNotesSniffer.cpp
 	src/exception.cpp
+	src/header_dependencies.cpp
+	src/imports.cpp
 	src/process_win.cpp
 	src/tools.cpp
 	src/tools_win.cpp

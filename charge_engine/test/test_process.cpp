@@ -1,49 +1,55 @@
 
 #include "../src/process.hpp"
 
-#include <boost/algorithm/string/join.hpp>
+#include <boost/test/unit_test.hpp>
 
-#include <iostream>
 #include <string>
-#include <utility>
-#include <vector>
 
-int main_really(std::vector<std::string> const & args)
+using namespace charge;
+using namespace std::string_literals;
+
+
+BOOST_AUTO_TEST_SUITE(engine);
+
+
+BOOST_AUTO_TEST_CASE(write_cmd_string)
 {
-    charge::ShellProcess p;
+	BOOST_CHECK_EQUAL(write_command_string(std::string(), StringList{}), "");
 
-    auto cmd = boost::algorithm::join(std::make_pair(args.begin() + 1, args.end()), " ");
+	BOOST_CHECK_EQUAL(
+		write_command_string(
+			std::string("pgm"),
+			StringList{}
+		),
 
-    p.start(cmd);
+		"pgm"
+	);
 
-    while (auto res = p.child_stdout_->read())
-    {
-        std::cout << *res;
-    }
+	BOOST_CHECK_EQUAL(
+		write_command_string(
+			std::string("pgm"),
+			StringList{
+				"arg1",
+				"arg2"
+			}
+		),
 
-    std::cout << "exit code = " << p.exit_code() << "\n";
+		"pgm arg1 arg2"
+	);
 
-    return p.exit_code();
+	BOOST_CHECK_EQUAL(
+		write_command_string(
+			std::string("pgm"),
+			StringList{
+				"arg1 space",
+				"arg2"
+			}
+		),
+
+		"pgm \"arg1 space\" arg2"
+	);
 }
 
-int main(int argc, char ** argv)
-{
-    try
-    {
-        std::vector<std::string> args;
-        for (int i = 0; i < argc; ++i)
-        {
-            args.push_back(argv[i]);
-        }
-        return main_really(std::move(args));
-    }
-    catch (std::exception const & ex)
-    {
-        std::cerr << "exception: " << ex.what() << '\n';
-    }
-    catch (...)
-    {
-        std::cerr << "unknown exception type\n";
-    }
-    return 1;
-}
+
+BOOST_AUTO_TEST_SUITE_END();
+

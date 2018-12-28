@@ -5,13 +5,13 @@
 @EXIT /B 2
 :cscript_ok
 
-@SET test_pgm="%BUILD_ROOT%\bin\test_process.exe"
+@SET test_pgm="%BUILD_ROOT%\bin\run_process.exe"
 @IF EXIST %test_pgm% GOTO build_root_ok
 @ECHO BUILD_ROOT is not correctly configured.
 @EXIT /B 2
 :build_root_ok
 
-@SET capture_fn="%TEMP%\test_process_capture"
+@SET capture_fn="%TEMP%\run_process_capture"
 
 
 @ECHO Running tests:

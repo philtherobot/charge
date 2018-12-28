@@ -1,24 +1,24 @@
 
-#include "charge/types.hpp"
+#include <charge/types.hpp>
 
 
 namespace std
 {
 
-	std::ostream & operator << (std::ostream & os, charge::StringList const & ss)
+std::ostream & operator << (std::ostream & os, charge::StringList const & ss)
+{
+	os << '(';
+	if (ss.size())
 	{
-		os << '(';
-		if (ss.size())
+		auto set_it = ss.begin();
+		os << *set_it;
+		while (++set_it != ss.end())
 		{
-			auto set_it = ss.begin();
-			os << *set_it;
-			while (++set_it != ss.end())
-			{
-				os << ',' << *set_it;
-			}
+			os << ',' << *set_it;
 		}
-		os << ')';
-		return os;
 	}
-
+	os << ')';
+	return os;
 }
+
+} // std

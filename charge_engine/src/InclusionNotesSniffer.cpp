@@ -54,11 +54,8 @@ std::string InclusionNotesSniffer::extract_output_from_accumulator()
 {
 	std::string output;
 
-	for (;;)
+	while(auto line = consume_line(accumulator_))
 	{
-		auto line = consume_line(accumulator_);
-		if (!line) break;
-
 		using boost::algorithm::starts_with;
 
 		if (starts_with(*line, note_inclusion_))

@@ -1,7 +1,10 @@
 #ifndef GUARD_c32a67b8d56e4694b3957351dd917844
 #define GUARD_c32a67b8d56e4694b3957351dd917844
 
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/path.hpp>
+
+#include <string>
+
 
 namespace charge
 {

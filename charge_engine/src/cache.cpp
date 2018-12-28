@@ -3,6 +3,7 @@
 
 #include "tools.hpp"
 
+#include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
 
 #include <sstream>
@@ -75,6 +76,5 @@ void write_header_dependencies(boost::filesystem::path const & cache_abspath,
 
 	os << deps_text;
 }
-
 
 } // charge

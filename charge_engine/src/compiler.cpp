@@ -4,9 +4,10 @@
 #include "process.hpp"
 #include "tools.hpp"
 
+#include <charge/exception.hpp>
+
 #include <iostream>
 
-#include <boost/range/algorithm/find.hpp>
 #include <boost/algorithm/string/join.hpp>
 
 
@@ -73,10 +74,10 @@ boost::optional<std::string> FirstLineFilter::read()
 } // anonymous
 
 
-YAML::Node configure()
+Config configure()
 {
     // TODO
-    YAML::Node conf;
+    Config conf;
 
     conf["compiler"] = "/usr/bin/g++";
     conf["version"] = "7.2.0";
@@ -86,7 +87,7 @@ YAML::Node configure()
 }
 
 
-Compiler::Compiler(YAML::Node const & conf)
+Compiler::Compiler(Config const & conf)
     : config_(conf)
 {}
 
@@ -189,15 +190,5 @@ FileList Compiler::compile_with_msvc(Arguments const & args) const
 }
 
 
-UnsupportedFamilyError::UnsupportedFamilyError(std::string const & family)
-:
-    Exception("unsupported compiler family "s + family),
-    family_(family)
-{}
+} // charge
 
-std::string const & UnsupportedFamilyError::family() const
-{
-    return family_;
-}
-
-}

@@ -83,6 +83,13 @@ Should we have a "details" namespace where things such as "ReadbleStream", which
 Should we simply rely on "public" versus "private" headers?  I think not, the references made in the code do not show if an identifer is part of the public API or an implementation detail.
 
 
+## Exceptions declarations
+
+All exceptions possibly thrown are public in the interface.  This is fine.  
+
+What about Win32Error?  It could be declared, with an empty implementation under other platforms.
+
+
 ## Small things
 
 - Enable stricter warnings

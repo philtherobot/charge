@@ -1,10 +1,18 @@
-#ifndef GUARD_6ac04f44cb0444ff8cb1e52e41052db7
-#define GUARD_6ac04f44cb0444ff8cb1e52e41052db7
+#ifndef GUARD_66b063825a434b2491df4322219f356a
+#define GUARD_66b063825a434b2491df4322219f356a
 
-#ifdef _WIN32
-#  define CHARGE_WINDOWS
-#else
-#  define CHARGE_LINUX
-#endif
+#include <yaml-cpp/yaml.h>
+
+#include <boost/filesystem/path.hpp>
+
+namespace charge
+{
+using Config = YAML::Node;
+
+Config read_config(boost::filesystem::path const & fn);
+
+void write_config(Config const & config, boost::filesystem::path const & fn);
+
+}
 
 #endif
