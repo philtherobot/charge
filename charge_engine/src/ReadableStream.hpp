@@ -11,8 +11,8 @@ namespace charge
 class ReadableStream
 {
 public:
-	virtual ~ReadableStream() {}
-	virtual boost::optional<std::string> read() = 0;
+    virtual ~ReadableStream() {}
+    virtual boost::optional<std::string> read() = 0;
 };
 
 

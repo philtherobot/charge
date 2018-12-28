@@ -11,21 +11,21 @@ namespace charge
 
 
 boost::filesystem::path get_cache_path(
-	std::string const & hostname,
-	boost::filesystem::path const & home,
-	boost::filesystem::path const & script_abspath);
+    std::string const & hostname,
+    boost::filesystem::path const & home,
+    boost::filesystem::path const & script_abspath);
 
 
 bool create_cache(
-	std::string const & hostname,
-	boost::filesystem::path const & script_abspath,
-	boost::filesystem::path const & cache_abspath);
+    std::string const & hostname,
+    boost::filesystem::path const & script_abspath,
+    boost::filesystem::path const & cache_abspath);
 
 
 std::string read_header_dependencies(boost::filesystem::path const & cache_abspath);
 
 void write_header_dependencies(boost::filesystem::path const & cache_abspath,
-	std::string const & deps_text);
+    std::string const & deps_text);
 
 
 } // charge

@@ -5,16 +5,16 @@ project(charge_engine_test)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 add_executable(tests
-	test_cache.cpp
-	test_compiler.cpp
+    test_cache.cpp
+    test_compiler.cpp
     test_process.cpp
-	test_imports.cpp
+    test_imports.cpp
     test_initialization.cpp
-	test_InclusionNotesSniffer.cpp)
+    test_InclusionNotesSniffer.cpp)
 
 target_link_libraries(tests
     charge_engine
-	${CONAN_LIBS})
+    ${CONAN_LIBS})
 
 add_test(tests tests)
 
@@ -33,7 +33,7 @@ target_link_libraries(run_process
 # program.
 
 add_executable(run_exec
-	run_exec.cpp)
+    run_exec.cpp)
 
 target_link_libraries(run_exec
-	charge_engine)
+    charge_engine)

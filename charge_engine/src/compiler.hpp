@@ -29,15 +29,15 @@ public:
         StringList header_paths_;
         StringList static_libraries_;
         StringList system_libraries_;
-		StringList lib_paths_;
+        StringList lib_paths_;
         boost::filesystem::path executable_output_fn_;
     };
 
 
     FileList compile(Arguments const & args);
 
-	std::string msvc_command_line(Arguments const & args) const;
-	FileList compile_with_msvc(Arguments const & args) const;
+    std::string msvc_command_line(Arguments const & args) const;
+    FileList compile_with_msvc(Arguments const & args) const;
 
 private:
     Config config_;

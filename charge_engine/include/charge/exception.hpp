@@ -14,58 +14,58 @@ namespace charge
 class Exception : public std::runtime_error
 {
 public:
-	using runtime_error::runtime_error;
+    using runtime_error::runtime_error;
 };
 
 
 class LibraryNotConfiguredError : public Exception
 {
 public:
-	explicit LibraryNotConfiguredError(std::string const & lib);
+    explicit LibraryNotConfiguredError(std::string const & lib);
 
-	std::string const & library() const;
+    std::string const & library() const;
 
 private:
-	std::string lib_;
+    std::string lib_;
 };
 
 
 class CommandLineArgumentError : public Exception
 {
 public:
-	explicit CommandLineArgumentError(std::string const & msg);
+    explicit CommandLineArgumentError(std::string const & msg);
 };
 
 
 class UnsupportedFamilyError : public Exception
 {
 public:
-	explicit UnsupportedFamilyError(std::string const & family);
+    explicit UnsupportedFamilyError(std::string const & family);
 
-	std::string const & family() const;
+    std::string const & family() const;
 
 private:
-	std::string family_;
+    std::string family_;
 };
 
 
 class ErrnoError : public Exception
 {
 public:
-	explicit ErrnoError(std::string const & function, int code = 0);
+    explicit ErrnoError(std::string const & function, int code = 0);
 
 private:
-	static std::string msg(std::string const & function, int code);
+    static std::string msg(std::string const & function, int code);
 };
 
 
 class AbsolutePathError : public Exception
 {
 public:
-	explicit AbsolutePathError(boost::filesystem::path const & p);
+    explicit AbsolutePathError(boost::filesystem::path const & p);
 
 private:
-	static std::string msg(boost::filesystem::path const & p);
+    static std::string msg(boost::filesystem::path const & p);
 };
 
 

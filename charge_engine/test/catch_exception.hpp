@@ -11,15 +11,15 @@ namespace test
 template <typename ExceptionType, typename Callable>
 boost::optional<ExceptionType> catch_exception(Callable c)
 {
-	try
-	{
-		c();
-	}
-	catch (ExceptionType const & ex)
-	{
-		return ex;
-	}
-	return boost::optional<ExceptionType>();
+    try
+    {
+        c();
+    }
+    catch (ExceptionType const & ex)
+    {
+        return ex;
+    }
+    return boost::optional<ExceptionType>();
 }
 
 } // test

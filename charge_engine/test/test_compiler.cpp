@@ -17,25 +17,25 @@ BOOST_AUTO_TEST_CASE(configure_gcc)
 
 BOOST_AUTO_TEST_CASE(msvc_compile_command)
 {
-	YAML::Node conf;
+    YAML::Node conf;
 
-	conf["command"] = "C:\\Program Files\\cl.exe";
-	conf["version"] = "14.0.0.0";
-	conf["family"] = "msvc";
+    conf["command"] = "C:\\Program Files\\cl.exe";
+    conf["version"] = "14.0.0.0";
+    conf["family"] = "msvc";
 
-	charge::Compiler compiler(conf);
+    charge::Compiler compiler(conf);
 
-	charge::Compiler::Arguments args;
-	args.source_ = "C:\\user\\script.cpp";
-	args.executable_output_fn_ = "C:\\cache\\123\\executable.exe";
-	
-	BOOST_CHECK_EQUAL(
-		compiler.msvc_command_line(args),
-		"\"C:\\Program Files\\cl.exe\" /nologo /TP /MD /showIncludes /EHsc"
-		" /Fe:C:\\cache\\123\\executable.exe" 
-		" /Fo:C:\\cache\\123\\executable.obj" 
-		" C:\\user\\script.cpp"
-	);
+    charge::Compiler::Arguments args;
+    args.source_ = "C:\\user\\script.cpp";
+    args.executable_output_fn_ = "C:\\cache\\123\\executable.exe";
+
+    BOOST_CHECK_EQUAL(
+        compiler.msvc_command_line(args),
+        "\"C:\\Program Files\\cl.exe\" /nologo /TP /MD /showIncludes /EHsc"
+        " /Fe:C:\\cache\\123\\executable.exe"
+        " /Fo:C:\\cache\\123\\executable.obj"
+        " C:\\user\\script.cpp"
+    );
 }
 
 

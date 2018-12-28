@@ -11,28 +11,28 @@ namespace charge
 
 std::string getenv(std::string const & var)
 {
-	char * buf = 0;
-	int err = _dupenv_s(&buf, NULL, var.c_str());
-	if (err != 0) throw ErrnoError("_dupenv_s", err);
+    char * buf = 0;
+    int err = _dupenv_s(&buf, NULL, var.c_str());
+    if (err != 0) throw ErrnoError("_dupenv_s", err);
 
-	if (!buf) throw Exception("failed to find environment variable " + var);
+    if (!buf) throw Exception("failed to find environment variable " + var);
 
-	std::string r{ buf };
-	free(buf);
+    std::string r{ buf };
+    free(buf);
 
-	return r;
+    return r;
 }
 
 
 std::string hostname()
 {
-	return getenv("COMPUTERNAME");
+    return getenv("COMPUTERNAME");
 }
 
 
 boost::filesystem::path home_path()
 {
-	return getenv("USERPROFILE");
+    return getenv("USERPROFILE");
 }
 
 

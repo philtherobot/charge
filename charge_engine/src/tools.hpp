@@ -9,7 +9,7 @@
 
 namespace charge
 {
-	
+
 using FileList = std::vector<boost::filesystem::path>;
 
 std::string getenv(std::string const & var);

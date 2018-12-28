@@ -13,8 +13,8 @@ int main_really(charge::StringList const & args)
     if (args.size() < 2)
     {
         throw charge::CommandLineArgumentError(
-			"missing script"
-		);
+            "missing script"
+        );
     }
 
     std::string script(args[1]);
@@ -29,14 +29,14 @@ int main(int argc, char ** argv)
 {
     try
     {
-		charge::StringList args;
+        charge::StringList args;
 
         for (int i = 0; i < argc; ++i)
         {
             args.push_back(argv[i]);
         }
 
-		return main_really(std::move(args));
+        return main_really(std::move(args));
     }
     catch (std::exception const & ex)
     {
