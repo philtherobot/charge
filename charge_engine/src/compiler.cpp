@@ -1,11 +1,13 @@
 #include "compiler.hpp"
 
-#include "InclusionNotesSniffer.hpp"
+#include "InclusionNotesPredicate.hpp"
 #include "process.hpp"
+#include "StreamFilter.hpp"
 #include "tools.hpp"
 
 #include <charge/exception.hpp>
 
+#include <functional>
 #include <iostream>
 
 #include <boost/algorithm/string/join.hpp>
@@ -16,62 +18,6 @@ using namespace std::string_literals;
 
 namespace charge
 {
-
-
-namespace
-{
-
-
-class FirstLineFilter : public ReadableStream
-{
-public:
-    explicit FirstLineFilter(ReadableStream & source);
-
-    virtual boost::optional<std::string> read();
-
-private:
-    ReadableStream & source_;
-    std::string accumulator_;
-    bool first_line_skipped_;
-};
-
-
-FirstLineFilter::FirstLineFilter(ReadableStream & source)
-    : source_(source), first_line_skipped_(false)
-{}
-
-
-boost::optional<std::string> FirstLineFilter::read()
-{
-    for (;;)
-    {
-        auto new_block = source_.read();
-
-        if (first_line_skipped_)
-        {
-            return new_block;
-        }
-
-        accumulator_ += *new_block;
-
-        auto line = consume_line(accumulator_);
-
-        if (line)
-        {
-            first_line_skipped_ = true;
-
-            if (!accumulator_.empty())
-            {
-                std::string output;
-                swap(output, accumulator_);
-                return output;
-            }
-        }
-    }
-}
-
-
-} // anonymous
 
 
 Config configure()
@@ -177,16 +123,28 @@ FileList Compiler::compile_with_msvc(Arguments const & args) const
 
     proc.start(cmd);
 
-    InclusionNotesSniffer sniffer(*proc.child_stdout_);
 
-    FirstLineFilter filter(sniffer);
+    InclusionNotesPredicate inclusion_predicate;
+
+    auto inclusion_filter = make_stream_filter(*proc.child_stdout_, std::ref(inclusion_predicate));
+
+    auto source_fn = args.source_.filename().string() + "\n"s;
+
+    auto source_filename_predicate =
+        [source_fn](std::string const & line)
+        {
+            return line != source_fn;
+        };
+
+    auto filter = make_stream_filter(inclusion_filter, source_filename_predicate);
+
 
     while (auto res = filter.read())
     {
         std::cout << *res;
     }
 
-    return sniffer.inclusions_;
+    return inclusion_predicate.inclusions_;
 }
 
 

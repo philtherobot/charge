@@ -1,12 +1,14 @@
 
-#include "../src/InclusionNotesSniffer.hpp"
+#include "../src/InclusionNotesPredicate.hpp"
+#include "../src/StreamFilter.hpp"
 
 #include <boost/test/unit_test.hpp>
 
 #include <deque>
+#include <functional>
 
 
-BOOST_AUTO_TEST_SUITE(InclusionNotesSniffer);
+BOOST_AUTO_TEST_SUITE(InclusionNotesPredicate);
 
 namespace
 {
@@ -38,9 +40,11 @@ BOOST_AUTO_TEST_CASE(empty_input)
 {
     MockStream mock = MockStream(std::deque<std::string>());
 
-    charge::InclusionNotesSniffer sniffer(mock);
+    charge::InclusionNotesPredicate sniffer;
 
-    BOOST_CHECK(!sniffer.read());
+    auto filter = charge::make_stream_filter(mock, std::ref(sniffer));
+
+    BOOST_CHECK(!filter.read());
 
     BOOST_CHECK_EQUAL(sniffer.inclusions_.size(), 0);
 }
@@ -55,15 +59,17 @@ BOOST_AUTO_TEST_CASE(just_warnings)
         }
     );
 
-    charge::InclusionNotesSniffer sniffer(mock);
+    charge::InclusionNotesPredicate sniffer;
 
-    auto line = sniffer.read();
+    auto filter = charge::make_stream_filter(mock, std::ref(sniffer));
+
+    auto line = filter.read();
 
     BOOST_CHECK(line);
     BOOST_CHECK_EQUAL(*line, "warning: such and such\n");
 
 
-    line = sniffer.read();
+    line = filter.read();
 
     BOOST_CHECK(!line);
 
@@ -82,21 +88,23 @@ BOOST_AUTO_TEST_CASE(one_note)
         }
     );
 
-    charge::InclusionNotesSniffer sniffer(mock);
+    charge::InclusionNotesPredicate sniffer;
 
-    auto line = sniffer.read();
+    auto filter = charge::make_stream_filter(mock, std::ref(sniffer));
+
+    auto line = filter.read();
 
     BOOST_CHECK(line);
     BOOST_CHECK_EQUAL(*line, "pgm.cpp\n");
 
 
-    line = sniffer.read();
+    line = filter.read();
 
     BOOST_CHECK(line);
     BOOST_CHECK_EQUAL(*line, "warning: such and such\n");
 
 
-    line = sniffer.read();
+    line = filter.read();
 
     BOOST_CHECK(!line);
 
@@ -115,15 +123,17 @@ BOOST_AUTO_TEST_CASE(no_final_lf)
         }
     );
 
-    charge::InclusionNotesSniffer sniffer(mock);
+    charge::InclusionNotesPredicate sniffer;
 
-    auto line = sniffer.read();
+    auto filter = charge::make_stream_filter(mock, std::ref(sniffer));
+
+    auto line = filter.read();
 
     BOOST_CHECK(line);
     BOOST_CHECK_EQUAL(*line, "warning: such and such");
 
 
-    line = sniffer.read();
+    line = filter.read();
 
     BOOST_CHECK(!line);
 

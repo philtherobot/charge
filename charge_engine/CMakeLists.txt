@@ -5,7 +5,7 @@ add_library(charge_engine
     src/compiler.cpp
     src/config.cpp
     src/engine.cpp
-    src/InclusionNotesSniffer.cpp
+    src/InclusionNotesPredicate.cpp
     src/exception.cpp
     src/header_dependencies.cpp
     src/imports.cpp
