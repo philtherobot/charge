@@ -25,6 +25,22 @@ std::string quote_if_needed(std::string const & str);
 
 boost::optional<std::string> consume_line(std::string & buf_inout);
 
+
+class ProgramDetector
+{
+public:
+    struct Result
+    {
+        std::string const captured_;
+        int const exit_code_;
+    };
+
+    virtual ~ProgramDetector() {}
+
+    virtual boost::optional<Result> look_for_program(std::string const & cmd);
+};
+
+
 } // charge
 
 #endif

@@ -15,8 +15,6 @@
 namespace charge
 {
 
-// TODO: decide if "Config" or "CompilerConfig".
-Config configure();
 
 class Compiler
 {
@@ -42,6 +40,13 @@ public:
 private:
     Config config_;
 };
+
+
+class ProgramDetector;
+
+// TODO: decide if "Config" or "CompilerConfig".
+Config configure(ProgramDetector & program_detector);
+
 
 } // charge
 

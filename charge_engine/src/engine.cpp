@@ -101,7 +101,7 @@ int charge(boost::filesystem::path const & script, StringList const & args)
         }
         else
         {
-            compiler_config = configure();
+            compiler_config = configure(ProgramDetector());
             config["compiler"] = compiler_config;
             write_config(config, config_path);
         }

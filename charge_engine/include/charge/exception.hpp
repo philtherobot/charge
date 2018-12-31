@@ -69,6 +69,13 @@ private:
 };
 
 
+class CompilerDetectionError : public Exception
+{
+public:
+    using Exception::Exception;
+};
+
+
 } // charge
 
 #endif

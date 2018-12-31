@@ -1,6 +1,8 @@
 
 #include "tools.hpp"
 
+#include "process.hpp"
+
 #include <charge/exception.hpp>
 
 #include <boost/range/algorithm/find.hpp>
@@ -36,6 +38,7 @@ std::string quote_if_needed(std::string const & str)
 }
 
 
+
 boost::optional<std::string> consume_line(std::string & buf_inout)
 {
     auto eol_iterator = boost::range::find(buf_inout, '\n');
@@ -52,6 +55,23 @@ boost::optional<std::string> consume_line(std::string & buf_inout)
     buf_inout.erase(0, after_eol_pos);
 
     return line;
+}
+
+
+boost::optional<ProgramDetector::Result> ProgramDetector::look_for_program(std::string const & cmd)
+{
+    ShellProcess process;
+
+    process.start(cmd);
+
+    std::string output;
+
+    while (auto data = process.child_stdout_->read())
+    {
+        output += *data;
+    }
+
+    return Result{ output, process.exit_code() };
 }
 
 

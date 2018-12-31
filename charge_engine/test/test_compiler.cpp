@@ -1,13 +1,27 @@
 
 #include "../src/compiler.hpp"
+#include "../src/tools.hpp"
 
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(compiler);
 
+
+class MockProgramDetector : public charge::ProgramDetector
+{
+public:
+    virtual boost::optional<Result> look_for_program(std::string const & cmd)
+    {
+        return boost::optional<Result>();
+    }
+};
+
+
 BOOST_AUTO_TEST_CASE(configure_gcc)
 {
-    auto conf(charge::configure());
+    MockProgramDetector detector;
+
+    auto conf(charge::configure(detector));
 
     BOOST_CHECK_EQUAL(conf["compiler"].as<std::string>(), "/usr/bin/g++");
     BOOST_CHECK_EQUAL(conf["version"].as<std::string>(), "7.2.0");

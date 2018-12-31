@@ -10,21 +10,6 @@ Implement part where we detect the available compilers.
 There are three programs, all of them implement the same pattern of main with try/catch calling main_really.  Make this a reusable component.
 
 
-## MSVC - first line filter not always OK
-
-We filter the first line printed by cl because it, usually, is the source file name.
-
-Except it may be messages about the command line.
-
-
-## Should we use "typedef" or "using X =" ?
-
-
-## Declarations of the innards for tests
-
-Some declarations are placed in the public headers of engine.  This is done in order to be able to write tests against those pieces.  Right now, the public interface and those implementation pieces are mixed together.  The users are lost.   Find a better way.
-
-
 ## ShellProcess and exec
 
 In the Windows implementation, exec is not implemented from ShellProcess.  There is duplication of somewhat similar nasty OS-specific code.
@@ -35,6 +20,8 @@ In the Windows implementation, exec is not implemented from ShellProcess.  There
 ShellProcess and exec are tested by hand.  There should be scripts (batches and shell) to automate those routines.
 
 Done for Windows.
+
+TODO for other platforms.
 
 
 ## Documentation
@@ -69,7 +56,19 @@ cache might be out of date when charge is upgraded.
 We need to version the cache (which version or charge was used to generate it).
 
 
-## Config should get its own inteface
+## ReadableStream::read
+
+ReadableStream::read returns an optional string.  Empty optional means EOF.  This is overkill because read always returns at least one char, unless EOF is reached.  So an empty returned string could be the signal of EOF.
+
+
+## Platform-specific errors
+
+I do not want the general/user code to have any platform specific error related code.  It would be ideal to throw a Win32Error, but no general code should have to catch that.
+
+I could check out the new facilities available (for example, Boost.Exception).  Or I could package the platform-specific error in a string, so it can be shown to a user, but not necessarily analyzed by user code.
+
+
+## Config should get its own interface
 
 Right now, YAML is exposed directly, so we have no firewall between it and our code.
 
@@ -90,9 +89,15 @@ All exceptions possibly thrown are public in the interface.  This is fine.
 What about Win32Error?  It could be declared, with an empty implementation under other platforms.
 
 
+## Macro definition for libraries
+
+Some libraries require some macros to be defined to compile properly.  
+
+Add a "macro" setting for library configuration.
+
+
 ## Small things
 
 - Enable stricter warnings
 - Enable _CRT_SECURE_NO_WARNINGS for MSVC
-- Check for TABs
 - YAML exception messages are useless

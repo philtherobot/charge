@@ -1,6 +1,7 @@
 #include "compiler.hpp"
 
 #include "InclusionNotesPredicate.hpp"
+#include "platform_config.hpp"
 #include "process.hpp"
 #include "StreamFilter.hpp"
 #include "tools.hpp"
@@ -10,7 +11,10 @@
 #include <functional>
 #include <iostream>
 
+#include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 
 using namespace std::string_literals;
@@ -20,16 +24,88 @@ namespace charge
 {
 
 
-Config configure()
+namespace
 {
-    // TODO
-    Config conf;
 
-    conf["compiler"] = "/usr/bin/g++";
-    conf["version"] = "7.2.0";
-    conf["family"] = "g++";
+
+boost::optional<Config> detect_msvc(ProgramDetector & detector)
+{
+    auto result = detector.look_for_program("cl");
+    if (!result) return boost::optional<Config>();
+
+    if ((*result).exit_code_ != 0) return boost::optional<Config>();
+
+    char const * const msvc_marker =
+        "Microsoft (R) C/C++ Optimizing Compiler Version";
+
+    bool is_marker_found = boost::starts_with((*result).captured_, msvc_marker);
+
+    if (is_marker_found)
+    {
+        Config conf;
+        conf["command"] = "cl";
+        conf["family"] = "msvc";
+
+        return conf;
+    }
+
+    return boost::optional<Config>();
+}
+
+
+boost::optional<Config> detect_gcc(ProgramDetector & detector)
+{
+    auto result = detector.look_for_program("g++");
+    if (!result) return boost::optional<Config>();
+
+    if ((*result).exit_code_ != 0) return boost::optional<Config>();
+
+    // TODO: check for some signature in the output.
+
+    Config conf;
+    conf["command"] = "g++";
+    conf["family"] = "gcc";
 
     return conf;
+}
+
+
+} // anonymous
+
+
+Config configure(ProgramDetector & program_detector)
+{
+    using DetectionFunction = boost::optional<Config> (*) (ProgramDetector &);
+
+    std::vector<DetectionFunction> detectors;
+
+#if defined( CHARGE_WINDOWS )
+
+    detectors = {
+        &detect_msvc,
+        &detect_gcc
+    };
+
+#elif defined( CHARGE_LINUX )
+
+    detectors = {
+        &detect_gcc,
+        //&detect_clang
+    };
+
+#else
+
+#   error "no detection routine for this platform"
+
+#endif
+
+    for (auto detector : detectors)
+    {
+        auto result = detector(program_detector);
+        if (result) return *result;
+    }
+
+    throw CompilerDetectionError("unable to find a compiler");
 }
 
 
