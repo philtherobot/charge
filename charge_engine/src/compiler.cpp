@@ -53,7 +53,7 @@ boost::optional<Config> detect_msvc(ProgramDetector & detector)
 
 boost::optional<Config> detect_gcc(ProgramDetector & detector)
 {
-    auto result = detector.look_for_program("g++");
+    auto result = detector.look_for_program("g++ --version");
     if (!result) return boost::optional<Config>();
 
     if ((*result).exit_code_ != 0) return boost::optional<Config>();
@@ -77,7 +77,7 @@ Config configure(ProgramDetector & program_detector)
         [](std::string const & compiler_family)
         {
             if (compiler_family == "msvc") return &detect_msvc;
-            if (compiler_family == "g++") return &detect_gcc;
+            if (compiler_family == "gcc") return &detect_gcc;
             throw UnsupportedFamilyError(compiler_family);
         };
 

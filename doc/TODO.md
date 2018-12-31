@@ -1,9 +1,5 @@
 # TODO
 
-## Configure
-
-Implement part where we detect the available compilers.
-
 
 ## Entry points
 
@@ -94,6 +90,11 @@ What about Win32Error?  It could be declared, with an empty implementation under
 Some libraries require some macros to be defined to compile properly.  
 
 Add a "macro" setting for library configuration.
+
+
+## Compiled script depends on its libraries
+
+If a library (linked through "chargetrick import") is younger than the compiled executable, relink (or recompile if we must) the script.
 
 
 ## Small things

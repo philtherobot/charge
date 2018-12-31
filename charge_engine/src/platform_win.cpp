@@ -18,7 +18,7 @@ StringList compiler_detection_order()
 {
     return {
         "msvc",
-        "g++"
+        "gcc"
     };
 }
 

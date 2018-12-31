@@ -1,7 +1,7 @@
 
 #include "../src/imports.hpp"
 
-#include "catch_exception.hpp"
+#include "helpers.hpp"
 
 #include <charge/exception.hpp>
 
