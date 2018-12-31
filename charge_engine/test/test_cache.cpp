@@ -1,7 +1,10 @@
 #include "../src/cache.hpp"
 #include "../src/header_dependencies.hpp"
-#include "../src/platform_config.hpp"
 
+#include "helpers.hpp"
+
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <regex>
@@ -16,39 +19,21 @@ BOOST_AUTO_TEST_SUITE(cache);
 BOOST_AUTO_TEST_CASE(get_cache_pth)
 {
 
-#if defined( CHARGE_WINDOWS )
+    auto path = charge::get_cache_path("hostname",
+        test::make_absolute_path("/Users/philippe"),
+        test::make_absolute_path("/dev/exp/script.cpp"));
 
-    auto path{ charge::get_cache_path("hostname",
-        "C:\\Users\\philippe",
-        "T:\\dev\\exp\\script.cpp") };
+    auto hashed_host_and_script = path.filename();
 
-    auto backslash{ "\\\\"s };
+    using boost::algorithm::all;
+    using boost::algorithm::is_digit;
 
-    std::regex expect_re{
-        "C:"s + backslash +
-        "Users"s + backslash +
-        "philippe"s + backslash +
-        ".charge" + backslash +
-        "cache" + backslash +
-        "\\d*" };
+    BOOST_CHECK(all(hashed_host_and_script.string(), is_digit()));
 
-    BOOST_CHECK(std::regex_match(path.string(), expect_re));
+    auto expected_root_path =
+        test::make_absolute_path("/Users/philippe/.charge/cache");
 
-#elif defined( CHARGE_LINUX )
-
-    auto path{ charge::get_cache_path("hostname",
-        "/home/philippe",
-        "/home/philippe/dev/exp/script.cpp") };
-
-    std::regex expect_re{ "/home/philippe/.charge/cache/\\d*" };
-
-    BOOST_CHECK(std::regex_match(path.string(), expect_re));
-
-#else
-
-#  error "no test for this platform"
-
-#endif
+    BOOST_CHECK_EQUAL(path.parent_path(), expected_root_path);
 
 }
 

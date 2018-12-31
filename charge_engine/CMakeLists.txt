@@ -9,10 +9,13 @@ add_library(charge_engine
     src/exception.cpp
     src/header_dependencies.cpp
     src/imports.cpp
-    src/process_win.cpp
     src/tools.cpp
+    src/types.cpp
+
+    src/platform_win.cpp
+    src/process_win.cpp
     src/tools_win.cpp
-    src/types.cpp)
+)
 
 target_link_libraries(charge_engine ${CONAN_LIBS})
 

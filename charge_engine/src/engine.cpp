@@ -4,7 +4,7 @@
 #include "compiler.hpp"
 #include "header_dependencies.hpp"
 #include "imports.hpp"
-#include "platform_config.hpp"
+#include "platform.hpp"
 #include "process.hpp"
 #include "tools.hpp"
 
@@ -54,11 +54,7 @@ int charge(boost::filesystem::path const & script, StringList const & args)
 
     bool is_new_cache = create_cache(hostn, script_abspath, cache_path);
 
-#if defined(CHARGE_WINDOWS)
-    auto const exec_fn{ "executable.exe" };
-#else
-    auto const exec_fn{ "executable" };
-#endif
+    auto const exec_fn = platform::complete_executable_filename("executable");
 
     auto exec_path = cache_path / exec_fn;
 

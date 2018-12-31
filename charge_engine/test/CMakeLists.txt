@@ -10,7 +10,9 @@ add_executable(tests
     test_process.cpp
     test_imports.cpp
     test_initialization.cpp
-    test_InclusionNotesPredicate.cpp)
+    test_InclusionNotesPredicate.cpp
+    helpers_win.cpp
+)
 
 target_link_libraries(tests
     charge_engine

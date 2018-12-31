@@ -1,7 +1,7 @@
 #include "compiler.hpp"
 
 #include "InclusionNotesPredicate.hpp"
-#include "platform_config.hpp"
+#include "platform.hpp"
 #include "process.hpp"
 #include "StreamFilter.hpp"
 #include "tools.hpp"
@@ -11,10 +11,8 @@
 #include <functional>
 #include <iostream>
 
-#include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string/split.hpp>
 
 
 using namespace std::string_literals;
@@ -75,33 +73,19 @@ boost::optional<Config> detect_gcc(ProgramDetector & detector)
 
 Config configure(ProgramDetector & program_detector)
 {
-    using DetectionFunction = boost::optional<Config> (*) (ProgramDetector &);
+    auto to_function = 
+        [](std::string const & compiler_family)
+        {
+            if (compiler_family == "msvc") return &detect_msvc;
+            if (compiler_family == "g++") return &detect_gcc;
+            throw UnsupportedFamilyError(compiler_family);
+        };
 
-    std::vector<DetectionFunction> detectors;
 
-#if defined( CHARGE_WINDOWS )
-
-    detectors = {
-        &detect_msvc,
-        &detect_gcc
-    };
-
-#elif defined( CHARGE_LINUX )
-
-    detectors = {
-        &detect_gcc,
-        //&detect_clang
-    };
-
-#else
-
-#   error "no detection routine for this platform"
-
-#endif
-
-    for (auto detector : detectors)
+    for (auto compiler_family : platform::compiler_detection_order())
     {
-        auto result = detector(program_detector);
+        auto detection_function = to_function(compiler_family);
+        auto result = detection_function(program_detector);
         if (result) return *result;
     }
 
