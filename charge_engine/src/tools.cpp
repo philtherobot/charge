@@ -76,9 +76,11 @@ boost::optional<ProgramDetector::Result> ProgramDetector::look_for_program(std::
 
     std::string output;
 
-    while (auto data = process.child_stdout_->read())
+    for (;;)
     {
-        output += *data;
+        auto data = process.child_stdout_->read();
+        if (data.empty()) break;
+        output += data;
     }
 
     return Result{ output, process.exit_code() };

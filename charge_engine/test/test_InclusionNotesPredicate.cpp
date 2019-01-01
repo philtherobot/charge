@@ -20,9 +20,9 @@ public:
         : input_(sl)
     {}
 
-    virtual boost::optional<std::string> read()
+    virtual std::string read()
     {
-        if (input_.empty()) return boost::optional<std::string>();
+        if (input_.empty()) return std::string();
 
         auto retval = input_.front();
         input_.pop_front();
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(empty_input)
 
     auto filter = charge::make_stream_filter(mock, std::ref(sniffer));
 
-    BOOST_CHECK(!filter.read());
+    BOOST_CHECK(filter.read().empty());
 
     BOOST_CHECK_EQUAL(sniffer.inclusions_.size(), 0);
 }
@@ -65,13 +65,12 @@ BOOST_AUTO_TEST_CASE(just_warnings)
 
     auto line = filter.read();
 
-    BOOST_CHECK(line);
-    BOOST_CHECK_EQUAL(*line, "warning: such and such\n");
+    BOOST_CHECK_EQUAL(line, "warning: such and such\n");
 
 
     line = filter.read();
 
-    BOOST_CHECK(!line);
+    BOOST_CHECK(line.empty());
 
     BOOST_CHECK_EQUAL(sniffer.inclusions_.size(), 0);
 }
@@ -94,19 +93,17 @@ BOOST_AUTO_TEST_CASE(one_note)
 
     auto line = filter.read();
 
-    BOOST_CHECK(line);
-    BOOST_CHECK_EQUAL(*line, "pgm.cpp\n");
+    BOOST_CHECK_EQUAL(line, "pgm.cpp\n");
 
 
     line = filter.read();
 
-    BOOST_CHECK(line);
-    BOOST_CHECK_EQUAL(*line, "warning: such and such\n");
+    BOOST_CHECK_EQUAL(line, "warning: such and such\n");
 
 
     line = filter.read();
 
-    BOOST_CHECK(!line);
+    BOOST_CHECK(line.empty());
 
     BOOST_REQUIRE_EQUAL(sniffer.inclusions_.size(), 1);
 
@@ -129,13 +126,12 @@ BOOST_AUTO_TEST_CASE(no_final_lf)
 
     auto line = filter.read();
 
-    BOOST_CHECK(line);
-    BOOST_CHECK_EQUAL(*line, "warning: such and such");
+    BOOST_CHECK_EQUAL(line, "warning: such and such");
 
 
     line = filter.read();
 
-    BOOST_CHECK(!line);
+    BOOST_CHECK(line.empty());
 
     BOOST_CHECK_EQUAL(sniffer.inclusions_.size(), 0);
 }

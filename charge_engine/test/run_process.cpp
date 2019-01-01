@@ -16,9 +16,11 @@ int main_really(std::vector<std::string> const & args)
 
     p.start(cmd);
 
-    while (auto res = p.child_stdout_->read())
+    for (;;)
     {
-        std::cout << *res;
+        auto res = p.child_stdout_->read();
+        if (res.empty()) break;
+        std::cout << res;
     }
 
     std::cout << "exit code = " << p.exit_code() << "\n";

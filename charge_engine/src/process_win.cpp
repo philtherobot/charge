@@ -109,15 +109,15 @@ public:
         : source_(binary_stream_source), state_(START)
     {}
 
-    virtual boost::optional<std::string> read()
+    virtual std::string read()
     {
         for (;;)
         {
-            auto new_block_opt = source_.read();
+            auto new_block = source_.read();
 
-            if (!new_block_opt) return boost::optional<std::string>();
+            if (new_block.empty()) return std::string();
 
-            auto output = cook(*new_block_opt);
+            auto output = cook(new_block);
 
             if (!output.empty())
             {
@@ -202,7 +202,7 @@ public:
         CloseHandle(h_);
     }
 
-    virtual boost::optional<std::string> read()
+    virtual std::string read()
     {
         char buf[1024];
         DWORD nb_read = 0;
@@ -212,7 +212,7 @@ public:
             DWORD code = GetLastError();
             if (code == ERROR_BROKEN_PIPE)
             {
-                return boost::optional<std::string>();
+                return std::string();
             }
             throw RuntimeError(make_win32_error_message("ReadFile", code));
         }
@@ -223,7 +223,7 @@ public:
         }
 
         // 0 read bytes => end of file
-        return boost::optional<std::string>();
+        return std::string();
     }
 
     HANDLE h_;

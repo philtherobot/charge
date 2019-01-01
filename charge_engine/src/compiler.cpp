@@ -73,13 +73,13 @@ boost::optional<Config> detect_gcc(ProgramDetector & detector)
 
 Config configure(ProgramDetector & program_detector)
 {
-    auto to_function = 
+    auto to_function =
         [](std::string const & compiler_family)
-        {
-            if (compiler_family == "msvc") return &detect_msvc;
-            if (compiler_family == "gcc") return &detect_gcc;
-            throw UnsupportedFamilyError(compiler_family);
-        };
+    {
+        if (compiler_family == "msvc") return &detect_msvc;
+        if (compiler_family == "gcc") return &detect_gcc;
+        throw UnsupportedFamilyError(compiler_family);
+    };
 
 
     for (auto compiler_family : platform::compiler_detection_order())
@@ -117,9 +117,11 @@ FileList Compiler::compile(Arguments const & args)
 
     proc.start(cmd);
 
-    while (auto res = proc.child_stdout_->read())
+    for (;;)
     {
-        std::cout << *res;
+        auto res = proc.child_stdout_->read();
+        if (res.empty()) break;
+        std::cout << res;
     }
 
     return FileList();
@@ -192,16 +194,18 @@ FileList Compiler::compile_with_msvc(Arguments const & args) const
 
     auto source_filename_predicate =
         [source_fn](std::string const & line)
-        {
-            return line != source_fn;
-        };
+    {
+        return line != source_fn;
+    };
 
     auto filter = make_stream_filter(inclusion_filter, source_filename_predicate);
 
 
-    while (auto res = filter.read())
+    for (;;)
     {
-        std::cout << *res;
+        auto res = filter.read();
+        if (res.empty()) break;
+        std::cout << res;
     }
 
     return inclusion_predicate.inclusions_;

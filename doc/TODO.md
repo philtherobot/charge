@@ -52,11 +52,6 @@ cache might be out of date when charge is upgraded.
 We need to version the cache (which version or charge was used to generate it).
 
 
-## ReadableStream::read
-
-ReadableStream::read returns an optional string.  Empty optional means EOF.  This is overkill because read always returns at least one char, unless EOF is reached.  So an empty returned string could be the signal of EOF.
-
-
 ## Config should get its own interface
 
 Right now, YAML is exposed directly, so we have no firewall between it and our code.

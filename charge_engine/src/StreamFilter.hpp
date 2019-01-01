@@ -14,7 +14,7 @@ class StreamFilter : public ReadableStream
 public:
     StreamFilter(ReadableStream & source, Predicate const & predicate);
 
-    boost::optional<std::string> read();
+    std::string read();
 
 private:
 
@@ -40,18 +40,18 @@ StreamFilter<Predicate>::StreamFilter(ReadableStream & source, Predicate const &
 
 
 template <typename Predicate>
-boost::optional<std::string> StreamFilter<Predicate>::read()
+std::string StreamFilter<Predicate>::read()
 {
     for (;;)
     {
 
         auto new_block = source_.read();
 
-        if (!new_block)
+        if (new_block.empty())
         {
             if (accumulator_.empty())
             {
-                return boost::optional<std::string>();
+                return std::string();
             }
 
             std::string output;
@@ -60,8 +60,7 @@ boost::optional<std::string> StreamFilter<Predicate>::read()
         }
 
         // We are guaranteed to receive at least one character.
-        assert(!(*new_block).empty());
-        accumulator_ += *new_block;
+        accumulator_ += new_block;
 
         auto output = extract_output_from_accumulator();
 
