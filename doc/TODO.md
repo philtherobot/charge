@@ -57,13 +57,6 @@ We need to version the cache (which version or charge was used to generate it).
 ReadableStream::read returns an optional string.  Empty optional means EOF.  This is overkill because read always returns at least one char, unless EOF is reached.  So an empty returned string could be the signal of EOF.
 
 
-## Platform-specific errors
-
-I do not want the general/user code to have any platform specific error related code.  It would be ideal to throw a Win32Error, but no general code should have to catch that.
-
-I could check out the new facilities available (for example, Boost.Exception).  Or I could package the platform-specific error in a string, so it can be shown to a user, but not necessarily analyzed by user code.
-
-
 ## Config should get its own interface
 
 Right now, YAML is exposed directly, so we have no firewall between it and our code.
@@ -76,13 +69,6 @@ Make a simple configuration class that is implemented with YAML.
 Should we have a "details" namespace where things such as "ReadbleStream", which is not part of the public API of charge but rather an implementation detail, are placed?
 
 Should we simply rely on "public" versus "private" headers?  I think not, the references made in the code do not show if an identifer is part of the public API or an implementation detail.
-
-
-## Exceptions declarations
-
-All exceptions possibly thrown are public in the interface.  This is fine.  
-
-What about Win32Error?  It could be declared, with an empty implementation under other platforms.
 
 
 ## Macro definition for libraries

@@ -25,6 +25,7 @@ std::string quote_if_needed(std::string const & str);
 
 boost::optional<std::string> consume_line(std::string & buf_inout);
 
+std::string make_errno_message(std::string const & from_function, int err);
 
 class ProgramDetector
 {

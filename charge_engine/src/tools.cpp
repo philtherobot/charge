@@ -9,6 +9,7 @@
 #include <boost/range/algorithm/find_if.hpp>
 
 #include <cctype>
+#include <sstream>
 
 
 namespace charge
@@ -55,6 +56,15 @@ boost::optional<std::string> consume_line(std::string & buf_inout)
     buf_inout.erase(0, after_eol_pos);
 
     return line;
+}
+
+
+std::string make_errno_message(std::string const & from_function, int err)
+{
+    std::ostringstream os;
+    os << "system (errno) error " << err;
+    os << " in function " << from_function;
+    return os.str();
 }
 
 

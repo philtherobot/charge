@@ -50,16 +50,13 @@ std::string get_error_message(DWORD code)
 }
 
 
-class Win32Error : public Exception
+std::string make_win32_error_message(std::string const & from_function, DWORD code = 0)
 {
-public:
-    explicit Win32Error(std::string const & function, DWORD code = 0)
-        :
-        Exception("Win32 error \""s +
-            get_error_message(code == 0 ? GetLastError() : code) +
-            "\" in function " + function)
-    {}
-};
+    return
+        "Win32 error \""s +
+        get_error_message(code == 0 ? GetLastError() : code) +
+        "\" in function " + from_function;
+}
 
 
 std::vector<char> strcpy(std::string const & str)
@@ -91,7 +88,7 @@ Pipe::Pipe()
 {
     if (!CreatePipe(&read_, &write_, 0, 0))
     {
-        throw Win32Error("CreatePipe");
+        throw RuntimeError(make_win32_error_message("CreatePipe"));
     }
 }
 
@@ -100,7 +97,7 @@ void Pipe::set_inherit(HANDLE h)
 {
     if (!SetHandleInformation(h, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT))
     {
-        throw Win32Error("SetHandleInformation");
+        throw RuntimeError(make_win32_error_message("SetHandleInformation"));
     }
 }
 
@@ -217,7 +214,7 @@ public:
             {
                 return boost::optional<std::string>();
             }
-            throw Win32Error("ReadFile", code);
+            throw RuntimeError(make_win32_error_message("ReadFile", code));
         }
 
         if (nb_read)
@@ -302,7 +299,7 @@ void ShellProcess::start(std::string const & shell_command)
     // If an error occurs, exit the application. 
     if (!success)
     {
-        throw Win32Error("CreateProcess");
+        throw RuntimeError(make_win32_error_message("CreateProcess"));
     }
 
     impl_->process_handle_ = process_info.hProcess;
@@ -325,7 +322,7 @@ int ShellProcess::exit_code()
     DWORD code = 0;
     if (!GetExitCodeProcess(impl_->process_handle_, &code))
     {
-        throw Win32Error("GetExitCodeProcess");
+        throw RuntimeError(make_win32_error_message("GetExitCodeProcess"));
     }
 
     return int(code);
@@ -362,7 +359,7 @@ int exec(std::string const & pgm, StringList const & args)
 
     if (!success)
     {
-        throw Win32Error("CreateProcess");
+        throw RuntimeError(make_win32_error_message("CreateProcess"));
     }
 
     HANDLE proc_h = process_info.hProcess;
@@ -372,7 +369,7 @@ int exec(std::string const & pgm, StringList const & args)
     DWORD code = 0;
     if (!GetExitCodeProcess(proc_h, &code))
     {
-        throw Win32Error("GetExitCodeProcess");
+        throw RuntimeError(make_win32_error_message("GetExitCodeProcess"));
     }
 
     CloseHandle(proc_h);

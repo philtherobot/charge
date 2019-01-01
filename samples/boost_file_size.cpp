@@ -7,11 +7,11 @@
 
 int main(int argc, char ** args)
 {
-	if (argc < 1) return 1;
-	boost::filesystem::path p = args[1];
+    if (argc < 1) return 1;
+    boost::filesystem::path p = args[1];
 
-	std::cout << p << '\n';
-	std::cout << boost::filesystem::file_size(p) << '\n';
+    std::cout << p << '\n';
+    std::cout << boost::filesystem::file_size(p) << '\n';
 
-	return 0;
+    return 0;
 }

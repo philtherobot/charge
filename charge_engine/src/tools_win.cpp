@@ -13,7 +13,10 @@ std::string getenv(std::string const & var)
 {
     char * buf = 0;
     int err = _dupenv_s(&buf, NULL, var.c_str());
-    if (err != 0) throw ErrnoError("_dupenv_s", err);
+    if (err != 0)
+    {
+        throw RuntimeError(make_errno_message("_dupenv_s", err));
+    }
 
     if (!buf) throw Exception("failed to find environment variable " + var);
 

@@ -49,13 +49,10 @@ private:
 };
 
 
-class ErrnoError : public Exception
+class RuntimeError : public Exception
 {
 public:
-    explicit ErrnoError(std::string const & function, int code = 0);
-
-private:
-    static std::string msg(std::string const & function, int code);
+    using Exception::Exception;
 };
 
 
