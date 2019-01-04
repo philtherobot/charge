@@ -78,8 +78,30 @@ Add a "macro" setting for library configuration.
 If a library (linked through "chargetrick import") is younger than the compiled executable, relink (or recompile if we must) the script.
 
 
+## Shebang support
+
+Requires charge to remove the "#!" from the file before sending to the compiler.  This is best done by either rewriting the file to a new temporary file or sending the source to the compiler through a pipe.  Doing so breaks the error messages for the user: either she sees "stdin" or "tmp00023.tmp" as the source filename.
+
+It will be hard, but shebang support would be great.
+
+
+## Chargetrick as a YAML document
+
+We should think about making the chargetrick a YAML document.  Since we will probably allow the script's chargetrick to override things from the configuration's YAML, it will be much easier for users to specify things in the same syntax both in the configuration and the script.
+
+
+## Finding the script filepath
+
+In order for runnin scripts to find where the source script is located, setup an environment variable named `CHARGE_SCRIPT` in the running script.
+
+
 ## Small things
 
 - Enable stricter warnings
 - Enable _CRT_SECURE_NO_WARNINGS for MSVC
 - YAML exception messages are useless
+- In README, fix YAML URL
+- Implement way to link against a library directly.
+- "Force compilation" option
+- "Update" option
+- "Purge" option
