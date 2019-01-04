@@ -1,4 +1,4 @@
-# TODO
+# Charge TODO
 
 
 ## Entry points
@@ -18,14 +18,6 @@ ShellProcess and exec are tested by hand.  There should be scripts (batches and 
 Done for Windows.
 
 TODO for other platforms.
-
-
-## Documentation
-
-See the Quicksee doc.  Also the grind doc.
-
-
-## POSIX platform support
 
 
 ## Cache info file
@@ -92,7 +84,7 @@ We should think about making the chargetrick a YAML document.  Since we will pro
 
 ## Finding the script filepath
 
-In order for runnin scripts to find where the source script is located, setup an environment variable named `CHARGE_SCRIPT` in the running script.
+In order for running scripts to find where the source script is located, setup an environment variable named `CHARGE_SCRIPT` in the running script.
 
 
 ## Small things
@@ -105,3 +97,5 @@ In order for runnin scripts to find where the source script is located, setup an
 - "Force compilation" option
 - "Update" option
 - "Purge" option
+- Documentation: doc is never finished.
+- POSIX platform support

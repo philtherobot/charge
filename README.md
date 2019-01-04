@@ -1,6 +1,6 @@
 # Charge
 
-Charge compiles *and runs* a single-file C++ program.  The resulting binary is cached.  Charge performs dependency checking so future invocations are fast (Charge skips compilation when the dependencies are unchanged).
+Charge makes C++ programming easier by joining the compilation and launching steps together and brings that "scripting" feeling to C++.  Behind the scene, Charge compiles and caches the resulting binary.  Charge performs dependency checking so future invocations are fast (Charge skips compilation when the dependencies are unchanged).
 
 Workflow:
 
@@ -20,15 +20,15 @@ $
 
 ## What is it for?
 
-Charge is *not* for industrial strength programming.  Charge is limited to small scripts: as soon as a script grows to medium size, you will need to use a classical build system and deployment.
+Charge is not for industrial strength programming.  Charge is limited to small scripts: as soon as a script grows to medium size, you will need to use a classical build system and deployment.
 
 Charge can be used to:
 
 - Program in your favorite language (C++!) more often.
+- Easily learn C++ programming and ignore compiler command-lines and build systems initially.
 - Quickly test an hypothesis.  If you do not need to actually execute the script, it might now be even quicker and more powerful to use [Compiler Explorer](https://godbolt.org/).
-- Code up a one-use script that will be more comfortable to write in C++ versus the other choices (Bash, Python, etc).
+- Code a one-use script that will be more comfortable to write in C++ versus the other choices (Bash, Python, etc).
 - Get away from shell quoting, word splitting and quote removal issues.
-- Write small utility scripts and scripts you use daily.  You may accumulate over time a small library of useful tools that make this easier.
 
 
 ## Requirements
@@ -47,7 +47,7 @@ Get the sources and build them.  See [building](doc/building.md).  Place the `ch
 
 ## Configuration
 
-Charge finds its configuration in the `.charge` directory located in the user's home directory.  There, it reads a [YAML](http://yaml.org) file named `config`.
+Charge finds its configuration in the `.charge` directory located in the user's home directory.  There, it reads a [YAML](https://yaml.org/) file named `config`.
 
 ```yaml
 compiler:
