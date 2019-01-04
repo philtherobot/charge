@@ -25,18 +25,18 @@ The top level key `compiler` contains these keys:
 
 #### Libraries
 
-The top level key `libraries` follow this structure:
+The top level key `libraries` follows this structure:
 - keys for each of the configured libraries, as set by the user.
-- within a library, a set of options required of compile against the library.
+- within a library, a set of options required to compile against the library.
 
-Use a `header_path` key to add a directory to search for included headers in.
+Use a `header_path` key to add a directory to search for included headers.
 
-Use a `lib_path` key to add a directory to search for library files (such as `\*.lib `) in.
+Use a `lib_path` key to add a directory to search for library files (such as `\*.lib `).
 
 
 ## Tricks
 
 ### Import library
 
-The `import` trick makes Charge compile the script with use the configured library (see Configuration).
+The `import` trick makes Charge compile the script with the configured library (see Configuration).
 

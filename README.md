@@ -5,8 +5,7 @@ Charge makes C++ programming easier by joining the compilation and launching ste
 Workflow:
 
 1. Code with a text editor.
-2. Save your code to file.
-3. In the shell: `charge pgm.cpp`.
+2. In the shell, compile and run with `charge pgm.cpp`.
 
 Command-line arguments are passed to the executable so your C++ script can receive them:
 
@@ -65,7 +64,7 @@ See the [reference](doc/reference.md) for details.
 
 ## Using libraries
 
-It is highly likely that the scripts you want to create will need to include and/or link to one or more additional libraries.  You can specify libraries to link with and header paths to add with "charge tricks".  Here is an example script:
+It is very likely that the scripts you want to create will need to include and/or link to one or more additional libraries.  You can specify libraries to link with and header paths to add with "charge tricks".  Here is an example script:
 
 ```c++
 // chargetrick import boost_filesystem
@@ -86,7 +85,7 @@ int main(int argc, char ** args)
 }
 ```
 
-The C++ comment `// chargetrick import boost_filesystem` is seen by Charge before the script is launched.  If the script needs recompilation, Charge will look in its configuration in the `libraries` top level key for `boost_filesystem`.  There it expects to find the information to properly configure the compiler to compile the script.
+The C++ comment `// chargetrick import boost_filesystem` is seen by Charge before the script is compiled.  If the script needs recompilation, Charge will look in its configuration in the `libraries` top level key for `boost_filesystem`.  There, it expects to find the information to properly configure the compiler to compile the script.
 
 
 ## Options
@@ -107,29 +106,20 @@ Charge will ensure the cached executable is up to date with the sources like usu
 Charge sets up an environment variable named `CHARGE_SCRIPT`.  This variable is accessible from the script when it executes.  `CHARGE_SCRIPT` contains the filepath to the script.
 
 
-## How does it work?
-
-Charge compiles the script using the configured compiler.  The intermediary file and executable file are stored in a cache located in the `.charge/cache` directory in the user's home directory.  The cache is keyed by the hostname and the absolute filepath of the source file.  Because the hostname is part of the cache key, the cache will work correctly if your home directory is shared across hosts.
-
-Charge gets the header dependency information from the configured compiler.
-
-The "is up to date" check is performed by comparing file modification times.
-
-
 ## Limitations and working around them
 
 Charge can only build scripts made of a single *compilation unit*: one source file as input.  What if you have a library of functions you want to share across many scripts?  You will have to place those functions, with their definitions, in a separate file and use an `#include` directive to bring in the functions in each of your scripts.
 
 Your script will receive the arguments the user gave on the command-line when the script was invoked.  But the very first one, argument zero, which is usually the script's filename, will not be correct.  Argument zero will be the cached executable filename.  A workaround is to read the `CHARGE_SCRIPT` environment variable that has been setup for the executing program.  The variable contains the filepath of the script given to the `charge` command.
 
-Charge uses the file modification times to verify if the script needs to be recompiled.  Because file times have limited precision (which depends on a variety of factors), if a compilation-modification-dependency check cycle is done very quickly, the dependency check could fail and declare that the file was not changed.  This can occur in scenarios of scripts being launch by another script very quickly.  For example, if a main script generates a sub script based on some input and launches it, the source file will be compiled and its cached executable will have a file modification time equal to the time of compilation.  In this scenario, the main script, upon return of the sub script, rewrites the sub script to something different.  If the main script accomplished this quickly enough that the new sub script has the same file modification time as the cached executable, then charge's dependency will fail by declaring that the cache is up to date.  To workaround this:
+Charge uses the file modification times to verify if the script needs to be recompiled.  Because file times have limited precision (which depends on a variety of factors), if a compilation-modification-dependency check cycle is done very quickly, the dependency check could fail and declare that the file was not changed.  This can occur in scenarios of scripts being launch by another script very quickly.  For example, if a main script generates a subscript based on some input and launches it, the source file will be compiled and its cached executable will have a file modification time equal to the time of compilation.  In this scenario, the main script, upon return of the subscript, rewrites the subscript to something different.  If the main script accomplished this quickly enough that the new subscript has the same file modification time as the cached executable, then Charge's dependency will fail by declaring that the cache is up to date.  To workaround this:
 - Make the main script wait for at least your file system's time precision.
-- Change the source file's name at every generation, or every X generation (like "f1" to "f10" then cycle back).
+- Change the source file's name at every generation, or every X generations (like "f1" to "f10" then cycle back).
 - Since the main script knows it changed the source file, it could launch it with the "force compilation" option (-f).
 
 Charge cannot reliably handle multiple invocations of the same script at the same time that would result in a compilation.  The mutiple executing `charge` invocations will all try to compile the cached executable and write to the same output file at the same time which will cause a compilation failure.  Possible workaround are:
 - Do nothing: maybe you can handle/ignore a failure like this from time to time.  
-- Use the update option (-u) to ensure the cached executable is up to date before launching the multiprocessing system.
+- Use the update option (`-u`) to ensure the cached executable is up to date before launching the multiprocessing system.
 
 
 ## Future
