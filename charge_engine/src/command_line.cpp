@@ -22,6 +22,20 @@ StringList butfirst(StringList const & a)
     return r;
 }
 
+
+void help(boost::filesystem::path const & pgm_path, std::ostream & user_console)
+{
+    auto bn = pgm_path.stem().string();
+
+    user_console << "Usage: " << bn << " [OPTION]... [script] [script args]...\n";
+
+    user_console <<
+        "\n"
+        "  -h [--help]         get help on options\n"
+        "  -f [--force]        force compilation even if up to date\n"
+        "  -n [--noexecute]    do not execute script\n";
+}
+
 } // anonymous
 
 
@@ -44,8 +58,6 @@ int run_command_line(StringList const & args, ChargeInterface & charge_impl, std
     positional arguments.
     */
 
-    // TODO: remove "script" from the help text.
-
     po::positional_options_description p;
     p.add("script", -1);
 
@@ -59,7 +71,7 @@ int run_command_line(StringList const & args, ChargeInterface & charge_impl, std
 
     if (values.count("help"))
     {
-        user_console << options;
+        help(args[0], user_console);
         return 0;
     }
 
@@ -74,8 +86,7 @@ int run_command_line(StringList const & args, ChargeInterface & charge_impl, std
 
     auto script_object = charge_impl.script(script_filepath);
 
-    StringList script_args;
-    std::copy(input_args.begin() + 1, input_args.end(), std::back_inserter(script_args));
+    StringList script_args = butfirst(input_args);
 
     int exit_code = 0;
 

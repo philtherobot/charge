@@ -52,7 +52,7 @@ public:
 class MockCharge : public charge::ChargeInterface
 {
 public:
-    virtual std::shared_ptr<charge::ScriptInterface> script(boost::filesystem::path const & path)
+    virtual ScriptInterfacePointer script(boost::filesystem::path const & path)
     {
         script_.reset(new MockScript(path));
         return script_;

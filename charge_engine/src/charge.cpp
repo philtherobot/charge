@@ -33,31 +33,14 @@ std::time_t get_maybe_file_time(boost::filesystem::path const & path)
         return last_write_time(path);
     }
 
-    return 0; // no file => first epoch second
+    return 0; // no file => first second of epoch
 }
 
 
 class Script : public ScriptInterface
 {
 public:
-    explicit Script(boost::filesystem::path const & path)
-        : path_(path)
-    {
-        //TODO: check if script exists.
-
-        auto script_abspath{ boost::filesystem::absolute(path_) };
-
-        auto hostn(hostname());
-        auto home(home_path());
-
-        cache_path_ = get_cache_path(hostn, home, script_abspath);
-
-        create_cache(hostn, script_abspath, cache_path_);
-
-        auto const exec_fn = platform::complete_executable_filename("executable");
-
-        exec_path_ = cache_path_ / exec_fn;
-    }
+    explicit Script(boost::filesystem::path const & path);
 
     virtual int compile();
     virtual int update();
@@ -70,6 +53,24 @@ private:
     boost::filesystem::path cache_path_;
     boost::filesystem::path exec_path_;
 };
+
+
+Script::Script(boost::filesystem::path const & path)
+    : path_(path)
+{
+    auto script_abspath{ boost::filesystem::absolute(path_) };
+
+    auto hostn(hostname());
+    auto home(home_path());
+
+    cache_path_ = get_cache_path(hostn, home, script_abspath);
+
+    create_cache(hostn, script_abspath, cache_path_);
+
+    auto const exec_fn = platform::complete_executable_filename("executable");
+
+    exec_path_ = cache_path_ / exec_fn;
+}
 
 
 int Script::compile()
@@ -163,13 +164,13 @@ bool Script::is_out_of_date()
 class Charge : public ChargeInterface
 {
 public:
-    std::shared_ptr<ScriptInterface> script(boost::filesystem::path const & path);
+    ScriptInterfacePointer script(boost::filesystem::path const & path);
 };
 
 
-std::shared_ptr<ScriptInterface> Charge::script(boost::filesystem::path const & path)
+Charge::ScriptInterfacePointer Charge::script(boost::filesystem::path const & path)
 {
-    return std::shared_ptr<ScriptInterface>(new Script(path));
+    return ScriptInterfacePointer(new Script(path));
 }
 
 } // anonymous

@@ -20,7 +20,9 @@ class ChargeInterface : boost::noncopyable
 public:
     virtual ~ChargeInterface() {}
 
-    virtual std::shared_ptr<ScriptInterface> script(boost::filesystem::path const & script) = 0;
+    using ScriptInterfacePointer = std::shared_ptr<ScriptInterface>;
+
+    virtual ScriptInterfacePointer script(boost::filesystem::path const & script) = 0;
 };
 
 

@@ -73,6 +73,13 @@ public:
 };
 
 
+class CompilationFailureError : public Exception
+{
+public:
+    using Exception::Exception;
+};
+
+
 } // charge
 
 #endif

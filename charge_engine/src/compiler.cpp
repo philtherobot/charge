@@ -208,6 +208,11 @@ FileList Compiler::compile_with_msvc(Arguments const & args) const
         std::cout << res;
     }
 
+    if (proc.exit_code())
+    {
+        throw CompilationFailureError("non-zero compiler exit code");
+    }
+
     return inclusion_predicate.inclusions_;
 }
 
