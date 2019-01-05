@@ -3,6 +3,8 @@
 
 #include "tools.hpp"
 
+#include <yaml-cpp/yaml.h>
+
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -10,6 +12,26 @@
 
 namespace charge
 {
+
+namespace
+{
+
+void write_info(
+    std::string const & hostname,
+    boost::filesystem::path const & script_abspath,
+    boost::filesystem::path const & cache_abspath)
+{
+    YAML::Node info;
+
+    info["hostname"] = hostname;
+    info["script"] = script_abspath.string();
+
+    boost::filesystem::ofstream os(cache_abspath / "info");
+
+    os << info << '\n';
+}
+
+} // anonymous
 
 
 boost::filesystem::path get_cache_path(
@@ -31,16 +53,18 @@ boost::filesystem::path get_cache_path(
 
 
 bool create_cache(
-    std::string const & /*hostname*/,
+    std::string const & hostname,
     boost::filesystem::path const & script_abspath,
     boost::filesystem::path const & cache_abspath)
 {
     check_absolute(script_abspath);
     check_absolute(cache_abspath);
 
-    // TODO: write info file with hostname and script path
+    auto result = boost::filesystem::create_directories(cache_abspath);
 
-    return boost::filesystem::create_directories(cache_abspath);
+    write_info(hostname, script_abspath, cache_abspath);
+
+    return result;
 }
 
 

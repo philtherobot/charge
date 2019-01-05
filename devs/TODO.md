@@ -20,11 +20,6 @@ Done for Windows.
 TODO for other platforms.
 
 
-## Cache info file
-
-write info file with hostname and script path
-
-
 ## Load MSVC environment before launching compiler
 
 It would be best to load, at least I think, to load vcvarsall.bat before
@@ -93,7 +88,6 @@ In order for running scripts to find where the source script is located, setup a
 - Enable stricter warnings
 - Enable _CRT_SECURE_NO_WARNINGS for MSVC
 - YAML exception messages are useless
-- In README, fix YAML URL
 - Implement way to link against a library directly.
 - "Purge" option
 - Documentation: doc is never finished.

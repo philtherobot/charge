@@ -23,7 +23,7 @@ Config read_config(boost::filesystem::path const & fn)
 void write_config(Config const & config, boost::filesystem::path const & fn)
 {
     std::ofstream config_stream(fn.string());
-    config_stream << config;
+    config_stream << config << '\n';
 }
 
 } // charge
