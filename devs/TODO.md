@@ -98,5 +98,4 @@ In order for running scripts to find where the source script is located, setup a
 - "Purge" option
 - Documentation: doc is never finished.
 - POSIX platform support
-- Test that ShellProcess grabs both stdout and stderr
 - --copy option to get executable from the cache
