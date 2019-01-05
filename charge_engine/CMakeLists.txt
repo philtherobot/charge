@@ -3,6 +3,7 @@ project(charge_engine)
 add_library(charge_engine
     src/cache.cpp
     src/compiler.cpp
+    src/command_line.cpp
     src/config.cpp
     src/engine.cpp
     src/InclusionNotesPredicate.cpp

@@ -6,6 +6,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 add_executable(tests
     test_cache.cpp
+    test_command_line.cpp
     test_compiler.cpp
     test_process.cpp
     test_imports.cpp
