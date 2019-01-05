@@ -8,9 +8,9 @@
 namespace charge
 {
 
-class Commandable;
+class ChargeInterface;
 
-int run_command_line(StringList const & args, Commandable & cmds, std::ostream & user_console);
+int run_command_line(StringList const & args, ChargeInterface & charge_impl, std::ostream & user_console);
 
 } // charge
 

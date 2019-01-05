@@ -10,19 +10,7 @@
 
 int main_really(charge::StringList const & args)
 {
-    if (args.size() < 2)
-    {
-        throw charge::CommandLineArgumentError(
-            "missing script"
-        );
-    }
-
-    std::string script(args[1]);
-
-    charge::StringList script_args;
-    std::copy(args.begin() + 2, args.end(), std::back_inserter(script_args));
-
-    return charge::charge(script, script_args);
+    return charge::charge(args);
 }
 
 int main(int argc, char ** argv)

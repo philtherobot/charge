@@ -1,6 +1,6 @@
 
+#include "../src/ChargeInterface.hpp"
 #include "../src/command_line.hpp"
-#include "../src/Commandable.hpp"
 
 #include "helpers.hpp"
 
@@ -9,14 +9,21 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
+
 using charge::StringList;
 
 namespace
 {
 
-class MockCommander : public charge::Commandable
+class MockScript : public charge::ScriptInterface
 {
 public:
+
+    explicit MockScript(boost::filesystem::path const & path)
+        : path_(path)
+    {}
+
     virtual int compile()
     {
         calls_.push_back("compile");
@@ -36,21 +43,22 @@ public:
         return 0;
     }
 
-
-    virtual int copy_executable()
-    {
-        calls_.push_back("copy_executable");
-        return 0;
-    }
-
-    virtual int purge()
-    {
-        calls_.push_back("purge");
-        return 0;
-    }
-
+    boost::filesystem::path const path_;
     charge::StringList calls_;
     charge::StringList execute_args_;
+};
+
+
+class MockCharge : public charge::ChargeInterface
+{
+public:
+    virtual std::shared_ptr<charge::ScriptInterface> script(boost::filesystem::path const & path)
+    {
+        script_.reset(new MockScript(path));
+        return script_;
+    }
+
+    std::shared_ptr<MockScript> script_;
 };
 
 
@@ -60,10 +68,14 @@ public:
 
     int run_command_line(StringList const & args)
     {
-        return charge::run_command_line(args, cmder_, console_);
+        StringList args_with_arg0;
+        args_with_arg0.push_back("charge_executable");
+        std::copy(args.begin(), args.end(), std::back_inserter(args_with_arg0));
+
+        return charge::run_command_line(args_with_arg0, charge_impl_, console_);
     }
 
-    MockCommander cmder_;
+    MockCharge charge_impl_;
     std::ostringstream console_;
 };
 
@@ -89,9 +101,11 @@ BOOST_FIXTURE_TEST_CASE(no_arguments, Fixture)
 {
     run_command_line(StringList{ "script.cpp" });
 
+    BOOST_REQUIRE(charge_impl_.script_);
+
     StringList expected{ "update", "execute" };
 
-    BOOST_CHECK_EQUAL(cmder_.calls_, expected);
+    BOOST_CHECK_EQUAL(charge_impl_.script_->calls_, expected);
 }
 
 
@@ -99,29 +113,35 @@ BOOST_FIXTURE_TEST_CASE(force, Fixture)
 {
     run_command_line(StringList{ "-f", "script.cpp" });
 
-    StringList expected{ "compile" };
-
-    BOOST_CHECK_EQUAL(cmder_.calls_, expected);
-}
-
-
-BOOST_FIXTURE_TEST_CASE(force_execute, Fixture)
-{
-    run_command_line(StringList{ "--force", "-e", "script.cpp" });
+    BOOST_REQUIRE(charge_impl_.script_);
 
     StringList expected{ "compile", "execute" };
 
-    BOOST_CHECK_EQUAL(cmder_.calls_, expected);
+    BOOST_CHECK_EQUAL(charge_impl_.script_->calls_, expected);
 }
 
 
-BOOST_FIXTURE_TEST_CASE(execute, Fixture)
+BOOST_FIXTURE_TEST_CASE(force_noexecute, Fixture)
 {
-    BOOST_CHECK(
-        charge::test::catch_exception<charge::CommandLineArgumentError>(
-            [&]() { run_command_line(StringList{ "--execute", "script.cpp" }); }
-        )
-    );
+    run_command_line(StringList{ "-fn", "script.cpp" });
+
+    BOOST_REQUIRE(charge_impl_.script_);
+
+    StringList expected{ "compile" };
+
+    BOOST_CHECK_EQUAL(charge_impl_.script_->calls_, expected);
+}
+
+
+BOOST_FIXTURE_TEST_CASE(noexecute, Fixture)
+{
+    run_command_line(StringList{ "--noexecute", "script.cpp" });
+
+    BOOST_REQUIRE(charge_impl_.script_);
+
+    StringList expected{ "update" };
+
+    BOOST_CHECK_EQUAL(charge_impl_.script_->calls_, expected);
 }
 
 
@@ -129,11 +149,13 @@ BOOST_FIXTURE_TEST_CASE(script_arguments, Fixture)
 {
     run_command_line(StringList{ "script.cpp", "a", "b" });
 
+    BOOST_REQUIRE(charge_impl_.script_);
+
     StringList expected{ "update", "execute" };
     StringList expected_args{ "a", "b" };
 
-    BOOST_CHECK_EQUAL(cmder_.calls_, expected);
-    BOOST_CHECK_EQUAL(cmder_.execute_args_, expected_args);
+    BOOST_CHECK_EQUAL(charge_impl_.script_->calls_, expected);
+    BOOST_CHECK_EQUAL(charge_impl_.script_->execute_args_, expected_args);
 }
 
 
@@ -141,6 +163,7 @@ BOOST_FIXTURE_TEST_CASE(help, Fixture)
 {
     run_command_line(StringList{ "--help" });
 
+    BOOST_CHECK(!charge_impl_.script_);
     BOOST_CHECK(!console_.str().empty());
 }
 

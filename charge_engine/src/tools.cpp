@@ -88,3 +88,25 @@ boost::optional<ProgramDetector::Result> ProgramDetector::look_for_program(std::
 
 
 } // charge
+
+
+namespace std
+{
+
+std::ostream & operator << (std::ostream & os, charge::FileList const & fl)
+{
+    os << '(';
+    if (fl.size())
+    {
+        auto set_it = fl.begin();
+        os << *set_it;
+        while (++set_it != fl.end())
+        {
+            os << ',' << *set_it;
+        }
+    }
+    os << ')';
+    return os;
+} 
+
+} //std

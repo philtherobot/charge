@@ -1,7 +1,7 @@
 
 #include "command_line.hpp"
 
-#include "Commandable.hpp"
+#include "ChargeInterface.hpp"
 
 #include <charge/exception.hpp>
 
@@ -10,7 +10,22 @@
 namespace charge
 {
 
-int run_command_line(StringList const & args, Commandable & cmds, std::ostream & user_console)
+namespace
+{
+
+StringList butfirst(StringList const & a)
+{
+    if (a.empty()) { return StringList();  }
+
+    StringList r = a;
+    r.erase(r.begin());
+    return r;
+}
+
+} // anonymous
+
+
+int run_command_line(StringList const & args, ChargeInterface & charge_impl, std::ostream & user_console)
 {
     namespace po = boost::program_options;
 
@@ -19,17 +34,24 @@ int run_command_line(StringList const & args, Commandable & cmds, std::ostream &
     options.add_options()
         ("help,h", "get help on options")
         ("force,f", "force compilation even if up to date")
-        ("update,u", "compile the script if it is out of date")
-        ("execute,e", "execute script")
+        ("noexecute,n", "do not execute script")
         ("script", po::value< StringList >(), "input script")
         ;
+
+    /*
+    We are cheating: the "script" option (which is positional) is
+    made to hold more the just the script.  It holds all the
+    positional arguments.
+    */
+
+    // TODO: remove "script" from the help text.
 
     po::positional_options_description p;
     p.add("script", -1);
 
     po::variables_map values;
 
-    auto parser = po::command_line_parser(args).options(options).positional(p);
+    auto parser = po::command_line_parser(butfirst(args)).options(options).positional(p);
 
     po::store(parser.run(), values);
 
@@ -48,40 +70,27 @@ int run_command_line(StringList const & args, Commandable & cmds, std::ostream &
 
     StringList input_args = values["script"].as<StringList>();
 
-    std::string script(input_args[0]);
+    std::string script_filepath(input_args[0]);
+
+    auto script_object = charge_impl.script(script_filepath);
 
     StringList script_args;
     std::copy(input_args.begin() + 1, input_args.end(), std::back_inserter(script_args));
 
     int exit_code = 0;
 
-    bool no_operation_required = true;
-
     if (values.count("force"))
     {
-        no_operation_required = false;
-        exit_code = cmds.compile();
+        exit_code = script_object->compile();
+    }
+    else
+    {
+        exit_code = script_object->update();
     }
 
-    if (values.count("update"))
+    if (!values.count("noexecute"))
     {
-        no_operation_required = false;
-        exit_code = cmds.update();
-    }
-
-    if (values.count("execute"))
-    {
-        if (no_operation_required)
-        {
-            throw CommandLineArgumentError("it is not allowed to execute without updating first");
-        }
-        exit_code = cmds.execute(script_args);
-    }
-
-    if (no_operation_required)
-    {
-        cmds.update();
-        exit_code = cmds.execute(script_args);
+        exit_code = script_object->execute(script_args);
     }
 
     return exit_code;

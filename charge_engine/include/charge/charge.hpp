@@ -4,13 +4,11 @@
 #include <charge/exception.hpp>
 #include <charge/types.hpp>
 
-#include <boost/filesystem/path.hpp>
-
 
 namespace charge
 {
 
-int charge(boost::filesystem::path const & script, StringList const & args);
+int charge(StringList const & args);
 
 } // charge
 
