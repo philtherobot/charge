@@ -30,7 +30,9 @@ std::string quote(std::string const & str)
 
 std::string quote_if_needed(std::string const & str)
 {
-    if (boost::range::find_if(str, std::isspace) != str.end())
+    auto isspace = [](unsigned char c){ return std::isspace(c); };
+
+    if (boost::range::find_if(str, isspace) != str.end())
     {
         return quote(str);
     }

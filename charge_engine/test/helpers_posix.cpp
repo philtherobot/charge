@@ -13,7 +13,7 @@ boost::filesystem::path make_absolute_path(boost::filesystem::path const & gener
     using boost::filesystem::path;
 
     auto abs_path =
-        path("C:\\") /
+        path("/") /
         generic_path.relative_path()
     ;
 

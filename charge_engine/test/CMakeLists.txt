@@ -4,6 +4,23 @@ project(charge_engine_test)
 # functions needed by Boost Test.
 set(CMAKE_CXX_EXTENSIONS ON)
 
+
+set(platform_sources)
+
+if(WIN32)
+
+    list(APPEND platform_sources
+        helpers_win.cpp
+    )
+
+else()
+
+    list(APPEND platform_sources
+        helpers_posix.cpp
+    )
+
+endif()
+
 add_executable(tests
     test_cache.cpp
     test_command_line.cpp
@@ -12,7 +29,8 @@ add_executable(tests
     test_imports.cpp
     test_initialization.cpp
     test_InclusionNotesPredicate.cpp
-    helpers_win.cpp
+
+    ${platform_sources}
 )
 
 target_link_libraries(tests

@@ -16,6 +16,7 @@
 #include <boost/range/algorithm/transform.hpp>
 
 #include <ctime>
+#include <fstream>
 #include <iterator>
 
 namespace charge
@@ -91,7 +92,8 @@ int Script::compile()
     }
     else
     {
-        compiler_config = configure(ProgramDetector());
+        ProgramDetector detector;
+        compiler_config = configure(detector);
         config["compiler"] = compiler_config;
         write_config(config, config_path);
     }
@@ -179,7 +181,8 @@ Charge::ScriptInterfacePointer Charge::script(boost::filesystem::path const & pa
 
 int charge(StringList const & args)
 {
-    return run_command_line(args, Charge(), std::cout);
+    Charge charge_impl;
+    return run_command_line(args, charge_impl, std::cout);
 }
 
 } // charge

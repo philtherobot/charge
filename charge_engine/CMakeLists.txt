@@ -1,5 +1,27 @@
 project(charge_engine)
 
+
+set(platform_sources)
+
+if(WIN32)
+
+    list(APPEND platform_sources
+        src/platform_win.cpp
+        src/process_win.cpp
+        src/tools_win.cpp
+    )
+
+else()
+
+    list(APPEND platform_sources
+        src/platform_posix.cpp
+        src/process_posix.cpp
+        src/tools_posix.cpp
+    )
+
+endif()
+
+
 add_library(charge_engine
     src/cache.cpp
     src/charge.cpp
@@ -13,9 +35,7 @@ add_library(charge_engine
     src/tools.cpp
     src/types.cpp
 
-    src/platform_win.cpp
-    src/process_win.cpp
-    src/tools_win.cpp
+    ${platform_sources}
 )
 
 target_link_libraries(charge_engine ${CONAN_LIBS})
