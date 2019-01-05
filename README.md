@@ -91,14 +91,14 @@ The C++ comment `// chargetrick import boost_filesystem` is seen by Charge befor
 ## Options
 
 
-### Force compilation `-f`
+### Force compilation `--force`
 
 Charge will not perform an "up to date" check and will compile the script unconditionally prior to executing it normally.
 
 
-### Update `-u`
+### Do not execute `--noexecute`
 
-Charge will ensure the cached executable is up to date with the sources like usual but will not launch the script.  This option is useful to ensure the next launch will be quick.
+Charge will only perform the compilation step and will not launch the executable.  This option is useful to ensure the next launch will be quick.
 
 
 ## Environment
@@ -120,15 +120,3 @@ Charge uses the file modification times to verify if the script needs to be reco
 Charge cannot reliably handle multiple invocations of the same script at the same time that would result in a compilation.  The mutiple executing `charge` invocations will all try to compile the cached executable and write to the same output file at the same time which will cause a compilation failure.  Possible workaround are:
 - Do nothing: maybe you can handle/ignore a failure like this from time to time.  
 - Use the update option (`-u`) to ensure the cached executable is up to date before launching the multiprocessing system.
-
-
-## Future
-
-### Important
-
-- Find or write a small companion library that makes it easy to do things that are already easy in shell scripting: launching subprocesses, piping to/from them, manipulating environment variables, etc.
-
-### Wishes
-
-- Add an option to compile the executable and place it in the current directory.
-- Try to spoof argument zero.  Or offer a library that the script can use to recover the script's filename.

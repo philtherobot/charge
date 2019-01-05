@@ -89,13 +89,14 @@ In order for running scripts to find where the source script is located, setup a
 
 ## Small things
 
+
 - Enable stricter warnings
 - Enable _CRT_SECURE_NO_WARNINGS for MSVC
 - YAML exception messages are useless
 - In README, fix YAML URL
 - Implement way to link against a library directly.
-- "Force compilation" option
-- "Update" option
 - "Purge" option
 - Documentation: doc is never finished.
 - POSIX platform support
+- Test that ShellProcess grabs both stdout and stderr
+- --copy option to get executable from the cache
