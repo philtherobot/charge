@@ -82,6 +82,19 @@ We should think about making the chargetrick a YAML document.  Since we will pro
 In order for running scripts to find where the source script is located, setup an environment variable named `CHARGE_SCRIPT` in the running script.
 
 
+## Subprocess testing
+
+Need to test that stdin and stdout work properly from Charge:
+
+```
+charge pgm.cpp < files
+```
+
+We already test arguments passing and exit code.  We assume environment works.
+
+Also, at least on POSIX but maybe also on Windows, what happens when child receives a signal or crashes?
+
+
 ## Small things
 
 

@@ -45,6 +45,13 @@ public:
             "GNU C++ compiler 8.2.0\n",
             "g++"
         };
+
+        compiler_families_["clang"] = Family{
+            "clang",
+            "clang --version",
+            "Clang C++ compiler 1.0.0\n",
+            "clang"
+        };
     }
 
     class MockProgramDetector : public charge::ProgramDetector

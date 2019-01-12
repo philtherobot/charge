@@ -9,6 +9,7 @@
 #include <boost/range/algorithm/find_if.hpp>
 
 #include <cctype>
+#include <cerrno>
 #include <sstream>
 
 
@@ -65,6 +66,7 @@ std::string make_errno_message(std::string const & from_function, int err)
 {
     std::ostringstream os;
     os << "system (errno) error " << err;
+    os << " (" << strerror(err) << ") ";
     os << " in function " << from_function;
     return os.str();
 }

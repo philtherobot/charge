@@ -68,6 +68,23 @@ boost::optional<Config> detect_gcc(ProgramDetector & detector)
 }
 
 
+boost::optional<Config> detect_clang(ProgramDetector & detector)
+{
+    auto result = detector.look_for_program("clang --version");
+    if (!result) return boost::optional<Config>();
+
+    if ((*result).exit_code_ != 0) return boost::optional<Config>();
+
+    // TODO: check for some signature in the output.
+
+    Config conf;
+    conf["command"] = "clang";
+    conf["family"] = "clang";
+
+    return conf;
+}
+
+
 } // anonymous
 
 
@@ -78,6 +95,7 @@ Config configure(ProgramDetector & program_detector)
     {
         if (compiler_family == "msvc") return &detect_msvc;
         if (compiler_family == "gcc") return &detect_gcc;
+        if (compiler_family == "clang") return &detect_clang;
         throw UnsupportedFamilyError(compiler_family);
     };
 
