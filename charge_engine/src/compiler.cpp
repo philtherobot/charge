@@ -158,9 +158,11 @@ std::string Compiler::msvc_command_line(Arguments const & args) const
         quote_if_needed(cl_cmd),
         "/nologo",
         "/TP",
-        "/MD",
+        "/MDd",
         "/showIncludes",
         "/EHsc",
+        "/Od",
+        "/Zi",
         quote_if_needed("/Fe:" + args.executable_output_fn_.string()),
         quote_if_needed("/Fo:" + p.string())
     };
@@ -179,6 +181,10 @@ std::string Compiler::msvc_command_line(Arguments const & args) const
         linker_options.push_back(quote_if_needed("/LIBPATH:"s + lib_path));
     }
 
+    for (auto static_lib : args.static_libraries_)
+    {
+        linker_options.push_back(quote_if_needed(static_lib));
+    }
 
     StringList words;
 
