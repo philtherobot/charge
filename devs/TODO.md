@@ -48,9 +48,9 @@ Make a simple configuration class that is implemented with YAML.
 
 ## namespace and details strategy
 
-Should we have a "details" namespace where things such as "ReadbleStream", which is not part of the public API of charge but rather an implementation detail, are placed?
+Should we have a "details" namespace where things such as "ReadableStream", which is not part of the public API of charge but rather an implementation detail, are placed?
 
-Should we simply rely on "public" versus "private" headers?  I think not, the references made in the code do not show if an identifer is part of the public API or an implementation detail.
+Should we simply rely on "public" versus "private" headers?  I think not, the references made in the code do not show if an identifier is part of the public API or an implementation detail.
 
 
 ## Macro definition for libraries
@@ -95,8 +95,12 @@ We already test arguments passing and exit code.  We assume environment works.
 Also, at least on POSIX but maybe also on Windows, what happens when child receives a signal or crashes?
 
 
-## Small things
+## make_absolute_path
 
+`make_absolute_path` has a reference to "C:\".  At least the function is limited to tests, but this is still an issue. What if the host does not have a "C" drive?
+
+
+## Small things
 
 - Enable stricter warnings
 - Enable _CRT_SECURE_NO_WARNINGS for MSVC
@@ -105,4 +109,6 @@ Also, at least on POSIX but maybe also on Windows, what happens when child recei
 - "Purge" option
 - Documentation: doc is never finished.
 - POSIX platform support
-- --copy option to get executable from the cache
+- `--copy` option to get executable from the cache
+- `--compile-only` option to only compile
+

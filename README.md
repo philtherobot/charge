@@ -27,7 +27,7 @@ Charge can be used to:
 - Easily learn C++ programming and ignore compiler command-lines and build systems initially.
 - Quickly test an hypothesis.  If you do not need to actually execute the script, it might now be even quicker and more powerful to use [Compiler Explorer](https://godbolt.org/).
 - Code a one-use script that will be more comfortable to write in C++ versus the other choices (Bash, Python, etc).
-- Get away from shell quoting, word splitting and quote removal issues.
+- Get away from shell quoting, word splitting and quote removal issues common with traditional shell languages.
 
 
 ## Requirements
@@ -96,7 +96,7 @@ The C++ comment `// chargetrick import boost_filesystem` is seen by Charge befor
 Charge will not perform an "up to date" check and will compile the script unconditionally prior to executing it normally.
 
 
-### Do not execute `--noexecute`
+### Do not execute `--compile-only`
 
 Charge will only perform the compilation step and will not launch the executable.  This option is useful to ensure the next launch will be quick.
 
@@ -117,6 +117,6 @@ Charge uses the file modification times to verify if the script needs to be reco
 - Change the source file's name at every generation, or every X generations (like "f1" to "f10" then cycle back).
 - Since the main script knows it changed the source file, it could launch it with the "force compilation" option (-f).
 
-Charge cannot reliably handle multiple invocations of the same script at the same time that would result in a compilation.  The mutiple executing `charge` invocations will all try to compile the cached executable and write to the same output file at the same time which will cause a compilation failure.  Possible workaround are:
+Charge cannot reliably handle multiple invocations of the same script at the same time that would result in a compilation.  The multiple executing `charge` invocations will all try to compile the cached executable and write to the same output file at the same time which will cause a compilation failure.  Possible workaround are:
 - Do nothing: maybe you can handle/ignore a failure like this from time to time.  
-- Use the update option (`-u`) to ensure the cached executable is up to date before launching the multiprocessing system.
+- Use the `--compile-only` option to ensure the cached executable is up to date before launching the multiprocessing system.
