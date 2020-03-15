@@ -1,3 +1,9 @@
 * text=auto
 *.bat text eol=crlf
 *.vbs text eol=crlf
+*.cpp text
+*.hpp text
+*.txt text
+*.cmake text
+*.md text
+*.sh text
