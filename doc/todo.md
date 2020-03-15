@@ -1,5 +1,12 @@
 # Things to do
 
+## exec_win tests are failing
+
+Small size.
+High priority.
+
+The `charge_engine/test/exec_win` tests are currently failing.  First investigate why, then either fix or write more TODOs.
+
 ## Complete the reference for command line options
 
 Medium size.
