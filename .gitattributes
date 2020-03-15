@@ -3,7 +3,7 @@
 *.vbs text eol=crlf
 *.cpp text
 *.hpp text
-*.txt text
+*.txt text=auto
 *.cmake text
 *.md text
 *.sh text
