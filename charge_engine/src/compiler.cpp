@@ -167,6 +167,10 @@ std::string Compiler::msvc_command_line(Arguments const & args) const
         quote_if_needed("/Fo:" + p.string())
     };
 
+    for (auto define: args.defines_)
+    {
+        options.push_back(quote_if_needed("/D"s + define));
+    }
 
     for (auto header_path : args.header_paths_)
     {

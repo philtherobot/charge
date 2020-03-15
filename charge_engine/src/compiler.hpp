@@ -24,6 +24,7 @@ public:
     struct Arguments
     {
         boost::filesystem::path source_;
+        StringList defines_;
         StringList header_paths_;
         StringList static_libraries_;
         StringList system_libraries_;

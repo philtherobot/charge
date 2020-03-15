@@ -3,6 +3,9 @@
 
 ## Configuration
 
+The configuration file is located at `$HOME/.charge` (`%USERPROFILE%\.charge` on Windows).
+
+The configuration file is a [YAML](https://yaml.org/) file.
 
 ### Top level keys
 
@@ -18,9 +21,8 @@ The top level key `compiler` contains these keys:
 - `family`: a string with a value of one of:
   - `msvc`
   - `gcc`
-  - `clang`
 
-- `command`: a string of the shell command of the compiler.
+- `command`: the shell string for the compiler exectuble.  Example: `/usr/bin/g++4.9`.
 
 
 #### Libraries
@@ -31,8 +33,9 @@ The top level key `libraries` follows this structure:
 
 Use a `header_path` key to add a directory to search for included headers.
 
-Use a `lib_path` key to add a directory to search for library files (such as `\*.lib `).
+Use a `lib_path` key to add a directory to search for library files (such as `*.lib `).
 
+Use a `static_library` key to link with a static library.  The value is the file path of the library.
 
 ## Tricks
 
@@ -40,3 +43,6 @@ Use a `lib_path` key to add a directory to search for library files (such as `\*
 
 The `import` trick makes Charge compile the script with the configured library (see Configuration).
 
+## Command-line options
+
+To Be Completed.

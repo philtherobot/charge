@@ -13,6 +13,7 @@ namespace charge
 class Libraries
 {
 public:
+    StringList defines_;
     StringList header_paths_;
     StringList static_;
     StringList system_;

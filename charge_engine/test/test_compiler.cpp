@@ -183,13 +183,15 @@ BOOST_AUTO_TEST_CASE(msvc_compile_command)
 
     charge::Compiler::Arguments args;
     args.source_ = "C:\\user\\script.cpp";
+    args.defines_ = { "_NOEXCEPT=noexcept" };
     args.executable_output_fn_ = "C:\\cache\\123\\executable.exe";
 
     BOOST_CHECK_EQUAL(
         compiler.msvc_command_line(args),
-        "\"C:\\Program Files\\cl.exe\" /nologo /TP /MD /showIncludes /EHsc"
+        "\"C:\\Program Files\\cl.exe\" /nologo /TP /MDd /showIncludes /EHsc /Od /Zi"
         " /Fe:C:\\cache\\123\\executable.exe"
         " /Fo:C:\\cache\\123\\executable.obj"
+        " /D_NOEXCEPT=noexcept"
         " C:\\user\\script.cpp"
     );
 }

@@ -5,7 +5,7 @@ Charge makes C++ programming easier by joining the compilation and launching ste
 Workflow:
 
 1. Code with a text editor.
-2. In the shell, compile and run with `charge pgm.cpp`.
+2. In the shell, run your program with `charge pgm.cpp`.
 
 Command-line arguments are passed to the executable so your C++ script can receive them:
 
@@ -25,18 +25,17 @@ Charge can be used to:
 
 - Program in your favorite language (C++!) more often.
 - Easily learn C++ programming and ignore compiler command-lines and build systems initially.
-- Quickly test an hypothesis.  If you do not need to actually execute the script, it might now be even quicker and more powerful to use [Compiler Explorer](https://godbolt.org/).
+- Quickly test an hypothesis.  If you do not need to actually execute the script, it might now even be quicker and more powerful to use [Compiler Explorer](https://godbolt.org/).
 - Code a one-use script that will be more comfortable to write in C++ versus the other choices (Bash, Python, etc).
 - Get away from shell quoting, word splitting and quote removal issues common with traditional shell languages.
 
 
 ## Requirements
 
-Charge runs on Windows and POSIX platforms such as Linux.  It will automatically detect and use one of these compilers if they are installed:
+Charge runs on Windows and POSIX platforms such as Linux.  It automatically detect and use one of these compilers if they are installed:
 
 - Microsoft Visual Studio
 - GNU C++
-- clang
 
 
 ## Installation
@@ -108,15 +107,29 @@ Charge sets up an environment variable named `CHARGE_SCRIPT`.  This variable is 
 
 ## Limitations and working around them
 
+### Reusing code
+
 Charge can only build scripts made of a single *compilation unit*: one source file as input.  What if you have a library of functions you want to share across many scripts?  You will have to place those functions, with their definitions, in a separate file and use an `#include` directive to bring in the functions in each of your scripts.
 
+### Finding the filepath to the running script
+
 Your script will receive the arguments the user gave on the command-line when the script was invoked.  But the very first one, argument zero, which is usually the script's filename, will not be correct.  Argument zero will be the cached executable filename.  A workaround is to read the `CHARGE_SCRIPT` environment variable that has been setup for the executing program.  The variable contains the filepath of the script given to the `charge` command.
+
+### Writing and running scripts in rapid-fire succession
 
 Charge uses the file modification times to verify if the script needs to be recompiled.  Because file times have limited precision (which depends on a variety of factors), if a compilation-modification-dependency check cycle is done very quickly, the dependency check could fail and declare that the file was not changed.  This can occur in scenarios of scripts being launch by another script very quickly.  For example, if a main script generates a subscript based on some input and launches it, the source file will be compiled and its cached executable will have a file modification time equal to the time of compilation.  In this scenario, the main script, upon return of the subscript, rewrites the subscript to something different.  If the main script accomplished this quickly enough that the new subscript has the same file modification time as the cached executable, then Charge's dependency will fail by declaring that the cache is up to date.  To workaround this:
 - Make the main script wait for at least your file system's time precision.
 - Change the source file's name at every generation, or every X generations (like "f1" to "f10" then cycle back).
 - Since the main script knows it changed the source file, it could launch it with the "force compilation" option (-f).
 
+### One script called by multiple clients at the same time
+
 Charge cannot reliably handle multiple invocations of the same script at the same time that would result in a compilation.  The multiple executing `charge` invocations will all try to compile the cached executable and write to the same output file at the same time which will cause a compilation failure.  Possible workaround are:
 - Do nothing: maybe you can handle/ignore a failure like this from time to time.  
 - Use the `--compile-only` option to ensure the cached executable is up to date before launching the multiprocessing system.
+
+### Compiling script read from stdin
+
+Because Charge caches the compilation result, it needs some reference to check if the cached executable is out of date.  This reference is primarily the source script file's modification date and time.  Without a source script file, there is no cache expiry reference.
+
+We do not support compiling stdin and force the user to do what Charge would have to do to support stdin: write the stream to a temporary file before compiling.

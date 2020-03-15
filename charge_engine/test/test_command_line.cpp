@@ -123,7 +123,7 @@ BOOST_FIXTURE_TEST_CASE(force, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(force_noexecute, Fixture)
 {
-    run_command_line(StringList{ "-fn", "script.cpp" });
+    run_command_line(StringList{ "-fc", "script.cpp" });
 
     BOOST_REQUIRE(charge_impl_.script_);
 
@@ -133,9 +133,9 @@ BOOST_FIXTURE_TEST_CASE(force_noexecute, Fixture)
 }
 
 
-BOOST_FIXTURE_TEST_CASE(noexecute, Fixture)
+BOOST_FIXTURE_TEST_CASE(compile_only, Fixture)
 {
-    run_command_line(StringList{ "--noexecute", "script.cpp" });
+    run_command_line(StringList{ "--compile-only", "script.cpp" });
 
     BOOST_REQUIRE(charge_impl_.script_);
 

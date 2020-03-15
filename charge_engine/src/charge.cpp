@@ -103,6 +103,7 @@ int Script::compile()
     Compiler::Arguments compiler_args;
     compiler_args.source_ = path_;
 
+    compiler_args.defines_ = libraries.defines_;
     compiler_args.header_paths_ = libraries.header_paths_;
     compiler_args.static_libraries_ = libraries.static_;
     compiler_args.system_libraries_ = libraries.system_;

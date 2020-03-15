@@ -89,6 +89,11 @@ StringList library_part(StringList const & libraries,
     return r;
 }
 
+StringList defines(StringList const & libraries, Config const & config)
+{
+  return library_part(libraries, config, "defines");
+}
+
 StringList header_paths(StringList const & libraries, Config const & config)
 {
     return library_part(libraries, config, "header_path");
@@ -119,6 +124,7 @@ Libraries find_imports(Config const & config, std::istream & is)
 
     Libraries libs;
 
+    libs.defines_ = defines(libraries, config);
     libs.header_paths_ = header_paths(libraries, config);
     libs.static_ = static_libraries(libraries, config);
     libs.system_ = system_libraries(libraries, config);
@@ -127,22 +133,18 @@ Libraries find_imports(Config const & config, std::istream & is)
     return libs;
 }
 
-} // charge
 
-
-namespace std
+std::ostream & operator << (std::ostream & os, Libraries const & libs)
 {
+  os << "Libraries(\n";
 
-std::ostream & operator << (std::ostream & os, charge::Libraries const & libs)
-{
-    os << "Libraries(\n";
-
-    os << "  header paths: " << libs.header_paths_ << '\n';
-    os << "  static: " << libs.static_ << '\n';
-    os << "  system: " << libs.system_ << '\n';
-    os << "  lib paths: " << libs.lib_paths_ << '\n';
-    os << ")\n";
-    return os;
+  os << "  defines: " << libs.defines_ << '\n';
+  os << "  header paths: " << libs.header_paths_ << '\n';
+  os << "  static: " << libs.static_ << '\n';
+  os << "  system: " << libs.system_ << '\n';
+  os << "  lib paths: " << libs.lib_paths_ << '\n';
+  os << ")\n";
+  return os;
 }
 
-} // std
+} // charge
