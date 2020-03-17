@@ -3,7 +3,9 @@
 *.vbs text eol=crlf
 *.cpp text
 *.hpp text
-*.txt text=auto
+*.txt text
 *.cmake text
 *.md text
 *.sh text
+
+charge_engine/test/exec_win/** text eol=crlf
