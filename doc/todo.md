@@ -1,40 +1,71 @@
 # Things to do
 
-## exec_win tests are failing
+
+## Finding the script filepath via CHARGE_SCRIPT
 
 Small size.
 High priority.
 
-The `charge_engine/test/exec_win` tests are currently failing.  First investigate why, then either fix or write more TODOs.
+This is high priority because the documentation mentions this in more than a single place and now its either change the doc once to remove this and then again to put it back.
 
-## Complete the reference for command line options
+In order for running scripts to find where the source script is located, setup an environment variable named `CHARGE_SCRIPT` in the running script.
 
-Medium size.
-Medium priority.
 
-The top-level README has a description of the options, but the reference, for completeness, also needs to cover them.  I have left a "To be completed" note in `reference.md`.
-
-## gcc support
+## Complete tests for `ShellProcess` 
 
 Large size.
 High priority.
 
-This is high priority because the documentation mentions gcc support.  I got ahead of myself, and the actual implementation does not support the doc.  An option is to remove gcc from the documentation.  Which in turns means to forget all pretense of being multi-platform.  I simply made the mistake of documenting things I had not implemented.
+We need to cover the following cases:
+- we can capture STDOUT and STDERR
+- Environment variable expansion takes place (shell facilities such as alias and actual program is a Batch file is supported)
+- we can capture the exit code
 
-Add support for gcc.  We need auto-detection.  Command-line writing.  Documentation.
 
-## clang support
-
-Large size.
-Low priority.
-
-Add support for clang.  We need auto-detection.  Command-line writing.  Documentation.
-
-## Start from zero tutorial
+## Test that all three STDIO work normally for `charge::exec`
 
 Medium size.
+High priority.
 
-The tutorial needs to start with an "Hello World" example.  Use to editor to write a simple program.  What is the command-line to launch it.
+Need to test that piping to a script works properly:
+
+```
+charge pgm.cpp < files > output
+```
+
+Do not forget stderr.
+
+Piping out is covered in `exec_win/exec`.
+
+### Notes
+
+This could be done at the level of the `charge` executable itself, for a full integration test.  This can also be done at the level of `charge::exec`.  I think the latter is best because then we are concentrating all the nasty shell and BAT scripts-based tests to that component.  Afterwards, we will assume the rest of the `charge` process is not interfering with the pipes.
+
+
+## `ShellProcess` is a special case of `charge::exec`
+
+Small size.
+High priority.
+
+In the Windows implementation, `exec` and `ShellProcess` are separate implementations.  There is duplication of somewhat similar nasty OS-specific code.
+
+Differences:
+- `exec` block until the end of the child process: `ShellProcess` returns a reader.
+- `ShellProcess` captures both STDOUT and STDERR, `exec` leaves them alone.
+- `ShellProcess` runs the command in a shell rather than directly as a process.
+
+`charge::exec` should be changed to support optionally capturing STDOUT & STDERR and the exit code.  It would look a lot like `ShellProcess`, being now a class an all.  Then `ShellProcess` could either derive from that and add launching the program inside the shell.  Or a new piece writes a different command line (that runs the command inside a shell) before we launch it with the new `charge::exec`.
+
+I would still test `ShellProcess` with scripts, to be 100% certain it works. 
+
+
+## Enable stricter warnings
+
+Medium size.
+High priority.
+
+Compilation of Charge should be done at an higher level of warnings.  Change the CMake project.
+
 
 ## Document compiler defines for libraries in settings
 
@@ -43,6 +74,60 @@ High priority.
 
 Charge supports the `defines` setting in a library definition in the configuration.  This needs to be documented.  I think only the reference needs to talk about `defines`.
 
+
+## Check configuration error reporting 
+
+Small size.
+High priority.
+
+I had a small "to do" about "YAML exception messages are useless".  I have since forgotten what this was about.  Review what happens when YAML throws exceptions.  More importantly, review what happens when the configuration file is badly formatted.  What kind of error does the user get?  Something useful?
+
+
+## Scripts are compiled at a strict warning level
+
+Medium size.
+Medium priority.
+
+Compilation of *scripts* should be done at an higher level of warnings.
+
+
+## Disable MSVC "secure no warnings" for scripts
+
+Small size.
+Medium priority.
+
+If a script uses a C++ API that is deemed unsafe by MSVC and the warning level is raised to three, the compiler will issue a "not secure" warning.  For example:
+
+```
+securenowarning.cpp(6): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
+```
+
+Because scripts are meant to be portable, we want to avoid such differences between platforms.  Charge wants to remove as many of these things as possible.  Charge can be seen as a frontend that uniformizes compilers.
+
+With this in mind, what is the correct course of action?  I think we want to offer a modern and safe compilation, so a elevated warning level will be used.  I recommend it myself for MSVC as there are important warnings at level four.  So it seems like we will encounter the "unsafe function" warning.  So that seems like a good idea.
+
+
+## Decide if implementation details should go in a special namespace
+
+Small size.
+Medium priority.
+
+I need to make a decision about where implementation details go.
+
+Should we have a "details" namespace where things such as "ReadableStream", which is not part of the public API of Charge but rather an implementation detail, are placed?
+
+Should we simply rely on "public" versus "private" headers?  I think not because the references made in the code do not show if an identifier is part of the public API or an implementation detail.
+
+
+## Complete the reference for command line options
+
+Medium size.
+Medium priority.
+
+The top-level README has a description of the options, but the reference, for completeness, also needs to cover them.  I have left a "To be completed" note in `reference.md`.
+
+
 ## Programs in the the project share a similar main function
 
 Medium size.
@@ -50,12 +135,14 @@ Medium priority.
 
 There are three programs (`charge`, `run_exec` and `run_process`) that implement the same pattern of main with `try/catch` calling `main_really`.  Make this a reusable component.
 
-## ShellProcess and exec
 
-Small size.
-High priority.
+## Start from zero tutorial
 
-In the Windows implementation, exec is not implemented from ShellProcess.  There is duplication of somewhat similar nasty OS-specific code.
+Medium size.
+Medium priority.
+
+The tutorial needs to start with an "Hello World" example.  Use to editor to write a simple program.  What is the command-line to launch it.
+
 
 ## Config should get its own interface
 
@@ -65,6 +152,7 @@ Medium priority.
 Right now, `YAML::Node` is exposed directly, so we have no firewall between it and our code.  The `Config` object is a `typedef` to `YAML::Node`.
 
 Make a configuration interface class.  Make an implementation of that interface over a YAML file.  Add a depencency injection container that provides access to the configuration object.
+
 
 ## Unit test initialization file has confusing name
 
@@ -92,37 +180,28 @@ New version might have different options for the compiler, so an executable in t
 We need to version the cache (which version of Charge was used to generate it).
 
 
-## Finding the script filepath via CHARGE_SCRIPT
+## gcc support
 
-Small size.
-High priority.
+Large size.
+Low priority.
 
-This is high priority because the documentation mentions this in more than a single place and now its either change the doc once to remove this and then again to put it back.
+This is high priority because the documentation mentions gcc support.  I got ahead of myself, and the actual implementation does not support the doc.  An option is to remove gcc from the documentation.  Which in turns means to forget all pretense of being multi-platform.  I simply made the mistake of documenting things I had not implemented.
 
-In order for running scripts to find where the source script is located, setup an environment variable named `CHARGE_SCRIPT` in the running script.
+Add support for gcc.  We need auto-detection.  Command-line writing.  Documentation.
 
-## Test that all three STDIO work normally
 
-Medium size.
-High priority.
+## clang support
 
-Need to test that piping to and from a script work properly:
+Large size.
+Low priority.
 
-```
-charge pgm.cpp < files > output
-```
-
-Do not forget stderr.
-
-### Notes
-
-This could be done at the level of the `charge` executable itself, for a full integration test.  This can also be done at the level of `charge::exec`.  I think the latter is best because then we are concentrating all the nasty shell and BAT scripts-based tests to that component.  Afterwards, we will assume the rest of the `charge` process is not interfering with the pipes.
+Add support for clang.  We need auto-detection.  Command-line writing.  Documentation.
 
 
 ## Complete the ShellProcess tests for POSIX
 
 Large size.
-High priority.
+Low priority.
 
 The shell scripts to test `charge::exec` are done (state remains to be verified) but the `ShellProcess` tests are not completed.  See `charge_engine/test/exec_posix/shell_process`.
 
@@ -133,54 +212,4 @@ Medium size.
 Low priority.
 
 `make_absolute_path` has a reference to "C:\".  At least the function is limited to tests, but this is still an issue. What if the host does not have a "C" drive?
-
-
-## Enable stricter warnings
-
-Medium size.
-High priority.
-
-Compilation of Charge should be done at an higher level of warnings.  Change the CMake project.
-
-
-## Scripts are compiled at a strict warning level
-
-Medium size.
-Medium priority.
-
-Compilation of *scripts* should be done at an higher level of warnings.
-
-## Disable MSVC "secure no warnings" for scripts
-
-Small size.
-Medium priority.
-
-If a script uses a C++ API that is deemed unsafe by MSVC and the warning level is raised to three, the compiler will issue a "not secure" warning.  For example:
-
-```
-securenowarning.cpp(6): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt\time.h(506): note: see declaration of 'localtime'
-```
-
-Because scripts are meant to be portable, we want to avoid such differences between platforms.  Charge wants to remove as many of these things as possible.  Charge can be seen as a frontend that uniformizes compilers.
-
-With this in mind, what is the correct course of action?  I think we want to offer a modern and safe compilation, so a elevated warning level will be used.  I recommend it myself for MSVC as there are important warnings at level four.  So it seems like we will encounter the "unsafe function" warning.  So that seems like a good idea.
-
-## Check configuration error reporting 
-
-Small size.
-High priority.
-
-I had a small "to do" about "YAML exception messages are useless".  I have since forgotten what this was about.  Review what happens when YAML throws exceptions.  More importantly, review what happens when the configuration file is badly formatted.  What kind of error does the user get?  Something useful?
-
-## Decide if implementation details should go in a special namespace
-
-Small size.
-High priority.
-
-I need to make a decision about where implementation details go.
-
-Should we have a "details" namespace where things such as "ReadableStream", which is not part of the public API of Charge but rather an implementation detail, are placed?
-
-Should we simply rely on "public" versus "private" headers?  I think not because the references made in the code do not show if an identifier is part of the public API or an implementation detail.
 

@@ -2,6 +2,7 @@
 
 ## Wishlist
 
+
 ### Shebang support
 
 Large size.
@@ -25,6 +26,7 @@ int main() {
 Requires Charge to remove the "#!" from the file before sending to the compiler.  This is best done by either rewriting the file to a new temporary file or sending the source to the compiler through a pipe.  Doing so breaks the error messages for the user: either she sees "stdin" or "tmp00023.tmp" as the source filename.
 
 It will be hard and/or imply compromises, but shebang support would be great.
+
 
 ### Load MSVC environment before launching compiler
 
