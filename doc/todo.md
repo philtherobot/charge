@@ -11,6 +11,14 @@ This is high priority because the documentation mentions this in more than a sin
 In order for running scripts to find where the source script is located, setup an environment variable named `CHARGE_SCRIPT` in the running script.
 
 
+## Running a script leaves vc140.pdb in current folder
+
+Small size.
+High priority.
+
+This is a bug.  Running a script leaves files vc140.pdb.
+
+
 ## Complete tests for `ShellProcess` 
 
 Large size.
