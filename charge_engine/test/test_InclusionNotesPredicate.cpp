@@ -8,7 +8,7 @@
 #include <functional>
 
 
-BOOST_AUTO_TEST_SUITE(InclusionNotesPredicate);
+BOOST_AUTO_TEST_SUITE(suite_InclusionNotesPredicate);
 
 namespace
 {
@@ -36,7 +36,7 @@ public:
 }
 
 
-BOOST_AUTO_TEST_CASE(empty_input)
+BOOST_AUTO_TEST_CASE(case_empty_input)
 {
     MockStream mock = MockStream(std::deque<std::string>());
 
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(empty_input)
 }
 
 
-BOOST_AUTO_TEST_CASE(just_warnings)
+BOOST_AUTO_TEST_CASE(case_just_warnings)
 {
     MockStream mock = MockStream(
         {
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(just_warnings)
 }
 
 
-BOOST_AUTO_TEST_CASE(one_note)
+BOOST_AUTO_TEST_CASE(case_one_note)
 {
     MockStream mock = MockStream(
         {
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(one_note)
 }
 
 
-BOOST_AUTO_TEST_CASE(no_final_lf)
+BOOST_AUTO_TEST_CASE(case_no_final_lf)
 {
     MockStream mock = MockStream(
         {

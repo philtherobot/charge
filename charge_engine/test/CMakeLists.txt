@@ -21,23 +21,23 @@ else()
 
 endif()
 
-add_executable(tests
+add_executable(charge_engine_tests
+    initialization.cpp
     test_cache.cpp
     test_command_line.cpp
     test_compiler.cpp
     test_process.cpp
     test_imports.cpp
-    test_initialization.cpp
     test_InclusionNotesPredicate.cpp
 
     ${platform_sources}
 )
 
-target_link_libraries(tests
+target_link_libraries(charge_engine_tests
     charge_engine
     ${CONAN_LIBS})
 
-add_test(tests tests)
+add_test(charge_engine_tests charge_engine_tests)
 
 
 # ShellProcess testing is done through a standalone

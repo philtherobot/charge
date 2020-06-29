@@ -9,10 +9,10 @@ using namespace charge;
 using namespace std::string_literals;
 
 
-BOOST_AUTO_TEST_SUITE(engine);
+BOOST_AUTO_TEST_SUITE(suite_engine);
 
 
-BOOST_AUTO_TEST_CASE(write_cmd_string)
+BOOST_AUTO_TEST_CASE(case_write_cmd_string)
 {
     BOOST_CHECK_EQUAL(write_command_string(std::string(), StringList{}), "");
 

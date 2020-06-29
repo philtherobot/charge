@@ -12,9 +12,9 @@ using namespace charge;
 using namespace std::string_literals;
 
 
-BOOST_AUTO_TEST_SUITE(imports);
+BOOST_AUTO_TEST_SUITE(suite_imports);
 
-BOOST_AUTO_TEST_CASE(one_header_library)
+BOOST_AUTO_TEST_CASE(case_one_header_library)
 {
     Config config(YAML::Load(
         "libraries:\n"
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(one_header_library)
         StringList{ "/home/phil/include/boost" });
 }
 
-BOOST_AUTO_TEST_CASE(library_not_found)
+BOOST_AUTO_TEST_CASE(case_library_not_found)
 {
     Config config(YAML::Load(
         "libraries:\n"
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(library_not_found)
     BOOST_CHECK_EQUAL((*opt_ex).library(), "boost_test");
 }
 
-BOOST_AUTO_TEST_CASE(library_not_configured_error)
+BOOST_AUTO_TEST_CASE(case_library_not_configured_error)
 {
     LibraryNotConfiguredError ex("curl");
 

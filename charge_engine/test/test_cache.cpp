@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(get_cache_pth)
 }
 
 
-BOOST_AUTO_TEST_CASE(encode_deps)
+BOOST_AUTO_TEST_CASE(case_encode_deps)
 {
     BOOST_CHECK_EQUAL(encode_header_dependencies(FileList{}), std::string());
 
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(encode_deps)
 }
 
 
-BOOST_AUTO_TEST_CASE(decode_deps)
+BOOST_AUTO_TEST_CASE(case_decode_deps)
 {
     BOOST_CHECK_EQUAL(decode_header_dependencies(std::string()), FileList{});
 

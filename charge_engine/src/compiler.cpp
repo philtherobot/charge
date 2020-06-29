@@ -163,6 +163,7 @@ std::string Compiler::msvc_command_line(Arguments const & args) const
         "/EHsc",
         "/Od",
         "/Zi",
+        "/std:c++latest",
         quote_if_needed("/Fe:" + args.executable_output_fn_.string()),
         quote_if_needed("/Fo:" + p.string())
     };

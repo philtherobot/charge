@@ -114,7 +114,7 @@ public:
 } // anonymous
 
 
-BOOST_AUTO_TEST_SUITE(compiler);
+BOOST_AUTO_TEST_SUITE(suite_compiler);
 
 
 BOOST_FIXTURE_TEST_CASE(configure_no_compiler_installed, CompilerFamiliesFixture)
@@ -171,7 +171,7 @@ BOOST_FIXTURE_TEST_CASE(configure_finds_alternate_compiler, CompilerFamiliesFixt
 }
 
 
-BOOST_AUTO_TEST_CASE(msvc_compile_command)
+BOOST_AUTO_TEST_CASE(case_msvc_compile_command)
 {
     YAML::Node conf;
 
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(msvc_compile_command)
 
     BOOST_CHECK_EQUAL(
         compiler.msvc_command_line(args),
-        "\"C:\\Program Files\\cl.exe\" /nologo /TP /MDd /showIncludes /EHsc /Od /Zi"
+        "\"C:\\Program Files\\cl.exe\" /nologo /TP /MDd /showIncludes /EHsc /Od /Zi /std:c++latest"
         " /Fe:C:\\cache\\123\\executable.exe"
         " /Fo:C:\\cache\\123\\executable.obj"
         " /D_NOEXCEPT=noexcept"

@@ -5,3 +5,5 @@ add_executable(charge
 
 target_link_libraries(charge
     charge_engine)
+
+add_subdirectory(test)

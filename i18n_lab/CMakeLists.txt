@@ -1,0 +1,8 @@
+add_executable(command_line_arguments command_line_arguments.cpp)
+add_executable(read_stdin read_stdin.cpp)
+add_executable(mbstowcs_locale_category mbstowcs_locale_category.cpp)
+add_executable(getenv_encoding getenv_encoding.cpp)
+add_executable(read_file read_file.cpp)
+add_executable(open_file open_file.cpp)
+add_executable(wchar_win_console wchar_win_console.cpp)
+add_executable(stdout_and_codepage stdout_and_codepage.cpp)

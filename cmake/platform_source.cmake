@@ -1,0 +1,5 @@
+if (WIN32)
+    set(PLATFORM_SOURCE win)
+else ()
+    set(PLATFORM_SOURCE posix)
+endif ()
