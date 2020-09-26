@@ -15,5 +15,4 @@ enable_testing()
 
 add_subdirectory(charge)
 add_subdirectory(charge_engine)
-add_subdirectory(i18n_lab)
 add_subdirectory(stirrup)

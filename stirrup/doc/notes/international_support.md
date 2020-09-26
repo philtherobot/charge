@@ -16,8 +16,15 @@ Things that must be possible:
 - opening and creating files with names using the user's code page characters
 - standard I/O on the console works for the user's code page and keyboard
 
+Explanation:
+> The idea here is to support running in the user's environment as it is configured.  If a greek codepage is set, then we are getting greek correct is all the above situations by simply using regular `std::string`.  In other words, we have a way to transparently support any codepage if the program is not actually peeking into the strings.
+
+
 Stretch goal:
 - All of the above, but for *any* Unicode character on top of respecting the user's code page.  This may come for free from the above if it supports UTF-8.
+
+Explanation:
+> If a UTF-8 codepage is supported under Windows, then it would be nice if we could make use of that.  This would give a user the possibility of configuring to UTF-8 and support all the Unicode. 
 
 A first possibility is that Stirrup offers multi-platform support for code pages.  Stirrup programs would handle the user's encoding correctly.
 
@@ -207,14 +214,37 @@ So we are going to need to use wgetenv under Windows.
 
 ## Command line arguments
 
+Program `i18n_lab/command_line_arguments.cpp`.
+
 ### Windows
+
+Set codepage to 437.  In cmd.exe.  Switch to Greek keyboard.
+
+```
+charge command_line_arguments.cpp αβψδεφγηιξ
+61 df 3f 64 65 66 3f 3f 3f 3f
+```
+
+Those "3f" are question marks.  We expected to get:
+
+```
+e1 e2 f8 e4 e5 f6 e3 e7 e9 ee
+```
+
 
 `chcp` has no effect on how arguments are encoded.  It is pointless to try `setlocale` as the strings have already been prepared at this point.
 
-We are going to have to use `wmain` under Windows: this will not be much trouble anyway as we have additional reasons to replace the regular program entry point (exception handling). 
-
 Although, we did notice that the global system encoding affects it.  The command prompt sends the argument properly encoded to the program. 
 
+Can we get the arguments correctly via `wmain`?  See `i18n_lab/command_line_arguments_wmain.cpp`.  Set chcp 1253 (or not).
+
+```
+charge command_line_arguments_wmain.cpp αβψδεφγηιξ
+61 00 df 00 3f 00 64 00 65 00 66 00 3f 00 3f 00
+3f 00 3f 00
+```
+
+No change.  cmd.exe is not passing the letters correctly.
 
 ## Console output
 
@@ -405,3 +435,14 @@ Our conclusion here is that we will need to offer an alternate API to open files
 Nothing affects file reading (`chcp` or the locale), even when opened in text mode.
 
 Actually encoding and decoding the file content looks like a whole new subject onto itself.  As long as the author has written the files in to correct code page, and we got all our strings also in the correct code page, then the bytes we have in RAM are correct.  If we write them back to file without conversion, the output files should then have the proper code page too.
+
+
+## Let's forget UTF-8
+
+It feels like if we fix the program argument capture and use some special ways to open files (`wstring`) and file system operations (because Windows does not always/ever take into account the console codepage to interpret file names), we should be able to get at least partial support for international users.
+
+- Get program arguments to be in the correct code page
+- getenv/setenv (have to test this, but looks like we must use wgetenv)
+- file names on the file system (open, exists, directories, unlink, etc)
+- console I/O (works for free)
+
