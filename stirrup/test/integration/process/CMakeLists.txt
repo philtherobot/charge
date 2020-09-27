@@ -9,4 +9,4 @@ target_link_libraries(
 
 add_executable(stirrup_child_process_actor stirrup_child_process_actor.cpp)
 
-configure_file(test.ps1.in ${CMAKE_CURRENT_BINARY_DIR}/test.ps1)
+configure_file(test.in.ps1 ${CMAKE_CURRENT_BINARY_DIR}/test.ps1)
