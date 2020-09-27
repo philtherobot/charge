@@ -1,8 +1,28 @@
 Write-Output "Test [Stirrup | SystemProcess]"
 
+Write-Output "Case: no argument and zero exit code"
+
 $output = ${CMAKE_BINARY_DIR}\bin\stirrup_process_invoke ${CMAKE_BINARY_DIR}\bin\stirrup_child_process_actor.exe | Out-String
 
 $expected = "stirrup_process_invoke: start`r`nstirrup_child_process_actor`r`nstirrup_process_invoke: exit code 0`r`n"
+
+if($output -eq $expected)
+{
+    Write-Output Passed
+}
+else
+{
+    Write-Output "** FAILED"
+    Write-Output Got $output
+    Write-Output Expected $expected
+}
+
+
+Write-Output "Case: two arguments and non-zero exit code"
+
+$output = ${CMAKE_BINARY_DIR}\bin\stirrup_process_invoke ${CMAKE_BINARY_DIR}\bin\stirrup_child_process_actor.exe arg1 exit_with_error | Out-String
+
+$expected = "stirrup_process_invoke: start`r`nstirrup_child_process_actor`r`n1: arg1`r`n2: exit_with_error`r`nstirrup_process_invoke: exit code 22`r`n"
 
 if($output -eq $expected)
 {

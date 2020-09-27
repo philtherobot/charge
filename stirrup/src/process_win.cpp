@@ -23,10 +23,9 @@ namespace stirrup
 namespace
 {
 
-std::string write_command_string(std::string const & pgm, StringList const & args)
+std::string get_arguments_as_string(StringList const & args)
 {
     StringList strings(args);
-    strings.insert(strings.begin(), pgm);
 
     boost::for_each(strings,
         [](std::string & s) { s = quote_if_needed(s);  }
@@ -267,9 +266,9 @@ SystemProcess::~SystemProcess()
 
 void SystemProcess::start(std::string const & pgm, StringList const & args)
 {
-    std::string cmdline = write_command_string(pgm, args);
+    std::string arguments_as_string = get_arguments_as_string(args);
 
-    auto cmdline_buf = strcpy(cmdline);
+    auto arguments_as_string_buffer = strcpy(arguments_as_string);
 
 
     //    Pipe child_stdout;
@@ -298,15 +297,15 @@ void SystemProcess::start(std::string const & pgm, StringList const & args)
 
     success = CreateProcess(
         pgm.c_str(),
-        cmdline_buf.data(),  // command line
+        arguments_as_string_buffer.data(),
         NULL,             // process security attributes
         NULL,             // primary thread security attributes
         FALSE,            // handles are inherited
         0,                // creation flags
         NULL,             // use parent's environment
         NULL,             // use parent's current directory
-        &start_info,      // STARTUPINFO pointer
-        &process_info);   // receives PROCESS_INFORMATION
+        &start_info,
+        &process_info);
 
     // If an error occurs, exit the application.
     if (!success)
