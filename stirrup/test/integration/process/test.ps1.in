@@ -1,0 +1,16 @@
+Write-Output "Test [Stirrup | SystemProcess]"
+
+$output = ${CMAKE_BINARY_DIR}\bin\stirrup_process_invoke ${CMAKE_BINARY_DIR}\bin\stirrup_child_process_actor.exe | Out-String
+
+$expected = "stirrup_process_invoke: start`r`nstirrup_child_process_actor`r`nstirrup_process_invoke: exit code 0`r`n"
+
+if($output -eq $expected)
+{
+    Write-Output Passed
+}
+else
+{
+    Write-Output "** FAILED"
+    Write-Output Got $output
+    Write-Output Expected $expected
+}

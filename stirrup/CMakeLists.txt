@@ -3,6 +3,8 @@ add_library(
     include/stirrup/stirrup.hpp
     src/getenv_${PLATFORM_SOURCE}.cpp
     src/make_errno_message.cpp
+    src/process_${PLATFORM_SOURCE}.cpp
+    src/quote_if_needed.cpp
 )
 
 target_link_libraries(
