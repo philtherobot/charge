@@ -23,9 +23,12 @@ namespace stirrup
 namespace
 {
 
-std::string get_arguments_as_string(StringList const & args)
+std::string get_command_line(std::string const &pgm, StringList const & args)
 {
-    StringList strings(args);
+    StringList strings;
+
+    strings.push_back(pgm);
+    copy(args.begin(), args.end(), back_inserter(strings));
 
     boost::for_each(strings,
         [](std::string & s) { s = quote_if_needed(s);  }
@@ -266,9 +269,9 @@ SystemProcess::~SystemProcess()
 
 void SystemProcess::start(std::string const & pgm, StringList const & args)
 {
-    std::string arguments_as_string = get_arguments_as_string(args);
+    std::string command_line = get_command_line(pgm, args);
 
-    auto arguments_as_string_buffer = strcpy(arguments_as_string);
+    auto command_line_buffer = strcpy(command_line);
 
 
     //    Pipe child_stdout;
@@ -296,8 +299,8 @@ void SystemProcess::start(std::string const & pgm, StringList const & args)
 //    auto exec_buf = strcpy(exec);
 
     success = CreateProcess(
-        pgm.c_str(),
-        arguments_as_string_buffer.data(),
+        NULL, //pgm.c_str(),
+        command_line_buffer.data(),
         NULL,             // process security attributes
         NULL,             // primary thread security attributes
         FALSE,            // handles are inherited

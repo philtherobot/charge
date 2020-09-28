@@ -2,7 +2,7 @@ Write-Host "Test [Stirrup | SystemProcess]" -ForegroundColor Magenta
 
 function Invoke-ChildProcessActor
 {
-    ${CMAKE_BINARY_DIR}\bin\stirrup_process_invoke ${CMAKE_BINARY_DIR}\bin\stirrup_child_process_actor.exe $args | Out-String
+    ${CMAKE_BINARY_DIR}\bin\stirrup_process_invoke output_capture_off ${CMAKE_BINARY_DIR}\bin\stirrup_child_process_actor.exe $args | Out-String
 }
 
 function Test-Equality($value, $expected)
