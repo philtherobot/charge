@@ -15,6 +15,8 @@
 
 
 using namespace std::string_literals;
+using std::string;
+using std::vector;
 
 
 namespace stirrup
@@ -23,35 +25,38 @@ namespace stirrup
 namespace
 {
 
-std::string get_command_line(std::string const &pgm, StringList const & args)
+string get_command_line(string const & pgm, StringList const & args)
 {
     StringList strings;
 
     strings.push_back(pgm);
     copy(args.begin(), args.end(), back_inserter(strings));
 
-    boost::for_each(strings,
-        [](std::string & s) { s = quote_if_needed(s);  }
+    boost::for_each(
+        strings,
+        [](string & s)
+        { s = quote_if_needed(s); }
     );
 
     return boost::algorithm::join(strings, " ");
 }
 
-std::string get_error_message(DWORD code)
+string get_error_message(DWORD code)
 {
     LPVOID msg_buf;
 
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
         code,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPTSTR)&msg_buf,
-        0, NULL);
+        0, NULL
+    );
 
-    std::string msg(static_cast<char const *>(msg_buf));
+    string msg(static_cast<char const *>(msg_buf));
 
     LocalFree(msg_buf);
 
@@ -60,25 +65,59 @@ std::string get_error_message(DWORD code)
     return msg;
 }
 
-
-std::string make_win32_error_message(std::string const & from_function, DWORD code = 0)
+string make_win32_error_message(string const & from_function, DWORD code = 0)
 {
     return
         "Win32 error \""s +
-        get_error_message(code == 0 ? GetLastError() : code) +
-        "\" in function " + from_function;
+            get_error_message(code == 0 ? GetLastError() : code) +
+            "\" in function " + from_function;
 }
 
-
-std::vector<char> strcpy(std::string const & str)
+vector<char> strcpy(string const & str)
 {
-    std::vector<char> r;
+    vector<char> r;
     r.resize(str.size() + 1);
     std::copy(str.begin(), str.end(), r.begin());
     r.push_back(0);
     return r;
 }
 
+HANDLE create_process(string const & pgm, StringList const & args, STARTUPINFO & start_info)
+{
+    string command_line = get_command_line(pgm, args);
+
+    auto command_line_buffer = strcpy(command_line);
+
+    PROCESS_INFORMATION process_info;
+    ZeroMemory(&process_info, sizeof(PROCESS_INFORMATION));
+
+    BOOL success = FALSE;
+
+    success = CreateProcess(
+        NULL,
+        command_line_buffer.data(),
+        NULL,             // process security attributes
+        NULL,             // primary thread security attributes
+        FALSE,            // handles are inherited
+        0,                // creation flags
+        NULL,             // use parent's environment
+        NULL,             // use parent's current directory
+        &start_info,
+        &process_info
+    );
+
+    if (!success)
+    {
+        auto const message = "In create_process: " + make_win32_error_message("CreateProcess") +
+            " command " + pgm;
+
+        throw std::runtime_error(message);
+    }
+
+    CloseHandle(process_info.hThread);
+
+    return process_info.hProcess;
+}
 
 class Pipe
 {
@@ -91,7 +130,6 @@ public:
     static void set_inherit(HANDLE h);
 };
 
-
 Pipe::Pipe()
     :
     read_(INVALID_HANDLE_VALUE),
@@ -103,7 +141,6 @@ Pipe::Pipe()
     }
 }
 
-
 void Pipe::set_inherit(HANDLE h)
 {
     if (!SetHandleInformation(h, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT))
@@ -112,21 +149,20 @@ void Pipe::set_inherit(HANDLE h)
     }
 }
 
-
-class StreamCookerReader : public ReadableStream
+class StreamCookerReader: public ReadableStream
 {
 public:
     explicit StreamCookerReader(ReadableStream & binary_stream_source)
         : source_(binary_stream_source), state_(START)
     {}
 
-    virtual std::string read()
+    virtual string read()
     {
         for (;;)
         {
             auto new_block = source_.read();
 
-            if (new_block.empty()) return std::string();
+            if (new_block.empty()) return string();
 
             auto output = cook(new_block);
 
@@ -140,11 +176,11 @@ public:
     }
 
 private:
-    std::string cook(std::string const & new_block)
+    string cook(string const & new_block)
     {
-        std::string::const_iterator input = new_block.begin();
+        string::const_iterator input = new_block.begin();
 
-        std::string output;
+        string output;
         output.reserve(new_block.size());
 
         while (input != new_block.end())
@@ -154,20 +190,18 @@ private:
 
             switch (state_)
             {
-            case START:
-                in_start_state(c, output);
-                break;
+                case START:in_start_state(c, output);
+                    break;
 
-            case CR_DETECTED:
-                in_cr_detected_state(c, output);
-                break;
+                case CR_DETECTED:in_cr_detected_state(c, output);
+                    break;
             }
         } // end while
 
         return output;
     }
 
-    void in_start_state(char c, std::string & output)
+    void in_start_state(char c, string & output)
     {
         if (c == '\r')
         {
@@ -179,7 +213,7 @@ private:
         }
     }
 
-    void in_cr_detected_state(char c, std::string & output)
+    void in_cr_detected_state(char c, string & output)
     {
         if (c == '\n')
         {
@@ -201,19 +235,19 @@ private:
     } state_;
 };
 
-
-class Reader : public ReadableStream
+class WindowsHandleReader: public ReadableStream
 {
 public:
-    explicit Reader(HANDLE h) : h_(h)
+    explicit WindowsHandleReader(HANDLE h)
+        : h_(h)
     {}
 
-    virtual ~Reader()
+    virtual ~WindowsHandleReader()
     {
         CloseHandle(h_);
     }
 
-    virtual std::string read()
+    virtual string read()
     {
         char buf[1024];
         DWORD nb_read = 0;
@@ -223,23 +257,30 @@ public:
             DWORD code = GetLastError();
             if (code == ERROR_BROKEN_PIPE)
             {
-                return std::string();
+                return string();
             }
             throw std::runtime_error(make_win32_error_message("ReadFile", code));
         }
 
         if (nb_read)
         {
-            return std::string(buf, nb_read);
+            return string(buf, nb_read);
         }
 
         // 0 read bytes => end of file
-        return std::string();
+        return string();
     }
 
     HANDLE h_;
 };
 
+STARTUPINFO getDefaultStartupInfo()
+{
+    STARTUPINFO startup_info;
+    ZeroMemory(&startup_info, sizeof(STARTUPINFO));
+    startup_info.cb = sizeof(STARTUPINFO);
+    return startup_info;
+}
 
 } // anonymous
 
@@ -247,96 +288,54 @@ public:
 class SystemProcess::Implementation
 {
 public:
-    Implementation() : process_handle_(INVALID_HANDLE_VALUE) {}
+    Implementation()
+        : process_handle_(INVALID_HANDLE_VALUE)
+    {}
 
     ~Implementation()
     {
         CloseHandle(process_handle_);
     }
 
-    std::unique_ptr<Reader> raw_reader_;
+    std::unique_ptr<WindowsHandleReader> process_output_handle_reader_;
     HANDLE process_handle_;
 };
-
 
 SystemProcess::SystemProcess()
     : impl_(new Implementation())
 {}
 
-
 SystemProcess::~SystemProcess()
 {}
 
-void SystemProcess::start(std::string const & pgm, StringList const & args)
+void SystemProcess::start(string const & pgm, StringList const & args)
 {
-    std::string command_line = get_command_line(pgm, args);
+    STARTUPINFO startup_info = getDefaultStartupInfo();
 
-    auto command_line_buffer = strcpy(command_line);
+    impl_->process_handle_ = create_process(pgm, args, startup_info);
+}
 
+std::shared_ptr<ReadableStream> SystemProcess::start_capture_output(string const & pgm, StringList const & args)
+{
 
-    //    Pipe child_stdout;
-//    child_stdout.set_inherit(child_stdout.write_);
+    STARTUPINFO startup_info = getDefaultStartupInfo();
 
+    Pipe child_stdout;
+    child_stdout.set_inherit(child_stdout.write_);
 
-//    std::string const cmd(getenv("COMSPEC"));
+    startup_info.hStdError = child_stdout.write_;
+    startup_info.hStdOutput = child_stdout.write_;
+    startup_info.dwFlags |= STARTF_USESTDHANDLES;
 
-//    std::string exec(cmd + " /C " + shell_command);
-
-
-    PROCESS_INFORMATION process_info;
-    ZeroMemory(&process_info, sizeof(PROCESS_INFORMATION));
-
-    STARTUPINFO start_info;
-    ZeroMemory(&start_info, sizeof(STARTUPINFO));
-    start_info.cb = sizeof(STARTUPINFO);
-//    start_info.hStdError = child_stdout.write_;
-//    start_info.hStdOutput = child_stdout.write_;
-//    start_info.dwFlags |= STARTF_USESTDHANDLES;
-
-
-    BOOL success = FALSE;
-
-//    auto exec_buf = strcpy(exec);
-
-    success = CreateProcess(
-        NULL, //pgm.c_str(),
-        command_line_buffer.data(),
-        NULL,             // process security attributes
-        NULL,             // primary thread security attributes
-        FALSE,            // handles are inherited
-        0,                // creation flags
-        NULL,             // use parent's environment
-        NULL,             // use parent's current directory
-        &start_info,
-        &process_info);
-
-    // If an error occurs, exit the application.
-    if (!success)
-    {
-        auto const message = "In SystemProcess::start: "s + make_win32_error_message("CreateProcess") +
-            " command "s + pgm;
-
-        throw std::runtime_error(message);
-    }
-
-    impl_->process_handle_ = process_info.hProcess;
-
-    CloseHandle(process_info.hThread);
+    impl_->process_handle_ = create_process(pgm, args, startup_info);
 
     // Child process has the write handle, we
     // must not keep it also.
- //   CloseHandle(child_stdout.write_);
+    CloseHandle(child_stdout.write_);
 
-//    impl_->raw_reader_.reset(new Reader(child_stdout.read_));
-//    Reader * raw_reader = impl_->raw_reader_.get();
-//
-//    child_stdout_.reset(new StreamCookerReader(*raw_reader));
-}
+    impl_->process_output_handle_reader_.reset(new WindowsHandleReader(child_stdout.read_));
 
-
-std::shared_ptr<ReadableStream> SystemProcess::start_capture_output(std::string const & pgm, StringList const & args)
-{
-    return nullptr;
+    return std::make_shared<StreamCookerReader>(*impl_->process_output_handle_reader_);
 }
 
 int SystemProcess::wait_for_exit_code()
