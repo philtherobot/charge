@@ -7,53 +7,70 @@
 namespace stirrup
 {
 
+using std::string;
+
 BOOST_AUTO_TEST_SUITE(suite_stirrup);
 BOOST_AUTO_TEST_SUITE(suite_stream_cooker_reader);
 
+class ReaderFixture
+{
+public:
+    ReaderFixture() : reader_(source_stream_) {}
+
+    void queueReadResult(string const & read_result)
+    {
+        source_stream_.queueReadResult(read_result);
+    }
+
+    string read()
+    {
+        return reader_.read();
+    }
+
+private:
+    FakeReadableStream source_stream_;
+    StreamCookerReader reader_;
+};
+
 BOOST_AUTO_TEST_CASE(case_empty_stream)
 {
-    FakeReadableStream sourceStream;
-    StreamCookerReader reader(sourceStream);
+    ReaderFixture fixture;
 
-    BOOST_CHECK_EQUAL(reader.read(), "");
+    BOOST_CHECK_EQUAL(fixture.read(), "");
 }
 
 BOOST_AUTO_TEST_CASE(case_only_crlf)
 {
-    FakeReadableStream sourceStream;
-    sourceStream.queueReadResult("we\r\ngot\r\nsome\r\nCRLF\r\n");
-    StreamCookerReader reader(sourceStream);
+    ReaderFixture fixture;
+    fixture.queueReadResult("we\r\ngot\r\nsome\r\nCRLF\r\n");
 
-    BOOST_CHECK_EQUAL(reader.read(), "we\ngot\nsome\nCRLF\n");
+    BOOST_CHECK_EQUAL(fixture.read(), "we\ngot\nsome\nCRLF\n");
 }
 
 BOOST_AUTO_TEST_CASE(case_lone_cr)
 {
-    FakeReadableStream sourceStream;
-    sourceStream.queueReadResult("it is\ralone");
-    StreamCookerReader reader(sourceStream);
+    ReaderFixture fixture;
+    fixture.queueReadResult("it is\ralone");
 
-    BOOST_CHECK_EQUAL(reader.read(), "it isalone");
+    BOOST_CHECK_EQUAL(fixture.read(), "it isalone");
 }
 
 BOOST_AUTO_TEST_CASE(case_crlf_in_two_reads)
 {
-    FakeReadableStream sourceStream;
-    sourceStream.queueReadResult("first\r");
-    sourceStream.queueReadResult("\nthen");
-    StreamCookerReader reader(sourceStream);
+    ReaderFixture fixture;
+    fixture.queueReadResult("first\r");
+    fixture.queueReadResult("\nthen");
 
-    BOOST_CHECK_EQUAL(reader.read(), "first");
-    BOOST_CHECK_EQUAL(reader.read(), "\nthen");
+    BOOST_CHECK_EQUAL(fixture.read(), "first");
+    BOOST_CHECK_EQUAL(fixture.read(), "\nthen");
 }
 
 BOOST_AUTO_TEST_CASE(case_lone_lf)
 {
-    FakeReadableStream sourceStream;
-    sourceStream.queueReadResult("it is\nalone");
-    StreamCookerReader reader(sourceStream);
+    ReaderFixture fixture;
+    fixture.queueReadResult("it is\nalone");
 
-    BOOST_CHECK_EQUAL(reader.read(), "it is\nalone");
+    BOOST_CHECK_EQUAL(fixture.read(), "it is\nalone");
 }
 
 BOOST_AUTO_TEST_SUITE_END();
