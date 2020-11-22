@@ -1,6 +1,6 @@
 [requires]
-boost/[>1.66.0]@conan/stable
-yaml-cpp/[>0.5.3]@bincrafters/stable 
+boost/1.74.0
+yaml-cpp/0.6.3
 
 [generators]
 cmake

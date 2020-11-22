@@ -4,7 +4,6 @@
 #include <exception>
 #include <iostream>
 
-
 int main_really(charge::StringList const & args)
 {
     return charge::charge(args);
