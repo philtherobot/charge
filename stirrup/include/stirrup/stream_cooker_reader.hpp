@@ -2,26 +2,26 @@
 
 #include <string>
 
-#include "stirrup/ReadableStream.hpp"
+#include "stirrup/readable_stream.hpp"
 
 namespace stirrup
 {
 
-class StreamCookerReader: public ReadableStream
+class stream_cooker_reader: public readable_stream
 {
 public:
-    explicit StreamCookerReader(ReadableStream & binary_stream_source);
+    explicit stream_cooker_reader(readable_stream & binary_stream_source);
 
-    virtual std::string read();
+    std::string read() override;
 
 private:
     std::string cook(std::string const & new_block);
     void in_start_state(char c, std::string & output);
     void in_cr_detected_state(char c, std::string & output);
 
-    ReadableStream & source_;
+    readable_stream & source_;
 
-    enum class State
+    enum class state
     {
         START,
         CR_DETECTED

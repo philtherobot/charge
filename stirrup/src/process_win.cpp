@@ -49,11 +49,12 @@ string get_error_message(DWORD code)
         FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
+        nullptr,
         code,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPTSTR)&msg_buf,
-        0, NULL
+        0,
+        nullptr
     );
 
     string msg(static_cast<char const *>(msg_buf));
@@ -94,14 +95,14 @@ HANDLE create_process(string const & pgm, string_list const & args, STARTUPINFO 
     BOOL success = FALSE;
 
     success = CreateProcess(
-        NULL,
+        nullptr,
         command_line_buffer.data(),
-        NULL,             // process security attributes
-        NULL,             // primary thread security attributes
+        nullptr,             // process security attributes
+        nullptr,             // primary thread security attributes
         FALSE,            // handles are inherited
         0,                // creation flags
-        NULL,             // use parent's environment
-        NULL,             // use parent's current directory
+        nullptr,             // use parent's environment
+        nullptr,             // use parent's current directory
         &start_info,
         &process_info
     );
@@ -119,10 +120,10 @@ HANDLE create_process(string const & pgm, string_list const & args, STARTUPINFO 
     return process_info.hProcess;
 }
 
-class Pipe
+class pipe
 {
 public:
-    Pipe();
+    pipe();
 
     HANDLE read_;
     HANDLE write_;
@@ -130,18 +131,18 @@ public:
     static void set_inherit(HANDLE h);
 };
 
-Pipe::Pipe()
+pipe::pipe()
     :
     read_(INVALID_HANDLE_VALUE),
     write_(INVALID_HANDLE_VALUE)
 {
-    if (!CreatePipe(&read_, &write_, 0, 0))
+    if (!CreatePipe(&read_, &write_, nullptr, 0))
     {
         throw std::runtime_error(make_win32_error_message("CreatePipe"));
     }
 }
 
-void Pipe::set_inherit(HANDLE h)
+void pipe::set_inherit(HANDLE h)
 {
     if (!SetHandleInformation(h, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT))
     {
@@ -149,10 +150,10 @@ void Pipe::set_inherit(HANDLE h)
     }
 }
 
-class StreamCookerReader: public ReadableStream
+class stream_cooker_reader: public readable_stream
 {
 public:
-    explicit StreamCookerReader(ReadableStream & binary_stream_source)
+    explicit stream_cooker_reader(readable_stream & binary_stream_source)
         : source_(binary_stream_source), state_(START)
     {}
 
@@ -226,7 +227,7 @@ private:
         state_ = START;
     }
 
-    ReadableStream & source_;
+    readable_stream & source_;
 
     enum
     {
@@ -235,23 +236,23 @@ private:
     } state_;
 };
 
-class WindowsHandleReader: public ReadableStream
+class windows_handle_reader: public readable_stream
 {
 public:
-    explicit WindowsHandleReader(HANDLE h)
+    explicit windows_handle_reader(HANDLE h)
         : h_(h)
     {}
 
-    virtual ~WindowsHandleReader()
+    ~windows_handle_reader() override
     {
         CloseHandle(h_);
     }
 
-    virtual string read()
+    string read() override
     {
         char buf[1024];
         DWORD nb_read = 0;
-        BOOL success = ReadFile(h_, buf, sizeof(buf), &nb_read, NULL);
+        BOOL success = ReadFile(h_, buf, sizeof(buf), &nb_read, nullptr);
         if (!success)
         {
             DWORD code = GetLastError();
@@ -274,7 +275,7 @@ public:
     HANDLE h_;
 };
 
-STARTUPINFO getDefaultStartupInfo()
+STARTUPINFO get_default_startup_info()
 {
     STARTUPINFO startup_info;
     ZeroMemory(&startup_info, sizeof(STARTUPINFO));
@@ -285,42 +286,42 @@ STARTUPINFO getDefaultStartupInfo()
 } // anonymous
 
 
-class SystemProcess::Implementation
+class system_process::implementation
 {
 public:
-    Implementation()
+    implementation()
         : process_handle_(INVALID_HANDLE_VALUE)
     {}
 
-    ~Implementation()
+    ~implementation()
     {
         CloseHandle(process_handle_);
     }
 
-    std::unique_ptr<WindowsHandleReader> process_output_handle_reader_;
+    std::unique_ptr<windows_handle_reader> process_output_handle_reader_;
     HANDLE process_handle_;
 };
 
-SystemProcess::SystemProcess()
-    : impl_(new Implementation())
+system_process::system_process()
+    : impl_(new implementation())
 {}
 
-SystemProcess::~SystemProcess()
+system_process::~system_process()
 {}
 
-void SystemProcess::start(string const & pgm, string_list const & args)
+void system_process::start(string const & pgm, string_list const & args)
 {
-    STARTUPINFO startup_info = getDefaultStartupInfo();
+    STARTUPINFO startup_info = get_default_startup_info();
 
     impl_->process_handle_ = create_process(pgm, args, startup_info);
 }
 
-std::shared_ptr<ReadableStream> SystemProcess::start_capture_output(string const & pgm, string_list const & args)
+std::shared_ptr<readable_stream> system_process::start_capture_output(string const & pgm, string_list const & args)
 {
 
-    STARTUPINFO startup_info = getDefaultStartupInfo();
+    STARTUPINFO startup_info = get_default_startup_info();
 
-    Pipe child_stdout;
+    pipe child_stdout;
     child_stdout.set_inherit(child_stdout.write_);
 
     startup_info.hStdError = child_stdout.write_;
@@ -333,12 +334,12 @@ std::shared_ptr<ReadableStream> SystemProcess::start_capture_output(string const
     // must not keep it also.
     CloseHandle(child_stdout.write_);
 
-    impl_->process_output_handle_reader_.reset(new WindowsHandleReader(child_stdout.read_));
+    impl_->process_output_handle_reader_ = std::make_unique<windows_handle_reader>(child_stdout.read_);
 
-    return std::make_shared<StreamCookerReader>(*impl_->process_output_handle_reader_);
+    return std::make_shared<stream_cooker_reader>(*impl_->process_output_handle_reader_);
 }
 
-int SystemProcess::wait_for_exit_code()
+int system_process::wait_for_exit()
 {
     WaitForSingleObject(impl_->process_handle_, INFINITE);
 

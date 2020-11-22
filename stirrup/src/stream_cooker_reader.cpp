@@ -1,4 +1,4 @@
-#include "stirrup/StreamCookerReader.hpp"
+#include "stirrup/stream_cooker_reader.hpp"
 
 
 namespace stirrup
@@ -6,11 +6,11 @@ namespace stirrup
 
 using std::string;
 
-StreamCookerReader::StreamCookerReader(ReadableStream & binary_stream_source)
-    : source_(binary_stream_source), state_(State::START)
+stream_cooker_reader::stream_cooker_reader(readable_stream & binary_stream_source)
+    : source_(binary_stream_source), state_(state::START)
 {}
 
-string StreamCookerReader::read()
+string stream_cooker_reader::read()
 {
     for (;;)
     {
@@ -29,7 +29,7 @@ string StreamCookerReader::read()
     } // end forever
 }
 
-string StreamCookerReader::cook(string const & new_block)
+string stream_cooker_reader::cook(string const & new_block)
 {
     string::const_iterator input = new_block.begin();
 
@@ -43,10 +43,10 @@ string StreamCookerReader::cook(string const & new_block)
 
         switch (state_)
         {
-            case State::START:in_start_state(c, output);
+            case state::START:in_start_state(c, output);
                 break;
 
-            case State::CR_DETECTED:in_cr_detected_state(c, output);
+            case state::CR_DETECTED:in_cr_detected_state(c, output);
                 break;
         }
     } // end while
@@ -54,11 +54,11 @@ string StreamCookerReader::cook(string const & new_block)
     return output;
 }
 
-void StreamCookerReader::in_start_state(char c, string & output)
+void stream_cooker_reader::in_start_state(char c, string & output)
 {
     if (c == '\r')
     {
-        state_ = State::CR_DETECTED;
+        state_ = state::CR_DETECTED;
     }
     else
     {
@@ -66,7 +66,7 @@ void StreamCookerReader::in_start_state(char c, string & output)
     }
 }
 
-void StreamCookerReader::in_cr_detected_state(char c, string & output)
+void stream_cooker_reader::in_cr_detected_state(char c, string & output)
 {
     if (c == '\n')
     {
@@ -76,7 +76,7 @@ void StreamCookerReader::in_cr_detected_state(char c, string & output)
     {
         output.push_back(c);
     }
-    state_ = State::START;
+    state_ = state::START;
 }
 
 }

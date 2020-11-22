@@ -1,25 +1,24 @@
 #include <boost/test/unit_test.hpp>
 
-#include "stirrup/stirrup.hpp"
-#include "stirrup/StreamCookerReader.hpp"
-#include "stirrup/test/FakeReadableStream.hpp"
+#include "stirrup/stream_cooker_reader.hpp"
+#include "stirrup/test/fake_readable_stream.hpp"
 
-namespace stirrup
-{
-
+using namespace stirrup;
 using std::string;
 
 BOOST_AUTO_TEST_SUITE(suite_stirrup);
 BOOST_AUTO_TEST_SUITE(suite_stream_cooker_reader);
 
-class ReaderFixture
+class reader_fixture
 {
 public:
-    ReaderFixture() : reader_(source_stream_) {}
+    reader_fixture()
+        : reader_(source_stream_)
+    {}
 
-    void queueReadResult(string const & read_result)
+    void queue_read_result(string const & read_result)
     {
-        source_stream_.queueReadResult(read_result);
+        source_stream_.queue_read_result(read_result);
     }
 
     string read()
@@ -28,38 +27,38 @@ public:
     }
 
 private:
-    FakeReadableStream source_stream_;
-    StreamCookerReader reader_;
+    fake_readable_stream source_stream_;
+    stream_cooker_reader reader_;
 };
 
 BOOST_AUTO_TEST_CASE(case_empty_stream)
 {
-    ReaderFixture fixture;
+    reader_fixture fixture;
 
     BOOST_CHECK_EQUAL(fixture.read(), "");
 }
 
 BOOST_AUTO_TEST_CASE(case_only_crlf)
 {
-    ReaderFixture fixture;
-    fixture.queueReadResult("we\r\ngot\r\nsome\r\nCRLF\r\n");
+    reader_fixture fixture;
+    fixture.queue_read_result("we\r\ngot\r\nsome\r\nCRLF\r\n");
 
     BOOST_CHECK_EQUAL(fixture.read(), "we\ngot\nsome\nCRLF\n");
 }
 
 BOOST_AUTO_TEST_CASE(case_lone_cr)
 {
-    ReaderFixture fixture;
-    fixture.queueReadResult("it is\ralone");
+    reader_fixture fixture;
+    fixture.queue_read_result("it is\ralone");
 
     BOOST_CHECK_EQUAL(fixture.read(), "it isalone");
 }
 
 BOOST_AUTO_TEST_CASE(case_crlf_in_two_reads)
 {
-    ReaderFixture fixture;
-    fixture.queueReadResult("first\r");
-    fixture.queueReadResult("\nthen");
+    reader_fixture fixture;
+    fixture.queue_read_result("first\r");
+    fixture.queue_read_result("\nthen");
 
     BOOST_CHECK_EQUAL(fixture.read(), "first");
     BOOST_CHECK_EQUAL(fixture.read(), "\nthen");
@@ -67,8 +66,8 @@ BOOST_AUTO_TEST_CASE(case_crlf_in_two_reads)
 
 BOOST_AUTO_TEST_CASE(case_lone_lf)
 {
-    ReaderFixture fixture;
-    fixture.queueReadResult("it is\nalone");
+    reader_fixture fixture;
+    fixture.queue_read_result("it is\nalone");
 
     BOOST_CHECK_EQUAL(fixture.read(), "it is\nalone");
 }
@@ -76,5 +75,3 @@ BOOST_AUTO_TEST_CASE(case_lone_lf)
 BOOST_AUTO_TEST_SUITE_END();
 
 BOOST_AUTO_TEST_SUITE_END();
-
-}

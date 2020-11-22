@@ -123,7 +123,7 @@ Medium priority.
 
 I need to make a decision about where implementation details go.
 
-Should we have a "details" namespace where things such as "ReadableStream", which is not part of the public API of Charge but rather an implementation detail, are placed?
+Should we have a "details" namespace where things such as "readable_stream", which is not part of the public API of Charge but rather an implementation detail, are placed?
 
 Should we simply rely on "public" versus "private" headers?  I think not because the references made in the code do not show if an identifier is part of the public API or an implementation detail.
 

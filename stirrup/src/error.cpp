@@ -1,4 +1,4 @@
-#include "stirrup/stirrup.hpp"
+#include "stirrup/error.hpp"
 
 #include <cstring>
 #include <sstream>

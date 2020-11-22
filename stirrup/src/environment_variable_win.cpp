@@ -1,8 +1,7 @@
-#include "stirrup/stirrup.hpp"
+#include "stirrup/environment_variable.hpp"
 
 #include <cstdlib>
 #include <stdexcept>
-#include <stdlib.h>
 
 using namespace std;
 
@@ -15,7 +14,7 @@ namespace
 class auto_free_block
 {
 public:
-    auto_free_block(void * allocated_memory)
+    explicit auto_free_block(void * allocated_memory)
         : allocated_memory_(allocated_memory)
     {}
 

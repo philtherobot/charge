@@ -7,7 +7,7 @@
 using namespace stirrup;
 
 BOOST_AUTO_TEST_SUITE(suite_stirrup);
-BOOST_AUTO_TEST_SUITE(suite_quote_if_needed);
+BOOST_AUTO_TEST_SUITE(suite_string);
 
 BOOST_AUTO_TEST_CASE(case_quoting)
 {

@@ -18,3 +18,5 @@ Only system headers are included with double quotes.  System headers are:
 Member variables end with an underscore.
 
 A line cannot be longer than 120 characters.
+
+Error messages are sentences.  Begins with a capital letter and ends with a comma.  This makes the error message directly usable in the UI because it is very readable to a human.

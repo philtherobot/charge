@@ -1,7 +1,7 @@
+#include "stirrup\stirrup.hpp"
+
 #include <iostream>
 #include <optional>
-
-#include "stirrup\stirrup.hpp"
 
 using namespace std;
 using namespace stirrup;
@@ -9,14 +9,14 @@ using namespace stirrup;
 namespace
 {
 
-struct Options
+struct options
 {
     string child_process;
     string_list child_process_arguments;
     bool capture_output{false};
 };
 
-optional<Options> get_options(string_list const & arguments)
+optional<options> get_options(string_list const & arguments)
 {
     if (arguments.size() < 2)
     {
@@ -48,7 +48,7 @@ optional<Options> get_options(string_list const & arguments)
     copy(arguments.begin() + 2, arguments.end(), back_inserter(child_process_arguments));
 
     return
-        Options
+        options
             {
                 child_process,
                 child_process_arguments,
@@ -63,19 +63,19 @@ int program(string_list const & arguments)
 
     cout << "stirrup_process_invoke: start" << endl;
 
-    SystemProcess process;
+    system_process process;
 
     if (options->capture_output)
     {
         auto output_stream = process.start_capture_output(options->child_process, options->child_process_arguments);
-        cout << "stirrup_process_invoke: exit code " << process.wait_for_exit_code() << "\n";
+        cout << "stirrup_process_invoke: exit code " << process.wait_for_exit() << "\n";
         cout << "stirrup_process_invoke: captured\n";
         cout << output_stream->read();
     }
     else
     {
         process.start(options->child_process, options->child_process_arguments);
-        cout << "stirrup_process_invoke: exit code " << process.wait_for_exit_code() << "\n";
+        cout << "stirrup_process_invoke: exit code " << process.wait_for_exit() << "\n";
     }
     return 0;
 }

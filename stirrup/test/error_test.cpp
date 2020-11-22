@@ -5,7 +5,7 @@
 using namespace stirrup;
 
 BOOST_AUTO_TEST_SUITE(suite_stirrup);
-BOOST_AUTO_TEST_SUITE(suite_make_errno_message);
+BOOST_AUTO_TEST_SUITE(suite_error);
 
 BOOST_AUTO_TEST_CASE(case_make_messages)
 {

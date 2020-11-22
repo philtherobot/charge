@@ -1,5 +1,5 @@
 
-#include "stirrup/stirrup.hpp"
+#include "stirrup/string.hpp"
 
 #include <boost/range/algorithm/find_if.hpp>
 
@@ -9,14 +9,17 @@
 namespace stirrup
 {
 
-std::string quote(std::string const & str)
+using std::string;
+
+string quote(string const & str)
 {
-    return std::string("\"") + str + std::string("\"");
+    return string("\"") + str + string("\"");
 }
 
-std::string quote_if_needed(std::string const & str)
+string quote_if_needed(string const & str)
 {
-    auto isspace = [](unsigned char c){ return std::isspace(c); };
+    auto isspace = [](unsigned char c)
+    { return std::isspace(c); };
 
     if (boost::range::find_if(str, isspace) != str.end())
     {

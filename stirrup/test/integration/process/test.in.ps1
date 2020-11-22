@@ -1,4 +1,4 @@
-Write-Host "Test [Stirrup | SystemProcess]" -ForegroundColor Magenta
+Write-Host "Test [stirrup | system_process]" -ForegroundColor Magenta
 
 function Invoke-ChildProcessActor
 {

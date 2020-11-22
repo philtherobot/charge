@@ -3,19 +3,20 @@
 #include "stirrup/environment_variable.hpp"
 
 BOOST_AUTO_TEST_SUITE(suite_stirrup);
-BOOST_AUTO_TEST_SUITE(suite_getenv);
+BOOST_AUTO_TEST_SUITE(suite_environment_variable);
 
 BOOST_AUTO_TEST_CASE(case_get_unset_environment_variable)
 {
-    const auto value = stirrup::getenv("STIRRUP_SHOULD_NOT_BE_SET");
+    auto const value = stirrup::getenv("STIRRUP_SHOULD_NOT_BE_SET");
     BOOST_TEST(value.empty());
 }
 
 BOOST_AUTO_TEST_CASE(case_get_environment_variable)
 {
+    // todo-php: _putenv_s is Microsoft specific
     _putenv_s("STIRRUP_TEST_ENVAR", "the value");
 
-    const auto value = stirrup::getenv("STIRRUP_TEST_ENVAR");
+    auto const value = stirrup::getenv("STIRRUP_TEST_ENVAR");
     BOOST_TEST(value == "the value");
 }
 

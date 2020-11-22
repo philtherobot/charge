@@ -5,10 +5,10 @@
 namespace stirrup
 {
 
-class ReadableStream
+class readable_stream
 {
 public:
-    virtual ~ReadableStream() {}
+    virtual ~readable_stream() = default;
     virtual std::string read() = 0;
 };
 
