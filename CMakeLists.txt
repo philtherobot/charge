@@ -5,6 +5,7 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 include("${CMAKE_SOURCE_DIR}/cmake/BuildType.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/msvc.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/platform_source.cmake")
 
 set(CMAKE_CXX_STANDARD 20)
