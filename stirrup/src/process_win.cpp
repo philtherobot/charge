@@ -1,5 +1,6 @@
 
 #include "stirrup/process.hpp"
+#include "stirrup/stream_cooker_reader.hpp"
 
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/join.hpp>
@@ -149,92 +150,6 @@ void pipe::set_inherit(HANDLE h)
         throw std::runtime_error(make_win32_error_message("SetHandleInformation"));
     }
 }
-
-class stream_cooker_reader: public readable_stream
-{
-public:
-    explicit stream_cooker_reader(readable_stream & binary_stream_source)
-        : source_(binary_stream_source), state_(START)
-    {}
-
-    virtual string read()
-    {
-        for (;;)
-        {
-            auto new_block = source_.read();
-
-            if (new_block.empty()) return string();
-
-            auto output = cook(new_block);
-
-            if (!output.empty())
-            {
-                return output;
-            }
-            // Else, go read more...
-
-        } // end forever
-    }
-
-private:
-    string cook(string const & new_block)
-    {
-        string::const_iterator input = new_block.begin();
-
-        string output;
-        output.reserve(new_block.size());
-
-        while (input != new_block.end())
-        {
-            char c = *input;
-            ++input;
-
-            switch (state_)
-            {
-                case START:in_start_state(c, output);
-                    break;
-
-                case CR_DETECTED:in_cr_detected_state(c, output);
-                    break;
-            }
-        } // end while
-
-        return output;
-    }
-
-    void in_start_state(char c, string & output)
-    {
-        if (c == '\r')
-        {
-            state_ = CR_DETECTED;
-        }
-        else
-        {
-            output.push_back(c);
-        }
-    }
-
-    void in_cr_detected_state(char c, string & output)
-    {
-        if (c == '\n')
-        {
-            output.push_back('\n');
-        }
-        else
-        {
-            output.push_back(c);
-        }
-        state_ = START;
-    }
-
-    readable_stream & source_;
-
-    enum
-    {
-        START,
-        CR_DETECTED
-    } state_;
-};
 
 class windows_handle_reader: public readable_stream
 {
