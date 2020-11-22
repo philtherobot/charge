@@ -10,6 +10,7 @@ namespace stirrup
 {
 
 using std::string;
+using std::u8string;
 
 string quote(string const & str)
 {
@@ -27,6 +28,11 @@ string quote_if_needed(string const & str)
     }
 
     return str;
+}
+
+std::u8string to_u8string(std::string const & str)
+{
+    return reinterpret_cast<char8_t const *>(str.data());
 }
 
 }

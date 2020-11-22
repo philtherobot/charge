@@ -11,6 +11,7 @@ add_library(
     src/process_${PLATFORM_SOURCE}.cpp
     src/stream_cooker_reader.cpp
     src/string.cpp
+    src/string_win.cpp
 )
 
 target_link_libraries(
