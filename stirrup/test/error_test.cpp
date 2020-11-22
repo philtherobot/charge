@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include "stirrup/stirrup.hpp"
+#include "stirrup/error.hpp"
 
 using namespace stirrup;
 

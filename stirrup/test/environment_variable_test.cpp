@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include "stirrup/stirrup.hpp"
+#include "stirrup/environment_variable.hpp"
 
 BOOST_AUTO_TEST_SUITE(suite_stirrup);
 BOOST_AUTO_TEST_SUITE(suite_getenv);

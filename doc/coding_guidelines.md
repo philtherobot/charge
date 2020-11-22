@@ -1,7 +1,7 @@
 
 East const!  A controversial decision.  The rationale is that the most important thing is the type, not whether it is const or not, so type comes first.  East const also places `const` in the same place the language places `*` and `&`.
 
-Snake case identifiers.
+Lower case identifiers with underscores to separate words.
 
 Study and respect the formatting already in place.  For CLion users, there is an exported code style scheme at `CLion Code Style.xml` that can be imported for the project.  
  

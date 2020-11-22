@@ -25,9 +25,9 @@ namespace stirrup
 namespace
 {
 
-string get_command_line(string const & pgm, StringList const & args)
+string get_command_line(string const & pgm, string_list const & args)
 {
-    StringList strings;
+    string_list strings;
 
     strings.push_back(pgm);
     copy(args.begin(), args.end(), back_inserter(strings));
@@ -82,7 +82,7 @@ vector<char> strcpy(string const & str)
     return r;
 }
 
-HANDLE create_process(string const & pgm, StringList const & args, STARTUPINFO & start_info)
+HANDLE create_process(string const & pgm, string_list const & args, STARTUPINFO & start_info)
 {
     string command_line = get_command_line(pgm, args);
 
@@ -308,14 +308,14 @@ SystemProcess::SystemProcess()
 SystemProcess::~SystemProcess()
 {}
 
-void SystemProcess::start(string const & pgm, StringList const & args)
+void SystemProcess::start(string const & pgm, string_list const & args)
 {
     STARTUPINFO startup_info = getDefaultStartupInfo();
 
     impl_->process_handle_ = create_process(pgm, args, startup_info);
 }
 
-std::shared_ptr<ReadableStream> SystemProcess::start_capture_output(string const & pgm, StringList const & args)
+std::shared_ptr<ReadableStream> SystemProcess::start_capture_output(string const & pgm, string_list const & args)
 {
 
     STARTUPINFO startup_info = getDefaultStartupInfo();

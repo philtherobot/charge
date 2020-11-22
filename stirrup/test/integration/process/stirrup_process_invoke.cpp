@@ -12,11 +12,11 @@ namespace
 struct Options
 {
     string child_process;
-    StringList child_process_arguments;
+    string_list child_process_arguments;
     bool capture_output{false};
 };
 
-optional<Options> get_options(StringList const & arguments)
+optional<Options> get_options(string_list const & arguments)
 {
     if (arguments.size() < 2)
     {
@@ -44,7 +44,7 @@ optional<Options> get_options(StringList const & arguments)
 
     auto const child_process = arguments[1];
 
-    StringList child_process_arguments;
+    string_list child_process_arguments;
     copy(arguments.begin() + 2, arguments.end(), back_inserter(child_process_arguments));
 
     return
@@ -56,7 +56,7 @@ optional<Options> get_options(StringList const & arguments)
             };
 }
 
-int program(StringList const & arguments)
+int program(string_list const & arguments)
 {
     auto const options = get_options(arguments);
     if (!options) return 1;
@@ -86,7 +86,7 @@ int main(int argc, char ** argv)
 {
     try
     {
-        StringList arguments;
+        string_list arguments;
         for (int i = 1; i < argc; ++i)
         {
             arguments.push_back(argv[i]);

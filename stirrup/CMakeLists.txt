@@ -2,12 +2,15 @@ add_library(
     stirrup
     include/stirrup/ReadableStream.hpp
     include/stirrup/StreamCookerReader.hpp
+    include/stirrup/environment_variable.hpp
+    include/stirrup/error.hpp
     include/stirrup/stirrup.hpp
+    include/stirrup/string.hpp
     src/StreamCookerReader.cpp
-    src/getenv_${PLATFORM_SOURCE}.cpp
-    src/make_errno_message.cpp
+    src/environment_variable_${PLATFORM_SOURCE}.cpp
+    src/error.cpp
     src/process_${PLATFORM_SOURCE}.cpp
-    src/quote_if_needed.cpp
+    src/string.cpp
 )
 
 target_link_libraries(

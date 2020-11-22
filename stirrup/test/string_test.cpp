@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include "stirrup/stirrup.hpp"
+#include "stirrup/string.hpp"
 
 #include <cwchar>
 
