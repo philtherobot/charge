@@ -1,16 +1,41 @@
 
 #include "stirrup/string.hpp"
 
+#include "stirrup/error.hpp"
+
 #include <boost/range/algorithm/find_if.hpp>
-
 #include <cctype>
-
+#include <cuchar>
+#include <fmt/format.h>
 
 namespace stirrup
 {
 
+using std::size_t;
 using std::string;
+using std::u32string;
 using std::u8string;
+using std::vector;
+
+namespace
+{
+
+std::string repr_to_hex(char8_t value)
+{
+    return fmt::format("\\x{:02X}", uint_least8_t(value));
+}
+
+std::string repr_to_hex(char16_t value)
+{
+    return fmt::format("\\u{:04X}", uint_least16_t(value));
+}
+
+std::string repr_to_hex(char32_t value)
+{
+    return fmt::format("\\U{:08X}", uint_least32_t(value));
+}
+
+}
 
 string quote(string const & str)
 {
@@ -33,6 +58,112 @@ string quote_if_needed(string const & str)
 std::u8string to_u8string(std::string const & str)
 {
     return reinterpret_cast<char8_t const *>(str.data());
+}
+
+u32string transcode_from_utf8(vector<char8_t> const & utf8_string)
+{
+    u32string result;
+    result.reserve(utf8_string.size());
+
+    mbstate_t state{};
+
+    char const * read_position = reinterpret_cast<char const *>(utf8_string.data());
+    size_t left_count = utf8_string.size();
+
+    while (left_count > 0)
+    {
+        char32_t c{};
+        size_t read_count = mbrtoc32(&c, read_position, left_count, &state);
+
+        switch (read_count)
+        {
+            case 0: return result;
+            case size_t(-3):
+            {
+                result.push_back(c);
+                break;
+            }
+            case size_t(-2): throw logic_error(U"incomplete UTF-8 multi-bytes character");
+            case size_t(-1): throw runtime_error(U"error converting from UTF-8");
+
+            default:
+            {
+                result.push_back(c);
+                read_position += read_count;
+                left_count -= read_count;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+vector<char8_t> transcode_to_utf8(u32string const & unicode_string)
+{
+    vector<char8_t> result;
+    result.reserve(unicode_string.size());
+
+    std::mbstate_t state{};
+
+    for (char32_t const c: unicode_string)
+    {
+        auto const insertion_index = result.size();
+        size_t const max_utf8_length = 6;
+        result.resize(result.size() + max_utf8_length);
+
+        char * insertion = reinterpret_cast<char *>(result.data() + insertion_index);
+
+        // This works for us because MSVC has a bug that works in our favor.
+        // We want conversion to UTF-8.  c32rtomb should convert to the locale's
+        // encoding, but it does not: it always does UTF-8.
+        // I will need to eventually fix this as this is not portable.
+        auto const nb_bytes_output = c32rtomb(insertion, c, &state);
+        result.resize(insertion_index + nb_bytes_output);
+    }
+
+    return result;
+}
+
+std::string repr(char32_t unicode_character)
+{
+    if (unicode_character < 128)
+    {
+        char r[2] = {};
+        r[0] = char(unicode_character);
+        return r;
+    }
+
+    if (unicode_character < 0x10000)
+    {
+        return repr_to_hex(char16_t(unicode_character));
+    }
+
+    return repr_to_hex(unicode_character);
+}
+
+std::string repr(u32string const & string)
+{
+    std::string result;
+
+    for (char32_t character: string)
+    {
+        result += repr(character);
+    }
+
+    return result;
+}
+
+std::string repr(char8_t u8_byte)
+{
+    if (u8_byte < 128)
+    {
+        char r[2] = {};
+        r[0] = char(u8_byte);
+        return r;
+    }
+
+    return repr_to_hex(char8_t(u8_byte));
 }
 
 }

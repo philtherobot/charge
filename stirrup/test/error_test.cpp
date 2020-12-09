@@ -1,19 +1,19 @@
-#include <boost/test/unit_test.hpp>
+#include <catch2/catch.hpp>
 
 #include "stirrup/error.hpp"
 
 using namespace stirrup;
+using std::string;
 
-BOOST_AUTO_TEST_SUITE(suite_stirrup);
-BOOST_AUTO_TEST_SUITE(suite_error);
-
-BOOST_AUTO_TEST_CASE(case_make_messages)
+SCENARIO("error: make_errno_message")
 {
-    BOOST_TEST(
-        make_errno_message("getthis", EINVAL) == "system (errno) error 22 (Invalid argument) in function getthis"
-    );
+    CHECK(make_errno_message("getthis", EINVAL) == "system (errno) error 22 (Invalid argument) in function getthis");
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+SCENARIO("error: exception")
+{
+    exception e(U"message to the \u503C");
 
-BOOST_AUTO_TEST_SUITE_END();
+    CHECK(e.message() == U"message to the \u503C");
+    CHECK(e.what() == string("message to the \\u503C"));
+}

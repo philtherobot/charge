@@ -1,5 +1,7 @@
 [requires]
 boost/1.74.0
+Catch2/2.11.1@catchorg/stable
+fmt/7.1.2
 yaml-cpp/0.6.3
 
 [generators]

@@ -27,4 +27,5 @@ target_include_directories(
     PRIVATE src
 )
 
+add_subdirectory(examples)
 add_subdirectory(test)

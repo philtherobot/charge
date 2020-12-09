@@ -1,0 +1,3 @@
+Some UTF-8 file
+Hello, 值 !
+Smiley? yes 😀 !
