@@ -2,7 +2,9 @@
 #include "stirrup/string.hpp"
 
 #include "stirrup/error.hpp"
+#include "stirrup/locale.hpp"
 
+#include <algorithm>
 #include <boost/range/algorithm/find_if.hpp>
 #include <cctype>
 #include <cuchar>
@@ -33,6 +35,49 @@ std::string repr_to_hex(char16_t value)
 std::string repr_to_hex(char32_t value)
 {
     return fmt::format("\\U{:08X}", uint_least32_t(value));
+}
+
+std::wstring transcode_wstring_from(char const *str, std::locale const &locale)
+{
+    locale_block set_and_restore_locale(locale);
+
+    auto const str_size = std::strlen(str);
+
+    std::wstring result;
+    result.reserve(str_size);
+
+    mbstate_t state{};
+
+    char const * read_position = str;
+    size_t left_count = str_size;
+
+    while (left_count > 0)
+    {
+        wchar_t c{};
+        size_t read_count = mbrtowc(&c, read_position, left_count, &state);
+
+        switch (read_count)
+        {
+            case 0: return result;
+            case size_t(-3):
+            {
+                result.push_back(c);
+                break;
+            }
+            case size_t(-2): throw logic_error(U"incomplete multi-bytes character");
+            case size_t(-1): throw runtime_error(U"error converting from locale encoding");
+
+            default:
+            {
+                result.push_back(c);
+                read_position += read_count;
+                left_count -= read_count;
+                break;
+            }
+        }
+    }
+
+    return result;
 }
 
 }
@@ -123,6 +168,19 @@ vector<char8_t> transcode_to_utf8(u32string const & unicode_string)
     }
 
     return result;
+}
+
+std::u32string transcode_from_wstring(std::wstring const &str)
+{
+    std::u32string result;
+    result.resize(str.size());
+    std::transform(std::begin(str), std::end(str), std::begin(result), [](wchar_t wc) { return char32_t(wc); });
+    return result;
+}
+
+std::u32string transcode_from_locale(char const * str, std::locale const & locale)
+{
+    return transcode_from_wstring(transcode_wstring_from(str, locale));
 }
 
 std::string repr(char32_t unicode_character)

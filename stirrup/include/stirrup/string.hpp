@@ -1,5 +1,6 @@
 #pragma once
 
+#include <locale>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,10 @@ std::u8string to_u8string(std::wstring const & str);
 
 std::u32string transcode_from_utf8(std::vector<char8_t> const & utf8_string);
 std::vector<char8_t> transcode_to_utf8(std::u32string const & string);
+
+std::u32string transcode_from_wstring(std::wstring const & str);
+
+std::u32string transcode_from_locale(char const * str, std::locale const & locale = std::locale());
 
 std::string repr(char8_t u8_byte);
 std::string repr(char32_t unicode_character);

@@ -6,6 +6,8 @@ add_subdirectory(support)
 add_executable(stirrup_tests
 #    environment_variable_test.cpp
     error_test.cpp
+    format_test.cpp
+    locale_test.cpp
     initialization.cpp
 #    stream_cooker_reader_test.cpp
     string_test.cpp

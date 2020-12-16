@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include "stirrup/locale.hpp"
 #include "stirrup/string.hpp"
 #include "stirrup/test/string_string_maker.hpp"
 
@@ -139,4 +140,31 @@ SCENARIO("UTF-8 to ASCII representation")
         CHECK(repr(char8_t(0x80)) == "\\x80");
         CHECK(repr(char8_t(0xFF)) == "\\xFF");
     }
+}
+
+SCENARIO("locale to Unicode transcoding")
+{
+    auto const initial_locale = std::locale();
+
+    auto character_d8 = "\xD8";
+
+    auto windows_latin1_locale_name = ".850";
+    CHECK(transcode_from_locale(character_d8, std::locale(windows_latin1_locale_name)) == U"\u00CF");
+
+    CHECK(initial_locale == std::locale());
+
+    auto windows_greek_locale_name = ".1253";
+    CHECK(transcode_from_locale(character_d8, std::locale(windows_greek_locale_name)) == U"\u03A8");
+
+    CHECK(initial_locale == std::locale());
+
+    {
+        locale_block set_and_restore_locale(std::locale(".850"));
+        CHECK(transcode_from_locale(character_d8) == U"\u00CF");
+    }
+}
+
+SCENARIO("wchar_t to Unicode transcoding")
+{
+    CHECK(transcode_from_wstring(L"hello \u503c") == U"hello \u503c");
 }

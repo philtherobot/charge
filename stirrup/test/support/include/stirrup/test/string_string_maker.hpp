@@ -14,8 +14,8 @@ struct StringMaker<std::u32string>
     }
 };
 
-template <>
-struct StringMaker<char32_t const *>
+template <std::size_t N>
+struct StringMaker<char32_t [N]>
 {
     static std::string convert(char32_t const * value)
     {
