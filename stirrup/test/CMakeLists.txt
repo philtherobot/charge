@@ -9,9 +9,9 @@ add_executable(stirrup_tests
     format_test.cpp
     locale_test.cpp
     initialization.cpp
-#    stream_cooker_reader_test.cpp
     stream_test.cpp
     string_test.cpp
+    text_stream_test.cpp
 )
 
 target_link_libraries(

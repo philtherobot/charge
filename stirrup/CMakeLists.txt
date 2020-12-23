@@ -8,15 +8,17 @@ add_library(
     include/stirrup/stream.hpp
     include/stirrup/stream_cooker_reader.hpp
     include/stirrup/string.hpp
+    include/stirrup/text_stream.hpp
     src/environment_variable_${PLATFORM_SOURCE}.cpp
     src/error.cpp
     src/locale.cpp
     src/process_${PLATFORM_SOURCE}.cpp
-    src/stream_cooker_reader.cpp
     src/stream.cpp
+    src/stream_cooker_reader.cpp
     src/stream_windows.cpp
     src/string.cpp
     src/string_windows.cpp
+    src/text_stream.cpp
 )
 
 target_link_libraries(

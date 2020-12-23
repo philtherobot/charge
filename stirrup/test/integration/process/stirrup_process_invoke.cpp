@@ -94,7 +94,7 @@ int main(int argc, char ** argv)
 
         return program(arguments);
     }
-    catch (exception const & error)
+    catch (std::exception const & error)
     {
         cout << "Exception: " << error.what() << "\n";
         return 1;

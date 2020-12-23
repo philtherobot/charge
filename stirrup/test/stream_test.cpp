@@ -76,6 +76,7 @@ vector<char> read_file(path const & file_path)
     return result;
 }
 
+
 SCENARIO("File I/O device")
 {
     file_sandbox sandbox;
