@@ -10,6 +10,7 @@ add_executable(stirrup_tests
     locale_test.cpp
     initialization.cpp
 #    stream_cooker_reader_test.cpp
+    stream_test.cpp
     string_test.cpp
 )
 

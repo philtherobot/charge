@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include "stirrup/error.hpp"
 #include "stirrup/locale.hpp"
 #include "stirrup/string.hpp"
 #include "stirrup/test/string_string_maker.hpp"
@@ -167,4 +168,8 @@ SCENARIO("locale to Unicode transcoding")
 SCENARIO("wchar_t to Unicode transcoding")
 {
     CHECK(transcode_from_wstring(L"hello \u503c") == U"hello \u503c");
+    CHECK(transcode_to_wstring(U"hello \u503c") == L"hello \u503c");
+
+    // todo-php: check message, it should include the char that cannot be converted
+    CHECK_THROWS_AS(transcode_to_wstring(U"hello \U0001F600"), stirrup::runtime_error);
 }

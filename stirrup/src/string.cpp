@@ -80,6 +80,16 @@ std::wstring transcode_wstring_from(char const *str, std::locale const &locale)
     return result;
 }
 
+wchar_t c32towc(char32_t c32)
+{
+    if(c32 > std::numeric_limits<wchar_t>::max())
+    {
+        throw runtime_error(U"symbol cannot be converted");
+    }
+
+    return wchar_t(c32);
+}
+
 }
 
 string quote(string const & str)
@@ -175,6 +185,14 @@ std::u32string transcode_from_wstring(std::wstring const &str)
     std::u32string result;
     result.resize(str.size());
     std::transform(std::begin(str), std::end(str), std::begin(result), [](wchar_t wc) { return char32_t(wc); });
+    return result;
+}
+
+std::wstring transcode_to_wstring(std::u32string const &str)
+{
+    std::wstring result;
+    result.resize(str.size());
+    std::transform(std::begin(str), std::end(str), std::begin(result), c32towc);
     return result;
 }
 
