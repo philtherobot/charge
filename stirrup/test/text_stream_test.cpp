@@ -2,7 +2,7 @@
 
 #include "stirrup/text_stream.hpp"
 
-using stirrup::text_stream;
+using stirrup::text_input_stream;
 
 namespace
 {

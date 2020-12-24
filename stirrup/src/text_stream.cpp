@@ -7,11 +7,11 @@ namespace stirrup
 using std::u32string;
 using std::size_t;
 
-text_stream::text_stream(stream & binary_stream_source)
+text_input_stream::text_input_stream(input_stream & binary_stream_source)
     : binary_stream_source_(binary_stream_source), state_(state::START)
 {}
 
-u32string text_stream::read(size_t read_size)
+u32string text_input_stream::read(size_t read_size)
 {
 //    for (;;)
 //    {

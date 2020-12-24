@@ -2,6 +2,7 @@ add_library(
     stirrup
     include/stirrup/environment_variable.hpp
     include/stirrup/error.hpp
+    include/stirrup/file.hpp
     include/stirrup/locale.hpp
     include/stirrup/readable_stream.hpp
     include/stirrup/stirrup.hpp
@@ -11,11 +12,12 @@ add_library(
     include/stirrup/text_stream.hpp
     src/environment_variable_${PLATFORM_SOURCE}.cpp
     src/error.cpp
+    src/file.cpp
+    src/file_windows.cpp
     src/locale.cpp
     src/process_${PLATFORM_SOURCE}.cpp
     src/stream.cpp
     src/stream_cooker_reader.cpp
-    src/stream_windows.cpp
     src/string.cpp
     src/string_windows.cpp
     src/text_stream.cpp

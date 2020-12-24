@@ -38,22 +38,6 @@ public:
     virtual std::vector<char> read(std::size_t read_size) = 0;
 };
 
-class stream
-{
-public:
-    explicit stream(FILE * file);
-    ~stream();
-
-    std::vector<char> read(std::size_t read_size);
-    void write(std::vector<char> const & buffer);
-    void flush();
-
-private:
-    FILE * file_{};
-};
-
-stream create_file(std::filesystem::path const & new_file_path);
-stream open_file(std::filesystem::path const & existing_file_path);
 
 
 /*
