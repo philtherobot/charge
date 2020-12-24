@@ -9,13 +9,18 @@
 
 using namespace stirrup;
 
+using std::begin;
+using std::end;
 using std::filesystem::path;
+using std::string;
 using std::vector;
 
 class file_sandbox
 {
 public:
-    file_sandbox() : path_(locate_free_path()) {}
+    file_sandbox()
+        : path_(locate_free_path())
+    {}
 
     ~file_sandbox()
     {
@@ -25,13 +30,14 @@ public:
 
         }
             // todo-php: that is just for debugging.  what should we do?
-        catch(std::exception e)
+        catch (std::exception e)
         {
-            throw;
+            //throw;  cannot throw from destructors
         }
     }
 
-    path path() const  { return path_; }
+    path path() const
+    { return path_; }
 
 
 private:
@@ -44,10 +50,10 @@ private:
 
     static std::filesystem::path locate_free_path()
     {
-        for(unsigned int name_counter{}; name_counter < 1000*1000; ++name_counter)
+        for (unsigned int name_counter{}; name_counter < 1000 * 1000; ++name_counter)
         {
             auto const path = make_sandbox_directory_path(name_counter);
-            if( !std::filesystem::exists(path))
+            if (!std::filesystem::exists(path))
             {
                 std::filesystem::create_directory(path);
                 return path;
@@ -76,15 +82,14 @@ vector<char> read_file(path const & file_path)
     return result;
 }
 
-
-SCENARIO("File I/O device")
+SCENARIO("File stream")
 {
     file_sandbox sandbox;
 
     GIVEN("no file")
     {
         auto const new_file_path = sandbox.path() / U"new_file_\u503c";
-        vector<char> binary_data = { 1, 2, 3, 0, 3, 2, 1 };
+        vector<char> binary_data = {1, 2, 3, 0, 3, 2, 1};
 
         WHEN("we create a new file and write contents to it")
         {
@@ -169,4 +174,40 @@ SCENARIO("File I/O device")
     stream & binary_stdout;
     stream & binary_stderr;
 */
+}
+
+SCENARIO("Input memory stream")
+{
+    GIVEN("a memory stream on an input buffer")
+    {
+        string input_data = "hello";
+        vector<char> input_buffer(begin(input_data), end(input_data));
+
+        input_stream s = create_memory_input_stream(input_buffer);
+
+        WHEN("we read from the memory stream")
+        {
+            CHECK(s.read(2) == vector<char>{'h', 'e'});
+            CHECK(s.read(2) == vector<char>{'l', 'l'});
+            CHECK(s.read(2) == vector<char>{'o'});
+            CHECK(s.read(2).empty());
+            CHECK(s.read(2).empty());
+        }
+    }
+
+    GIVEN("a memory stream on an output buffer")
+    {
+        vector<char> output_buffer;
+
+        output_stream s = create_memory_output_stream(output_buffer);
+
+        WHEN("we write to the memory stream")
+        {
+            s.write(vector<char>{'h', 'e'});
+            CHECK(output_buffer == vector<char>{'h', 'e'});
+
+            s.write(vector<char>{'l', 'l', 'o'});
+            CHECK(output_buffer == vector<char>{'h', 'e', 'l', 'l', 'o'});
+        }
+    }
 }

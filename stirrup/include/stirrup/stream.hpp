@@ -4,22 +4,57 @@
 
 namespace stirrup
 {
+
+class input_stream
+{
+public:
+    explicit input_stream(std::vector<char> const &buffer);
+    std::vector<char> read(std::size_t read_size);
+
+private:
+    std::vector<char> const &buffer_;
+    std::vector<char>::const_iterator position_;
+};
+
+input_stream create_memory_input_stream(std::vector<char> const & buffer);
+
+class output_stream
+{
+public:
+    explicit output_stream(std::vector<char> &buffer);
+
+    void write(std::vector<char> const & new_data);
+
+private:
+    std::vector<char> & buffer_;
+};
+
+output_stream create_memory_output_stream(std::vector<char> & buffer);
+
+class stream_device
+{
+public:
+    virtual ~stream_device() = default;
+    virtual std::vector<char> read(std::size_t read_size) = 0;
+};
+
 class stream
 {
 public:
-    explicit stream(FILE *file);
+    explicit stream(FILE * file);
     ~stream();
 
     std::vector<char> read(std::size_t read_size);
-    void write(std::vector<char> const &buffer);
+    void write(std::vector<char> const & buffer);
     void flush();
 
 private:
-    FILE *file_{};
+    FILE * file_{};
 };
 
 stream create_file(std::filesystem::path const & new_file_path);
 stream open_file(std::filesystem::path const & existing_file_path);
+
 
 /*
     class stream
