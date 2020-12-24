@@ -17,7 +17,7 @@ file open(path const & file_path, wchar_t const * const mode)
 }
 
 }
-file create_file(path const & new_file_path)
+file create_new_file(path const & new_file_path)
 {
     return open(new_file_path, L"w");
 }

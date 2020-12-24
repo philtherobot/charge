@@ -91,7 +91,7 @@ SCENARIO("File stream")
 
         WHEN("we create a new file and write contents to it")
         {
-            file new_file = create_file(new_file_path);
+            file new_file = create_new_file(new_file_path);
 
             new_file.write(binary_data);
 
