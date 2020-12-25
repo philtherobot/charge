@@ -1,6 +1,5 @@
-#include <filesystem>
+#include <memory>
 #include <vector>
-#include <stdio.h>
 
 namespace stirrup
 {
@@ -8,29 +7,64 @@ namespace stirrup
 class input_stream
 {
 public:
-    explicit input_stream(std::vector<char> const &buffer);
+
+    class device
+    {
+    public:
+        virtual ~device() = default;
+        virtual std::vector<char> read(std::size_t read_size) = 0;
+    };
+
+    explicit input_stream(std::unique_ptr<device> && input_device);
     std::vector<char> read(std::size_t read_size);
 
 private:
-    std::vector<char> const &buffer_;
-    std::vector<char>::const_iterator position_;
+    std::unique_ptr<device> device_;
 };
-
-input_stream create_memory_input_stream(std::vector<char> const & buffer);
 
 class output_stream
 {
 public:
-    explicit output_stream(std::vector<char> &buffer);
 
+    class device
+    {
+    public:
+        virtual ~device() = default;
+        virtual void write(std::vector<char> const & new_data) = 0;
+    };
+
+    explicit output_stream(std::unique_ptr<device> && output_device);
     void write(std::vector<char> const & new_data);
+
+private:
+    std::unique_ptr<device> device_;
+};
+
+class memory_input_device: public input_stream::device
+{
+public:
+    explicit memory_input_device(std::vector<char> const & buffer);
+    std::vector<char> read(std::size_t read_size) override;
+
+private:
+    std::vector<char> const & buffer_;
+    std::vector<char>::const_iterator read_position_;
+};
+
+input_stream create_memory_input_stream(std::vector<char> const & buffer);
+
+class memory_output_device : public output_stream::device
+{
+public:
+    explicit memory_output_device(std::vector<char> & buffer);
+
+    void write(std::vector<char> const & new_data) override;
 
 private:
     std::vector<char> & buffer_;
 };
 
 output_stream create_memory_output_stream(std::vector<char> & buffer);
-
 
 /*
 

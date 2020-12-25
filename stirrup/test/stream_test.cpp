@@ -1,17 +1,12 @@
 #include <catch2/catch.hpp>
 
 #include <stirrup/error.hpp>
-#include <stirrup/format.hpp>
 #include <stirrup/stream.hpp>
-
-#include <filesystem>
-#include <fstream>
 
 using namespace stirrup;
 
 using std::begin;
 using std::end;
-using std::filesystem::path;
 using std::string;
 using std::vector;
 
