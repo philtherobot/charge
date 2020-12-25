@@ -31,10 +31,12 @@ public:
     public:
         virtual ~device() = default;
         virtual void write(std::vector<char> const & new_data) = 0;
+        virtual void flush() = 0;
     };
 
     explicit output_stream(std::unique_ptr<device> && output_device);
     void write(std::vector<char> const & new_data);
+    void flush();
 
 private:
     std::unique_ptr<device> device_;
@@ -59,6 +61,7 @@ public:
     explicit memory_output_device(std::vector<char> & buffer);
 
     void write(std::vector<char> const & new_data) override;
+    void flush() override;
 
 private:
     std::vector<char> & buffer_;

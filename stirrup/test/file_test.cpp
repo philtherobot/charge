@@ -27,6 +27,8 @@ public:
             std::filesystem::remove_all(path_);
         }
             // todo-php: that is just for debugging.  what should we do?
+            // failure to remove might be because an handle to a file
+            // is still opened.  Thus, it means a test failure.
         catch (std::exception e)
         {
             //throw;  cannot throw from destructors
@@ -79,18 +81,17 @@ vector<char> read_file(path const & file_path)
     return result;
 }
 
-SCENARIO("File stream")
+SCENARIO("File object")
 {
     file_sandbox sandbox;
+    vector<char> binary_data = {1, 2, 3, 0, 3, 2, 1};
 
     GIVEN("no file")
     {
-        auto const new_file_path = sandbox.path() / U"new_file_\u503c";
-
-        vector<char> binary_data = {1, 2, 3, 0, 3, 2, 1};
-
         WHEN("we create a new file and write contents to it")
         {
+            auto const new_file_path = sandbox.path() / U"new_file_\u503c";
+
             file new_file = create_new_file(new_file_path);
 
             new_file.write(binary_data);
@@ -110,6 +111,48 @@ SCENARIO("File stream")
 // - read, write, flush errors
 // - not flushing may cause a misread when reading through another file handle
 // - closing flushes (so not misread)
+        }
+    }
+}
+
+SCENARIO("File streams")
+{
+    file_sandbox sandbox;
+    vector<char> binary_data = {1, 2, 3, 0, 3, 2, 1};
+
+    GIVEN("a file with data")
+    {
+        auto const input_file_path = sandbox.path() / U"input_file";
+
+        file input_file = create_new_file(input_file_path);
+        input_file.write(binary_data);
+        input_file.close();
+
+        input_file = open_file(input_file_path);
+
+        WHEN("we get an input stream device from the file")
+        {
+            input_stream file_input_stream = input_file.input_stream();
+
+            CHECK(file_input_stream.read(1024) == binary_data);
+        }
+    }
+
+    GIVEN("a new empty file")
+    {
+        auto const output_file_path = sandbox.path() / U"output_file";
+        file output_file = create_new_file(output_file_path);
+
+        WHEN("we get an output stream device from the file")
+        {
+            output_stream file_output_stream = output_file.output_stream();
+
+            file_output_stream.write(binary_data);
+            file_output_stream.flush();
+
+            auto const file_contents = read_file(output_file_path);
+
+            CHECK(file_contents == binary_data);
         }
     }
 }

@@ -33,6 +33,11 @@ void output_stream::write(const std::vector<char> & new_data)
     device_->write(new_data);
 }
 
+void output_stream::flush()
+{
+    device_->flush();
+}
+
 memory_input_device::memory_input_device(const vector<char> & buffer)
     : buffer_(buffer), read_position_(begin(buffer_))
 {}
@@ -62,6 +67,9 @@ void memory_output_device::write(vector<char> const & new_data)
 {
     std::copy(begin(new_data), end(new_data), back_inserter(buffer_));
 }
+
+void memory_output_device::flush()
+{}
 
 output_stream create_memory_output_stream(vector<char> & buffer)
 {
