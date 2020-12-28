@@ -27,14 +27,19 @@ file & file::operator=(file && other)
     return *this;
 }
 
-vector<char> file::read(std::size_t read_size)
+vector<char> file::read(std::size_t user_read_size)
 {
     vector<char> result;
 
     std::array<char, 16 * 1024> buffer;
-    std::size_t read_count = std::fread(buffer.data(), sizeof(char), buffer.size(), file_);
+
+    auto const actual_read_size = std::min(user_read_size, buffer.size());
+
+    // todo-php: we have to test and implement reading more than the buffer size.
+    std::size_t read_count = std::fread(buffer.data(), sizeof(char), actual_read_size, file_);
     result.resize(read_count);
     std::copy(begin(buffer), begin(buffer) + read_count, begin(result));
+
     return result;
 }
 

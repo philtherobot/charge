@@ -5,6 +5,7 @@ add_library(
     include/stirrup/file.hpp
     include/stirrup/locale.hpp
     include/stirrup/readable_stream.hpp
+    include/stirrup/standard_streams.hpp
     include/stirrup/stirrup.hpp
     include/stirrup/stream.hpp
     include/stirrup/stream_cooker_reader.hpp
@@ -13,13 +14,14 @@ add_library(
     src/environment_variable_${PLATFORM_SOURCE}.cpp
     src/error.cpp
     src/file.cpp
-    src/file_windows.cpp
+    src/file_windows.cpp  #// todo-php:  use ${PLATFORM_SOURCE}
     src/locale.cpp
     src/process_${PLATFORM_SOURCE}.cpp
+    src/standard_streams.cpp
     src/stream.cpp
     src/stream_cooker_reader.cpp
     src/string.cpp
-    src/string_windows.cpp
+    src/string_windows.cpp #// todo-php:  use ${PLATFORM_SOURCE}
     src/text_stream.cpp
 )
 

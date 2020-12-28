@@ -13,6 +13,7 @@ using std::vector;
 namespace stirrup
 {
 
+// todo-php: have a null input device to avoid having a nullptr
 input_stream::input_stream(std::unique_ptr<device> && input_device)
     :
     device_(move(input_device))
@@ -23,6 +24,7 @@ vector<char> input_stream::read(size_t read_size)
     return device_->read(read_size);
 }
 
+// todo-php: have a null output device to avoid having a nullptr
 output_stream::output_stream(std::unique_ptr<device> && output_device)
     :
     device_(move(output_device))
