@@ -2,28 +2,28 @@
 
 ## Goals
 
-Let's first posit what are the various goals we will set for Stirrup.
+Let's first posit what are the various goals that Stirrup tries to meet.
 
 ### Usage scenarios
 
 Stirrup is primarily intended to support the creation of small programs.  Those small programs could be:
-- Programs you would normally implement with Python because there is a need for variables and some computation that cannot be easily done in Bash or Windows Batch.  Maybe because it genuinely is difficult or you do not know how to write the program in Python or a shell script language but you do know how to write it in C++. 
+- Programs that would normally be implemented with Python because there is a need for variables and some computation that cannot be easily done in Bash or Windows Batch.  Maybe because it genuinely is difficult or you do not know how to write the program in Python or a shell script language but you do know how to write it in C++. 
 - Programs that require lots of interaction with executables. Piping executables between themselves and with files, capturing the output, feeding input, etc.
 - Programs that manipulate the filesystem.  Copy, delete and list files for example.
 
 ### Target audience
 
-Stirrup should be usable to programmers of any level of experience, from students writing their very first program to experts in need of a no-worries program.
+Stirrup should be usable by programmers with a little bit of C++ experience, by expert C++ programmers and everybody in between.  Because Stirrup is not the standard library, Stirrup may not be well suited to people being introduced to C++: the student would be learning a niche library instead of C++ itself.
 
 ### Portability
 
-Stirrup aims to be part of a C++ teaching tool.  We want to avoid the issues related to differences in the toolchain and platform from one platform to another: the instructions and code written should be the same and have the same results regardless of the student's platform.
+Stirrup is multi-platform.  We want to avoid the issues related to differences in the toolchain and platform from one platform to another: the code written should be the same and have the same results regardless of the platform.
 
 We should note that the portability goals of Stirrup reach all the way to the end-of-line style: Stirrup should take away the EOL issues as much as possible.  This supports the students who expect text files to be in their language and match their platform's end-of-line style.
 
 ### Internationalization
 
-This is the 21th century, at the time of writing, we are near the year 2021, people all over the world are using computers, it is time we take text encoding seriously in C++.  It is thus a goal of Stirrup to bring proper text processing.  At a minimum, Stirrup must let the programmer:
+This is the 21th century, at the time of writing, we are near the year 2021. People all over the world are using computers.  It is time we take text encoding seriously in C++.  It is thus a goal of Stirrup to bring proper text processing.  At a minimum, Stirrup must let the programmer:
 - Operate with any the file names allowed by the operating system.
 - Input and output text is encoded according to the user's settings.  
 
@@ -35,11 +35,11 @@ We can start deriving broad design decisions given the goals set for Stirrup.
 
 Because Stirrup targets small, quickly written, maybe one-time-use programs, it resulting code should be terse and the functions and tools at your disposal should be powerful.
 
-Because Stirrup targets teaching material that works on any platform and because we generally want portable code anyway, Stirrup should let you write portable code by default.  Platform-specific details can be addressed with advanced tools in Stirrup.  Stirrup programs are portable at the expense of making assumptions and making some things harder. For example, standard input/output is text, not binary, by default.
+Because Stirrup support multi-platform programming, Stirrup should let you write portable code by default.  Platform-specific details can be addressed with advanced tools in Stirrup.  Stirrup programs are portable at the expense of making assumptions and making some things harder. For example, standard input/output is text, not binary, by default.
 
 Because Stirrup aims to support quickly written programs that are also correct, the code should be terse and to the point.  Every part of Stirrup should easily be composable.  Functions are "return by value".
 
-Because Stirrup want to enable correct and easy to troubleshoot programs, errors result in thrown exceptions.  Most programs targeted for being written in Stirrup are only concerned with the happy path.  An error usually means complete failure of the program.  Errors cannot be ignored and will always be reported.  Using exceptions also result in shorter, more to the point, code.   
+Because Stirrup wants to enable correct and easy to troubleshoot programs, errors result in thrown exceptions.  Most programs targeted for being written in Stirrup are only concerned with the happy path.  An error usually means complete failure of the program.  Errors cannot be ignored and will always be reported.  Using exceptions also result in shorter, more to the point, code.   
 
 Stirrup steers away from the usual "performance first" approach found in C++.  Performance is not a goal of Stirrup.  The consequence is that Stirrup is not suited for tiny CPUs.  In fact, Stirrup is only concerned with desktop-class and up computers.  It is just happenstance if Stirrup works on small hardware.
 
