@@ -1,6 +1,7 @@
 #include "stirrup/stream.hpp"
 
 #include <filesystem>
+#include <string>
 #include <vector>
 #include <stdio.h>
 
@@ -17,7 +18,9 @@ public:
     file & operator=(file && other);
 
     std::vector<char> read(std::size_t read_size);
+    std::u32string read2(std::size_t read_size);
     void write(std::vector<char> const & buffer);
+    void write(std::u32string const & data);
     void flush();
     void close();
 
@@ -34,6 +37,7 @@ private:
     public:
         explicit input_device(file & input_file);
         std::vector<char> read(std::size_t read_size) override;
+        std::u32string read2(std::size_t read_size) override;
     private:
         file & file_;
     };
@@ -43,6 +47,7 @@ private:
     public:
         explicit output_device(file & output_file);
         void write(std::vector<char> const & new_data) override;
+        void write(std::u32string const & new_data) override;
         void flush() override;
     private:
         file & file_;

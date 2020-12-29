@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace stirrup
@@ -15,10 +16,12 @@ public:
     public:
         virtual ~device() = default;
         virtual std::vector<char> read(std::size_t read_size) = 0;
+        virtual std::u32string read2(std::size_t read_size) = 0;
     };
 
     explicit input_stream(std::unique_ptr<device> && input_device);
     std::vector<char> read(std::size_t read_size);
+    std::u32string read2(std::size_t read_size);
 
 private:
     std::unique_ptr<device> device_;
@@ -33,11 +36,13 @@ public:
     public:
         virtual ~device() = default;
         virtual void write(std::vector<char> const & new_data) = 0;
+        virtual void write(std::u32string const & new_data) = 0;
         virtual void flush() = 0;
     };
 
     explicit output_stream(std::unique_ptr<device> && output_device);
     void write(std::vector<char> const & new_data);
+    void write(std::u32string const & new_data);
     void flush();
 
 private:
@@ -47,29 +52,31 @@ private:
 class memory_input_device: public input_stream::device
 {
 public:
-    explicit memory_input_device(std::vector<char> const & buffer);
+    explicit memory_input_device(std::u32string const & buffer);
     std::vector<char> read(std::size_t read_size) override;
+    std::u32string read2(std::size_t read_size) override;
 
 private:
-    std::vector<char> const & buffer_;
-    std::vector<char>::const_iterator read_position_;
+    std::u32string const & buffer_;
+    std::u32string::const_iterator read_position_;
 };
 
-input_stream create_memory_input_stream(std::vector<char> const & buffer);
+input_stream create_memory_input_stream(std::u32string const & buffer);
 
 class memory_output_device : public output_stream::device
 {
 public:
-    explicit memory_output_device(std::vector<char> & buffer);
+    explicit memory_output_device(std::u32string & buffer);
 
     void write(std::vector<char> const & new_data) override;
+    void write(std::u32string const & new_data) override;
     void flush() override;
 
 private:
-    std::vector<char> & buffer_;
+    std::u32string & buffer_;
 };
 
-output_stream create_memory_output_stream(std::vector<char> & buffer);
+output_stream create_memory_output_stream(std::u32string & buffer);
 
 /*
 

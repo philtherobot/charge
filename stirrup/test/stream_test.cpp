@@ -7,7 +7,7 @@ using namespace stirrup;
 
 using std::begin;
 using std::end;
-using std::string;
+using std::u32string;
 using std::vector;
 
     /*
@@ -77,34 +77,33 @@ SCENARIO("Input memory stream")
 {
     GIVEN("a memory stream on an input buffer")
     {
-        string input_data = "hello";
-        vector<char> input_buffer(begin(input_data), end(input_data));
+        u32string input_data = U"hello";
 
-        input_stream s = create_memory_input_stream(input_buffer);
+        input_stream s = create_memory_input_stream(input_data);
 
         WHEN("we read from the memory stream")
         {
-            CHECK(s.read(2) == vector<char>{'h', 'e'});
-            CHECK(s.read(2) == vector<char>{'l', 'l'});
-            CHECK(s.read(2) == vector<char>{'o'});
-            CHECK(s.read(2).empty());
-            CHECK(s.read(2).empty());
+            CHECK(s.read2(2) == U"he");
+            CHECK(s.read2(2) == U"ll");
+            CHECK(s.read2(2) == U"o");
+            CHECK(s.read2(2).empty());
+            CHECK(s.read2(2).empty());
         }
     }
 
     GIVEN("a memory stream on an output buffer")
     {
-        vector<char> output_buffer;
+        u32string output_buffer;
 
         output_stream s = create_memory_output_stream(output_buffer);
 
         WHEN("we write to the memory stream")
         {
-            s.write(vector<char>{'h', 'e'});
-            CHECK(output_buffer == vector<char>{'h', 'e'});
+            s.write(U"he");
+            CHECK(output_buffer == U"he");
 
-            s.write(vector<char>{'l', 'l', 'o'});
-            CHECK(output_buffer == vector<char>{'h', 'e', 'l', 'l', 'o'});
+            s.write(U"llo");
+            CHECK(output_buffer == U"hello");
         }
     }
 }

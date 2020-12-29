@@ -23,6 +23,8 @@ std::vector<char8_t> transcode_to_utf8(std::u32string const & string);
 std::u32string transcode_from_wstring(std::wstring const & str);
 std::wstring transcode_to_wstring(std::u32string const & str);
 
+// todo-php: first+last or range templated implementation for transcode_from_locale
+// it would be useful to implement file::read for example where the data is in an array without a term-zero
 std::u32string transcode_from_locale(char const * str, std::locale const & locale = std::locale());
 
 std::string repr(char8_t u8_byte);

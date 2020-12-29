@@ -8,22 +8,20 @@
 using namespace stirrup;
 using std::cout;
 using std::string;
-using std::vector;
+using std::u32string;
 
 int main()
 {
-    string greeting("console_stream_test\n");
-    vector<char> ascii_greeting;
-    std::copy(begin(greeting), end(greeting), back_inserter(ascii_greeting));
+    u32string greeting(U"console_stream_test\n");
 
-    binary_stdout.write(ascii_greeting);
+    sout.write(greeting);
 
-    auto console_input = binary_stdin.read(15);
+    auto console_input = sinp.read(15);
 
     cout << console_input.size() << '\n';
-    vector<char> reversed;
+    u32string reversed;
     std::copy(rbegin(console_input), rend(console_input), back_inserter(reversed));
-    for(char const c: reversed)
+    for(char32_t const c: reversed)
     {
         cout << std::hex << int(c) << ' ';
     }

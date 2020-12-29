@@ -11,6 +11,7 @@
 using namespace stirrup;
 
 using std::filesystem::path;
+using std::u32string;
 using std::vector;
 
 class file_sandbox
@@ -65,7 +66,7 @@ private:
     std::filesystem::path path_;
 };
 
-vector<char> read_file(path const & file_path)
+u32string read_file(path const & file_path)
 {
     auto file = std::ifstream(file_path);
     if (!file)
@@ -73,18 +74,29 @@ vector<char> read_file(path const & file_path)
         throw std::runtime_error("failed to open file");
     }
 
-    vector<char> result;
+    vector<char> binary_file_content;
     std::size_t read_size = 20;
-    result.resize(read_size);
-    file.read(result.data(), read_size);
-    result.resize(file.gcount());
+    binary_file_content.resize(read_size);
+    file.read(binary_file_content.data(), read_size);
+    binary_file_content.resize(file.gcount());
+
+    u32string result;
+
+    std::transform(
+        begin(binary_file_content),
+        end(binary_file_content),
+        back_inserter(result),
+        [](char c) -> char32_t
+        { return c; }
+    );
+
     return result;
 }
 
 SCENARIO("File object")
 {
     file_sandbox sandbox;
-    vector<char> binary_data = {1, 2, 3, 0, 3, 2, 1};
+    u32string data = U"hello";
 
     GIVEN("no file")
     {
@@ -94,17 +106,17 @@ SCENARIO("File object")
 
             file new_file = create_new_file(new_file_path);
 
-            new_file.write(binary_data);
+            new_file.write(data);
 
             new_file.flush();
 
             auto const file_contents = read_file(new_file_path);
 
-            CHECK(file_contents == binary_data);
+            CHECK(file_contents == data);
 
             file existing_file = open_file(new_file_path);
 
-            CHECK(existing_file.read(1024) == binary_data);
+            CHECK(existing_file.read2(1024) == data);
 
 // todo-php: test:
 // - open error
@@ -118,14 +130,14 @@ SCENARIO("File object")
 SCENARIO("File streams")
 {
     file_sandbox sandbox;
-    vector<char> binary_data = {1, 2, 3, 0, 3, 2, 1};
+    u32string data = U"hello";
 
     GIVEN("a file with data")
     {
         auto const input_file_path = sandbox.path() / U"input_file";
 
         file input_file = create_new_file(input_file_path);
-        input_file.write(binary_data);
+        input_file.write(data);
         input_file.close();
 
         input_file = open_file(input_file_path);
@@ -134,7 +146,7 @@ SCENARIO("File streams")
         {
             input_stream file_input_stream = input_file.input_stream();
 
-            CHECK(file_input_stream.read(1024) == binary_data);
+            CHECK(file_input_stream.read2(1024) == data);
         }
     }
 
@@ -147,12 +159,12 @@ SCENARIO("File streams")
         {
             output_stream file_output_stream = output_file.output_stream();
 
-            file_output_stream.write(binary_data);
+            file_output_stream.write(data);
             file_output_stream.flush();
 
             auto const file_contents = read_file(output_file_path);
 
-            CHECK(file_contents == binary_data);
+            CHECK(file_contents == data);
         }
     }
 }

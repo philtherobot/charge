@@ -5,7 +5,7 @@
 namespace stirrup
 {
 
-extern input_stream binary_stdin;
-extern output_stream binary_stdout;
+extern input_stream sinp;
+extern output_stream sout;
 
 }
