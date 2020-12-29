@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream> // todo-php: remove when all done!
+#include <iomanip>
 #include <string>
 
 using namespace stirrup;
@@ -24,7 +25,7 @@ int main()
     std::copy(rbegin(console_input), rend(console_input), back_inserter(reversed));
     for(char const c: reversed)
     {
-        cout << c;
+        cout << std::hex << int(c) << ' ';
     }
     cout << '\n';
 
