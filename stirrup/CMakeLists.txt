@@ -10,7 +10,6 @@ add_library(
     include/stirrup/stream.hpp
     include/stirrup/stream_cooker_reader.hpp
     include/stirrup/string.hpp
-    include/stirrup/text_stream.hpp
     src/environment_variable_${PLATFORM_SOURCE}.cpp
     src/error.cpp
     src/file.cpp
@@ -22,7 +21,6 @@ add_library(
     src/stream_cooker_reader.cpp
     src/string.cpp
     src/string_windows.cpp #// todo-php:  use ${PLATFORM_SOURCE}
-    src/text_stream.cpp
 )
 
 target_link_libraries(

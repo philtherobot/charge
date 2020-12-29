@@ -116,7 +116,7 @@ SCENARIO("File object")
 
             file existing_file = open_file(new_file_path);
 
-            CHECK(existing_file.read2(1024) == data);
+            CHECK(existing_file.read(1024) == data);
 
 // todo-php: test:
 // - open error
@@ -146,7 +146,7 @@ SCENARIO("File streams")
         {
             input_stream file_input_stream = input_file.input_stream();
 
-            CHECK(file_input_stream.read2(1024) == data);
+            CHECK(file_input_stream.read(1024) == data);
         }
     }
 

@@ -30,23 +30,7 @@ file & file::operator=(file && other)
     return *this;
 }
 
-vector<char> file::read(std::size_t user_read_size)
-{
-    vector<char> result;
-
-    std::array<char, 16 * 1024> buffer;
-
-    auto const actual_read_size = std::min(user_read_size, buffer.size());
-
-    // todo-php: we have to test and implement reading more than the buffer size.
-    std::size_t read_count = std::fread(buffer.data(), sizeof(char), actual_read_size, file_);
-    result.resize(read_count);
-    std::copy(begin(buffer), begin(buffer) + read_count, begin(result));
-
-    return result;
-}
-
-u32string file::read2(std::size_t user_read_size)
+u32string file::read(std::size_t user_read_size)
 {
 
     std::array<char, 16 * 1024> buffer;
@@ -68,11 +52,6 @@ u32string file::read2(std::size_t user_read_size)
     );
 
     return result;
-}
-
-void file::write(vector<char> const & buffer)
-{
-    std::fwrite(buffer.data(), sizeof(char), buffer.size(), file_);
 }
 
 void file::write(u32string const & data)
@@ -117,24 +96,14 @@ file::input_device::input_device(file & input_file)
     : file_(input_file)
 {}
 
-vector<char> file::input_device::read(std::size_t read_size)
+u32string file::input_device::read(std::size_t read_size)
 {
     return file_.read(read_size);
-}
-
-u32string file::input_device::read2(std::size_t read_size)
-{
-    return file_.read2(read_size);
 }
 
 file::output_device::output_device(file & output_file)
     : file_(output_file)
 {}
-
-void file::output_device::write(const vector<char> & new_data)
-{
-    file_.write(new_data);
-}
 
 void file::output_device::write(const u32string & new_data)
 {

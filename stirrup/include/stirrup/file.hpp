@@ -17,9 +17,7 @@ public:
 
     file & operator=(file && other);
 
-    std::vector<char> read(std::size_t read_size);
-    std::u32string read2(std::size_t read_size);
-    void write(std::vector<char> const & buffer);
+    std::u32string read(std::size_t read_size);
     void write(std::u32string const & data);
     void flush();
     void close();
@@ -36,8 +34,7 @@ private:
     {
     public:
         explicit input_device(file & input_file);
-        std::vector<char> read(std::size_t read_size) override;
-        std::u32string read2(std::size_t read_size) override;
+        std::u32string read(std::size_t read_size) override;
     private:
         file & file_;
     };
@@ -46,7 +43,6 @@ private:
     {
     public:
         explicit output_device(file & output_file);
-        void write(std::vector<char> const & new_data) override;
         void write(std::u32string const & new_data) override;
         void flush() override;
     private:
@@ -65,5 +61,7 @@ file open_file(std::filesystem::path const & existing_file_path);
 // not sure about this design, nor the name, see create_new_file
 // could be `create_file(U"path")` and `create_file(U"path", overwrite)`
 //file overwrite_file(U"fn");  // never fails
+
+// todo-php: implement append(file &, u32string const&)
 
 }

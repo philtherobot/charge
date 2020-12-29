@@ -20,14 +20,9 @@ input_stream::input_stream(std::unique_ptr<device> && input_device)
     device_(move(input_device))
 {}
 
-vector<char> input_stream::read(size_t read_size)
+u32string input_stream::read(size_t read_size)
 {
     return device_->read(read_size);
-}
-
-u32string input_stream::read2(size_t read_size)
-{
-    return device_->read2(read_size);
 }
 
 // todo-php: have a null output device to avoid having a nullptr
@@ -35,11 +30,6 @@ output_stream::output_stream(std::unique_ptr<device> && output_device)
     :
     device_(move(output_device))
 {}
-
-void output_stream::write(const std::vector<char> & new_data)
-{
-    device_->write(new_data);
-}
 
 void output_stream::write(const std::u32string & new_data)
 {
@@ -55,12 +45,7 @@ memory_input_device::memory_input_device(const u32string & buffer)
     : buffer_(buffer), read_position_(begin(buffer_))
 {}
 
-vector<char> memory_input_device::read(size_t read_size)
-{
-    return {};
-}
-
-u32string memory_input_device::read2(size_t read_size)
+u32string memory_input_device::read(size_t read_size)
 {
     auto const remaining_chars_size = std::distance(read_position_, end(buffer_));
     auto const actual_read_size = std::min(read_size, size_t(remaining_chars_size));
@@ -80,10 +65,6 @@ memory_output_device::memory_output_device(std::u32string & buffer)
     :
     buffer_(buffer)
 {}
-
-void memory_output_device::write(vector<char> const & new_data)
-{
-}
 
 void memory_output_device::write(u32string const & new_data)
 {

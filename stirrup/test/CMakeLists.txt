@@ -12,7 +12,6 @@ add_executable(stirrup_tests
     initialization.cpp
     stream_test.cpp
     string_test.cpp
-    text_stream_test.cpp
 )
 
 target_link_libraries(
