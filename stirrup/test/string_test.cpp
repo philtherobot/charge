@@ -3,10 +3,13 @@
 #include "stirrup/error.hpp"
 #include "stirrup/locale.hpp"
 #include "stirrup/string.hpp"
+#include "stirrup/string_windows.hpp"
 #include "stirrup/test/string_string_maker.hpp"
 
 using std::u32string;
 using namespace stirrup;
+using namespace stirrup::windows;
+using std::locale;
 
 //namespace
 //{
@@ -84,6 +87,7 @@ using namespace stirrup;
 
 using std::vector;
 
+
 SCENARIO("UTF-8 string transcoding")
 {
     WHEN("we transcode a UTF-8 string to a Unicode")
@@ -126,6 +130,12 @@ SCENARIO("Unicode to ASCII representation")
         CHECK(repr(U"a") == "a");
         CHECK(repr(U"a\u503c") == "a\\u503C");
         CHECK(repr(U"huge \U0001F600 code point") == "huge \\U0001F600 code point");
+    }
+
+    WHEN("representing containers")
+    {
+        vector<int> v{1,2,3};
+        CHECK(repr(v) == "{1,2,3}");
     }
 }
 
@@ -172,4 +182,84 @@ SCENARIO("wchar_t to Unicode transcoding")
 
     // todo-php: check message, it should include the char that cannot be converted
     CHECK_THROWS_AS(transcode_to_wstring(U"hello \U0001F600"), stirrup::runtime_error);
+}
+
+SCENARIO("text encoding conversions")
+{
+    GIVEN("the IBM/PC codepage (437)")
+    {
+        auto const ibm_codepage = locale(".437");
+        vector<char> top_right_corner = { char(0xBF) };
+        CHECK(decode_string(top_right_corner, ibm_codepage) == U"\u2510");
+        CHECK(encode_string(U"\u2510", ibm_codepage) == top_right_corner);
+    }
+
+    GIVEN("the Windows Western codepage (1252)")
+    {
+        auto const western_codepage = locale(".1252");
+        vector<char> inverted_question_mark = {char(0xBF) };
+        CHECK(decode_string(inverted_question_mark, western_codepage) == U"\u00BF");
+        CHECK(encode_string(U"\u00BF", western_codepage) == inverted_question_mark);
+    }
+
+    GIVEN("the Windows Cyrillic codepage (1251)")
+    {
+        auto const cyrillic_codepage = locale(".1251");
+        vector<char> small_letter_yi = {char(0xBF) };
+        CHECK(decode_string(small_letter_yi, cyrillic_codepage) == U"\u0457");
+        CHECK(encode_string(U"\u0457", cyrillic_codepage) == small_letter_yi);
+    }
+
+    GIVEN("UTF-8 encoded text")
+    {
+        auto const utf8_codepage = locale(".UTF-8");
+
+        auto to_binary = [](char8_t const * string) {
+            vector<char> result;
+            std::ranges::copy(std::u8string(string), back_inserter(result));
+            return result;
+        };
+
+        auto hello_top_right_corner = to_binary(u8"hello\u2510");
+        CHECK(decode_string(hello_top_right_corner, utf8_codepage) == U"hello\u2510");
+        CHECK(encode_string(U"hello\u2510", utf8_codepage) == hello_top_right_corner);
+
+        auto hello_smiley = to_binary(u8"hello\U0001F600");
+        CHECK(decode_string(hello_smiley, utf8_codepage) == U"hello\U0001F600");
+        CHECK(encode_string(U"hello\U0001F600", utf8_codepage) == hello_smiley);
+    }
+    // test long strings to overflow the function's buffer
+
+    GIVEN("UTF-16 encoded text")
+    {
+        vector<WCHAR> hello_top_right_corner{ 'h', 'e', 'l', 'l', 'o', L'\u2510'};
+        CHECK(stirrup::windows::decode_string(hello_top_right_corner) == U"hello\u2510");
+        CHECK(stirrup::windows::encode_string(U"hello\u2510") == hello_top_right_corner);
+
+        vector<WCHAR> hello_smiley{ 'h', 'e', 'l', 'l', 'o', 0xD83D, 0xDE00};
+        CHECK(stirrup::windows::decode_string(hello_smiley) == U"hello\U0001F600");
+        CHECK(stirrup::windows::encode_string(U"hello\U0001F600") == hello_smiley);
+        CHECK(repr(stirrup::windows::encode_string(U"hello\U0001F600")) == repr(hello_smiley));
+    }
+}
+
+// Note: the following is specific to Windows
+SCENARIO("getting the Windows codepage from a locale")
+{
+    GIVEN("a locale")
+    {
+        CHECK(stirrup::windows::codepage_from_locale(locale(".437")) == 437);
+        CHECK(stirrup::windows::codepage_from_locale(locale("English_US.437")) == 437);
+        CHECK(stirrup::windows::codepage_from_locale(locale(".1252")) == 1252);
+        CHECK(stirrup::windows::codepage_from_locale(locale("C")) == 1252);
+        CHECK(stirrup::windows::codepage_from_locale(locale(".utf-8")) == 65001);
+        CHECK(stirrup::windows::codepage_from_locale(locale(".UTF-8")) == 65001);
+        CHECK(stirrup::windows::codepage_from_locale(locale(".utf8")) == 65001);
+        CHECK(stirrup::windows::codepage_from_locale(locale(".UTF8")) == 65001);
+
+        // The following test can only succeed on Windows systems set with the
+        // system locale at a region that uses the Windows Western codepage such as "English (Canada)"
+        // On Windows 10: Control Panel, Clock and Region, Region, Administrative, Change system locale.
+        CHECK(stirrup::windows::codepage_from_locale(locale("")) == 1252);
+    }
 }

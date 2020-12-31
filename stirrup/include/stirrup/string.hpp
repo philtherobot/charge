@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <locale>
 #include <string>
 #include <vector>
@@ -27,9 +28,41 @@ std::wstring transcode_to_wstring(std::u32string const & str);
 // it would be useful to implement file::read for example where the data is in an array without a term-zero
 std::u32string transcode_from_locale(char const * str, std::locale const & locale = std::locale());
 
+std::u32string decode_string(std::vector<char> const & encoded_string, std::locale const & locale);
+std::vector<char> encode_string(std::u32string const & string, std::locale const & locale);
+
+std::u32string convert_string(std::string const & plain_ascii_string);
+
 std::string repr(char8_t u8_byte);
 std::string repr(char32_t unicode_character);
 
 std::string repr(std::u32string const & string);
 
+std::string repr(char32_t const * string);
+
+template <typename value>
+std::string repr(value v)
+{
+    return std::to_string(v);
+}
+
+template <typename value>
+std::string repr(std::vector<value> const & container)
+{
+    std::string result = "{";
+    unsigned int index = 0;
+    std::ranges::for_each(
+        container, [&](value const & val)
+        {
+            if (index++ != 0)
+            {
+                result += ",";
+            }
+            result += repr(val);
+        }
+    );
+
+    result += "}";
+    return result;
+}
 }

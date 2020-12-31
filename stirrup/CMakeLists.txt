@@ -10,6 +10,7 @@ add_library(
     include/stirrup/stream.hpp
     include/stirrup/stream_cooker_reader.hpp
     include/stirrup/string.hpp
+    include/stirrup/string_windows.hpp
     src/environment_variable_${PLATFORM_SOURCE}.cpp
     src/error.cpp
     src/file.cpp

@@ -13,6 +13,7 @@
 namespace stirrup
 {
 
+using std::begin;
 using std::size_t;
 using std::string;
 using std::u32string;
@@ -37,7 +38,7 @@ std::string repr_to_hex(char32_t value)
     return fmt::format("\\U{:08X}", uint_least32_t(value));
 }
 
-std::wstring transcode_wstring_from(char const *str, std::locale const &locale)
+std::wstring transcode_wstring_from(char const * str, std::locale const & locale)
 {
     locale_block set_and_restore_locale(locale);
 
@@ -82,7 +83,7 @@ std::wstring transcode_wstring_from(char const *str, std::locale const &locale)
 
 wchar_t c32towc(char32_t c32)
 {
-    if(c32 > std::numeric_limits<wchar_t>::max())
+    if (c32 > std::numeric_limits<wchar_t>::max())
     {
         throw runtime_error(U"symbol cannot be converted");
     }
@@ -180,15 +181,18 @@ vector<char8_t> transcode_to_utf8(u32string const & unicode_string)
     return result;
 }
 
-std::u32string transcode_from_wstring(std::wstring const &str)
+std::u32string transcode_from_wstring(std::wstring const & str)
 {
     std::u32string result;
     result.resize(str.size());
-    std::transform(std::begin(str), std::end(str), std::begin(result), [](wchar_t wc) { return char32_t(wc); });
+    std::transform(
+        std::begin(str), std::end(str), std::begin(result), [](wchar_t wc)
+        { return char32_t(wc); }
+    );
     return result;
 }
 
-std::wstring transcode_to_wstring(std::u32string const &str)
+std::wstring transcode_to_wstring(std::u32string const & str)
 {
     std::wstring result;
     result.resize(str.size());
@@ -199,6 +203,30 @@ std::wstring transcode_to_wstring(std::u32string const &str)
 std::u32string transcode_from_locale(char const * str, std::locale const & locale)
 {
     return transcode_from_wstring(transcode_wstring_from(str, locale));
+}
+
+// todo-php: the convert_string function is a little particular: what should we do?
+// I do not think it is of value to the public.
+u32string convert_string(string const & plain_ascii_string)
+{
+    u32string result(plain_ascii_string.size(), U' ');
+
+    std::ranges::transform(
+        plain_ascii_string,
+        begin(result),
+        [](char c)
+        {
+            if (c < 0 || c > 127)
+            {
+                // todo-php: should convert_string throw if there is a non-ASCII character?
+                throw runtime_error(U"convert_string: input string is not plain ASCII");
+            }
+
+            return char32_t(c);
+        }
+    );
+
+    return result;
 }
 
 std::string repr(char32_t unicode_character)
@@ -228,6 +256,11 @@ std::string repr(u32string const & string)
     }
 
     return result;
+}
+
+std::string repr(char32_t const * string)
+{
+    return repr(u32string(string));
 }
 
 std::string repr(char8_t u8_byte)
