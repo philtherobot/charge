@@ -15,10 +15,12 @@ public:
     file(file && other);
     ~file();
 
+    void set_locale(std::locale const &locale);
+
     file & operator=(file && other);
 
     std::u32string read(std::size_t read_size);
-    void write(std::u32string const & data);
+    void write(std::u32string const & string);
     void flush();
     void close();
 
@@ -52,6 +54,7 @@ private:
     void move(file && other);
 
     FILE * file_{};
+    std::locale locale_;
 };
 
 file create_new_file(std::filesystem::path const & new_file_path);

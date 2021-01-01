@@ -10,6 +10,8 @@
 
 using namespace stirrup;
 
+using std::begin;
+using std::end;
 using std::filesystem::path;
 using std::u32string;
 using std::vector;
@@ -66,7 +68,7 @@ private:
     std::filesystem::path path_;
 };
 
-u32string read_file(path const & file_path)
+vector<char> read_file(path const & file_path)
 {
     auto file = std::ifstream(file_path);
     if (!file)
@@ -74,21 +76,11 @@ u32string read_file(path const & file_path)
         throw std::runtime_error("failed to open file");
     }
 
-    vector<char> binary_file_content;
+    vector<char> result;
     std::size_t read_size = 20;
-    binary_file_content.resize(read_size);
-    file.read(binary_file_content.data(), read_size);
-    binary_file_content.resize(file.gcount());
-
-    u32string result;
-
-    std::transform(
-        begin(binary_file_content),
-        end(binary_file_content),
-        back_inserter(result),
-        [](char c) -> char32_t
-        { return c; }
-    );
+    result.resize(read_size);
+    file.read(result.data(), read_size);
+    result.resize(file.gcount());
 
     return result;
 }
@@ -96,15 +88,25 @@ u32string read_file(path const & file_path)
 SCENARIO("File object")
 {
     file_sandbox sandbox;
-    u32string data = U"hello";
+    u32string const top_right_corner = U"\u2510";
+    u32string data = U"hello" + top_right_corner;
+
+    vector<char> top_right_corner_utf_8 = {'\xE2', '\x94', '\x90'};
+    auto expected_utf_8 = vector<char>{'h', 'e', 'l', 'l', 'o'};
+    expected_utf_8.insert(end(expected_utf_8), begin(top_right_corner_utf_8), end(top_right_corner_utf_8));
+
+    char top_right_corner_cp_437 = '\xBF';
+    auto expected_cp_437 = vector<char>{'h', 'e', 'l', 'l', 'o'};
+    expected_cp_437.insert(end(expected_cp_437), top_right_corner_cp_437);
+
+    auto const new_file_path = sandbox.path() / U"new_file_\u503c";
 
     GIVEN("no file")
     {
         WHEN("we create a new file and write contents to it")
         {
-            auto const new_file_path = sandbox.path() / U"new_file_\u503c";
-
             file new_file = create_new_file(new_file_path);
+            new_file.set_locale(std::locale(".UTF-8"));
 
             new_file.write(data);
 
@@ -112,9 +114,10 @@ SCENARIO("File object")
 
             auto const file_contents = read_file(new_file_path);
 
-            CHECK(file_contents == data);
+            CHECK(file_contents == expected_utf_8);
 
             file existing_file = open_file(new_file_path);
+            existing_file.set_locale(std::locale(".UTF-8"));
 
             CHECK(existing_file.read(1024) == data);
 
@@ -124,47 +127,69 @@ SCENARIO("File object")
 // - not flushing may cause a misread when reading through another file handle
 // - closing flushes (so not misread)
         }
-    }
-}
 
-SCENARIO("File streams")
-{
-    file_sandbox sandbox;
-    u32string data = U"hello";
-
-    GIVEN("a file with data")
-    {
-        auto const input_file_path = sandbox.path() / U"input_file";
-
-        file input_file = create_new_file(input_file_path);
-        input_file.write(data);
-        input_file.close();
-
-        input_file = open_file(input_file_path);
-
-        WHEN("we get an input stream device from the file")
+        GIVEN("the file is encoded with the IBM/PC codepage (437)")
         {
-            input_stream file_input_stream = input_file.input_stream();
+            WHEN("we create a new file and write contents to it")
+            {
+                file new_file = create_new_file(new_file_path);
+                new_file.set_locale(std::locale(".437"));
 
-            CHECK(file_input_stream.read(1024) == data);
+                new_file.write(data);
+
+                new_file.flush();
+
+                auto const file_contents = read_file(new_file_path);
+
+                CHECK(file_contents == expected_cp_437);
+
+                file existing_file = open_file(new_file_path);
+                existing_file.set_locale(std::locale(".437"));
+
+                CHECK(existing_file.read(1024) == data);
+            }
         }
     }
 
-    GIVEN("a new empty file")
+    GIVEN("file streams")
     {
-        auto const output_file_path = sandbox.path() / U"output_file";
-        file output_file = create_new_file(output_file_path);
-
-        WHEN("we get an output stream device from the file")
+        GIVEN("a file with data")
         {
-            output_stream file_output_stream = output_file.output_stream();
+            auto const input_file_path = sandbox.path() / U"input_file";
 
-            file_output_stream.write(data);
-            file_output_stream.flush();
+            file input_file = create_new_file(input_file_path);
+            input_file.set_locale(std::locale(".UTF-8"));
+            input_file.write(data);
+            input_file.close();
 
-            auto const file_contents = read_file(output_file_path);
+            input_file = open_file(input_file_path);
+            input_file.set_locale(std::locale(".UTF-8"));
 
-            CHECK(file_contents == data);
+            WHEN("we get an input stream device from the file")
+            {
+                input_stream file_input_stream = input_file.input_stream();
+
+                CHECK(file_input_stream.read(1024) == data);
+            }
+        }
+
+        GIVEN("a new empty file")
+        {
+            auto const output_file_path = sandbox.path() / U"output_file";
+            file output_file = create_new_file(output_file_path);
+            output_file.set_locale(std::locale(".UTF-8"));
+
+            WHEN("we get an output stream device from the file")
+            {
+                output_stream file_output_stream = output_file.output_stream();
+
+                file_output_stream.write(data);
+                file_output_stream.flush();
+
+                auto const file_contents = read_file(output_file_path);
+
+                CHECK(file_contents == expected_utf_8);
+            }
         }
     }
 }

@@ -40,24 +40,20 @@ u32string file::read(std::size_t user_read_size)
     // todo-php: we have to test and implement reading more than the buffer size.
     std::size_t read_count = std::fread(buffer.data(), sizeof(char), actual_read_size, file_);
 
-    u32string result;
-    result.resize(read_count);
+    vector<char> vec;
 
-    std::transform(
+    std::copy(
         begin(buffer),
         begin(buffer) + read_count,
-        begin(result),
-        [](char c) -> char32_t
-        { return c; }
+        back_inserter(vec)
     );
 
-    return result;
+    return decode_string(vec, locale_);
 }
 
-void file::write(u32string const & data)
+void file::write(u32string const & string)
 {
-    // todo-php: transcode to the required encoding
-    vector<char8_t> encoded = transcode_to_utf8(data);
+    vector<char> encoded = encode_string(string, locale_);
     std::fwrite(encoded.data(), sizeof(char), encoded.size(), file_);
 }
 
@@ -90,6 +86,11 @@ void file::move(file && other)
     close();
     file_ = other.file_;
     other.file_ = nullptr;
+}
+
+void file::set_locale(const std::locale & locale)
+{
+    locale_ = locale;
 }
 
 file::input_device::input_device(file & input_file)
