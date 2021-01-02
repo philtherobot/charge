@@ -68,7 +68,7 @@ private:
     std::filesystem::path path_;
 };
 
-vector<char> read_file(path const & file_path)
+vector<char> read_test_file_content(path const & file_path)
 {
     auto file = std::ifstream(file_path);
     if (!file)
@@ -85,111 +85,103 @@ vector<char> read_file(path const & file_path)
     return result;
 }
 
-SCENARIO("File object")
+void populate_test_file(path const & file_path, vector<char> const & file_content)
 {
-    file_sandbox sandbox;
-    u32string const top_right_corner = U"\u2510";
-    u32string data = U"hello" + top_right_corner;
-
-    vector<char> top_right_corner_utf_8 = {'\xE2', '\x94', '\x90'};
-    auto expected_utf_8 = vector<char>{'h', 'e', 'l', 'l', 'o'};
-    expected_utf_8.insert(end(expected_utf_8), begin(top_right_corner_utf_8), end(top_right_corner_utf_8));
-
-    char top_right_corner_cp_437 = '\xBF';
-    auto expected_cp_437 = vector<char>{'h', 'e', 'l', 'l', 'o'};
-    expected_cp_437.insert(end(expected_cp_437), top_right_corner_cp_437);
-
-    auto const new_file_path = sandbox.path() / U"new_file_\u503c";
-
-    GIVEN("no file")
+    auto file = std::ofstream(file_path);
+    if (!file)
     {
-        WHEN("we create a new file and write contents to it")
-        {
-            file new_file = create_new_file(new_file_path);
-            new_file.set_locale(std::locale(".UTF-8"));
+        throw std::runtime_error("failed to open file");
+    }
 
-            new_file.write(data);
-
-            new_file.flush();
-
-            auto const file_contents = read_file(new_file_path);
-
-            CHECK(file_contents == expected_utf_8);
-
-            file existing_file = open_file(new_file_path);
-            existing_file.set_locale(std::locale(".UTF-8"));
-
-            CHECK(existing_file.read(1024) == data);
+    file.write(file_content.data(), file_content.size());
+}
 
 // todo-php: test:
 // - open error
 // - read, write, flush errors
 // - not flushing may cause a misread when reading through another file handle
 // - closing flushes (so not misread)
-        }
 
-        GIVEN("the file is encoded with the IBM/PC codepage (437)")
+
+TEST_CASE("file class")
+{
+    file_sandbox sandbox;
+
+    path const test_file_path = sandbox.path() / U"test_file_\u503c";
+
+    u32string const top_right_corner = U"\u2510";
+    auto const user_text = U"hello" + top_right_corner;
+
+    vector<char> top_right_corner_utf_8 = {'\xE2', '\x94', '\x90'};
+    auto user_text_utf_8 = vector<char>{'h', 'e', 'l', 'l', 'o'};
+    user_text_utf_8.insert(end(user_text_utf_8), begin(top_right_corner_utf_8), end(top_right_corner_utf_8));
+
+    char top_right_corner_cp_437 = '\xBF';
+    auto user_text_cp_437 = vector<char>{'h', 'e', 'l', 'l', 'o'};
+    user_text_cp_437.insert(end(user_text_cp_437), top_right_corner_cp_437);
+
+    auto test_file_write = [&](char const * locale_name, vector<char> const & encoded_user_text)
         {
-            WHEN("we create a new file and write contents to it")
-            {
-                file new_file = create_new_file(new_file_path);
-                new_file.set_locale(std::locale(".437"));
+            file new_file = create_new_file(test_file_path);
+            new_file.set_locale(std::locale(locale_name));
 
-                new_file.write(data);
+            new_file.write(user_text);
 
-                new_file.flush();
+            new_file.flush();
 
-                auto const file_contents = read_file(new_file_path);
+            CHECK(read_test_file_content(test_file_path) == encoded_user_text);
+        };
 
-                CHECK(file_contents == expected_cp_437);
+    auto test_file_read = [&](char const * locale_name, vector<char> const & encoded_user_text)
+    {
+        populate_test_file(test_file_path, encoded_user_text);
 
-                file existing_file = open_file(new_file_path);
-                existing_file.set_locale(std::locale(".437"));
+        file existing_file = open_file(test_file_path);
+        existing_file.set_locale(std::locale(locale_name));
 
-                CHECK(existing_file.read(1024) == data);
-            }
-        }
+        CHECK(existing_file.read(1024) == user_text);
+    };
+
+    SECTION("file::write UTF-8")
+    {
+        test_file_write(".UTF-8", user_text_utf_8);
     }
 
-    GIVEN("file streams")
+    SECTION("file::read UTF-8")
     {
-        GIVEN("a file with data")
-        {
-            auto const input_file_path = sandbox.path() / U"input_file";
+        test_file_read(".UTF-8", user_text_utf_8);
+    }
 
-            file input_file = create_new_file(input_file_path);
-            input_file.set_locale(std::locale(".UTF-8"));
-            input_file.write(data);
-            input_file.close();
+    SECTION("file::write IBM/PC codepage 437")
+    {
+        test_file_write(".437", user_text_cp_437);
+    }
 
-            input_file = open_file(input_file_path);
-            input_file.set_locale(std::locale(".UTF-8"));
+    SECTION("file::read IBM/PC codepage 437")
+    {
+        test_file_read(".437", user_text_cp_437);
+    }
 
-            WHEN("we get an input stream device from the file")
-            {
-                input_stream file_input_stream = input_file.input_stream();
+    SECTION("file::input_stream")
+    {
+        populate_test_file(test_file_path, user_text_utf_8);
 
-                CHECK(file_input_stream.read(1024) == data);
-            }
-        }
+        file input_file = open_file(test_file_path);
+        input_file.set_locale(std::locale(".UTF-8"));
+        input_stream file_input_stream = input_file.input_stream();
 
-        GIVEN("a new empty file")
-        {
-            auto const output_file_path = sandbox.path() / U"output_file";
-            file output_file = create_new_file(output_file_path);
-            output_file.set_locale(std::locale(".UTF-8"));
+        CHECK(file_input_stream.read(1024) == user_text);
+    }
 
-            WHEN("we get an output stream device from the file")
-            {
-                output_stream file_output_stream = output_file.output_stream();
+    SECTION("file::output_stream")
+    {
+        file output_file = create_new_file(test_file_path);
+        output_file.set_locale(std::locale(".UTF-8"));
 
-                file_output_stream.write(data);
-                file_output_stream.flush();
+        output_stream file_output_stream = output_file.output_stream();
+        file_output_stream.write(user_text);
+        file_output_stream.flush();
 
-                auto const file_contents = read_file(output_file_path);
-
-                CHECK(file_contents == expected_utf_8);
-            }
-        }
+        CHECK(read_test_file_content(test_file_path) == user_text_utf_8);
     }
 }
