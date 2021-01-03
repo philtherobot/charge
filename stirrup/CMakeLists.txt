@@ -3,6 +3,7 @@ add_library(
     include/stirrup/environment_variable.hpp
     include/stirrup/error.hpp
     include/stirrup/file.hpp
+    include/stirrup/format.hpp
     include/stirrup/locale.hpp
     include/stirrup/readable_stream.hpp
     include/stirrup/standard_streams.hpp
@@ -15,6 +16,7 @@ add_library(
     src/error.cpp
     src/file.cpp
     src/file_windows.cpp  #// todo-php:  use ${PLATFORM_SOURCE}
+    src/format.cpp
     src/locale.cpp
     src/process_${PLATFORM_SOURCE}.cpp
     src/standard_streams.cpp
