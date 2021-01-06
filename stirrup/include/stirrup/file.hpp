@@ -1,3 +1,5 @@
+#pragma once
+
 #include "stirrup/stream.hpp"
 
 #include <filesystem>

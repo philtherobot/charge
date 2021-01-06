@@ -216,7 +216,7 @@ UINT codepage_from_locale(std::locale const & locale)
         is >> textual_codepage;
         static std::vector<std::string> utf_8_codepages{"utf-8", "UTF-8", "utf8", "UTF8"};
         if (std::ranges::count(utf_8_codepages, textual_codepage) != 0) return 65001;
-        throw cannot_understand_codepage_error(convert_string(name));
+        throw cannot_understand_codepage_error(convert_from_ascii(name));
     }
     return number;
 }

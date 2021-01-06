@@ -31,7 +31,8 @@ std::u32string transcode_from_locale(char const * str, std::locale const & local
 std::u32string decode_string(std::vector<char> const & encoded_string, std::locale const & locale);
 std::vector<char> encode_string(std::u32string const & string, std::locale const & locale);
 
-std::u32string convert_string(std::string const & plain_ascii_string);
+std::u32string convert_from_ascii(std::string const & plain_ascii_string);
+std::string convert_to_ascii(std::u32string const & string);
 
 std::string repr(char8_t u8_byte);
 std::string repr(char32_t unicode_character);

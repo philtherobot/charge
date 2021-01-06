@@ -205,9 +205,9 @@ std::u32string transcode_from_locale(char const * str, std::locale const & local
     return transcode_from_wstring(transcode_wstring_from(str, locale));
 }
 
-// todo-php: the convert_string function is a little particular: what should we do?
+// todo-php: the convert_from_ascii function is a little particular: what should we do?
 // I do not think it is of value to the public.
-u32string convert_string(string const & plain_ascii_string)
+u32string convert_from_ascii(string const & plain_ascii_string)
 {
     u32string result(plain_ascii_string.size(), U' ');
 
@@ -219,7 +219,7 @@ u32string convert_string(string const & plain_ascii_string)
             if (c < 0 || c > 127)
             {
                 // todo-php: should convert_string throw if there is a non-ASCII character?
-                throw runtime_error(U"convert_string: input string is not plain ASCII");
+                throw runtime_error(U"convert_from_ascii: input string is not plain ASCII");
             }
 
             return char32_t(c);
