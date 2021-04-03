@@ -26,8 +26,8 @@ public:
     void flush();
     void close();
 
-    input_stream input_stream();
-    output_stream output_stream();
+    input_stream get_input_stream();
+    output_stream get_output_stream();
 
     // todo-php: file::seek & tell
 //    virtual void seek(std::size_t pos) = 0;

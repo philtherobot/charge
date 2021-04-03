@@ -39,7 +39,7 @@ public:
         }
     }
 
-    path path() const
+    std::filesystem::path path() const
     { return path_; }
 
 
@@ -161,16 +161,16 @@ SCENARIO("stirrup::file class")
 
         GIVEN("a global UTF-8 encoding setting")
         {
-            locale_block program_locale(std::locale(".UTF-8"));
+            locale_block program_locale(std::locale("en_US.UTF-8"));
 
             WHEN("writing text in UTF-8 encoded form")
             {
-                test_file_write(".UTF-8", user_text_utf_8);
+                test_file_write("en_US.UTF-8", user_text_utf_8);
             }
 
             WHEN("reading text in UTF-8 encoded form")
             {
-                test_file_read(".UTF-8", user_text_utf_8);
+                test_file_read("en_US.UTF-8", user_text_utf_8);
             }
 
             WHEN("writing text in IBM/PC codepage 437 encoded form")
@@ -216,7 +216,7 @@ SCENARIO("stirrup::file class")
 
             file input_file = open_file(test_file_path);
             input_file.set_locale(std::locale(".UTF-8"));
-            input_stream file_input_stream = input_file.input_stream();
+            input_stream file_input_stream = input_file.get_input_stream();
 
             WHEN("reading from the input stream")
             {
@@ -229,7 +229,7 @@ SCENARIO("stirrup::file class")
             file output_file = create_new_file(test_file_path);
             output_file.set_locale(std::locale(".UTF-8"));
 
-            output_stream file_output_stream = output_file.output_stream();
+            output_stream file_output_stream = output_file.get_output_stream();
 
             WHEN("writing to the output stream")
             {

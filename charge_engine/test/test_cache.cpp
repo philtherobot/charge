@@ -5,7 +5,7 @@
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/test/unit_test.hpp>
+#include <catch2/catch.hpp>
 
 #include <regex>
 
@@ -13,10 +13,9 @@ using namespace charge;
 using namespace std::string_literals;
 
 
-BOOST_AUTO_TEST_SUITE(cache);
+SCENARIO("[Charge]  cache") {
 
-
-BOOST_AUTO_TEST_CASE(get_cache_pth)
+WHEN("get_cache_pth")
 {
 
     auto path = charge::get_cache_path("hostname",
@@ -28,19 +27,19 @@ BOOST_AUTO_TEST_CASE(get_cache_pth)
     using boost::algorithm::all;
     using boost::algorithm::is_digit;
 
-    BOOST_CHECK(all(hashed_host_and_script.string(), is_digit()));
+    CHECK(all(hashed_host_and_script.string(), is_digit()));
 
     auto expected_root_path =
         test::make_absolute_path("/Users/philippe/.charge/cache");
 
-    BOOST_CHECK_EQUAL(path.parent_path(), expected_root_path);
+    CHECK(path.parent_path() == expected_root_path);
 
 }
 
 
-BOOST_AUTO_TEST_CASE(case_encode_deps)
+WHEN("case_encode_deps")
 {
-    BOOST_CHECK_EQUAL(encode_header_dependencies(FileList{}), std::string());
+    CHECK(encode_header_dependencies(FileList{}).empty());
 
     FileList deps;
     deps.push_back("/home/philippe/libs/include/tools.hpp"s);
@@ -51,13 +50,13 @@ BOOST_AUTO_TEST_CASE(case_encode_deps)
         "/usr/local/include/yaml-cpp\n"
     };
 
-    BOOST_CHECK_EQUAL(encode_header_dependencies(deps), expect);
+    CHECK(encode_header_dependencies(deps), expect);
 }
 
 
-BOOST_AUTO_TEST_CASE(case_decode_deps)
+WHEN("case_decode_deps")
 {
-    BOOST_CHECK_EQUAL(decode_header_dependencies(std::string()), FileList{});
+    CHECK(decode_header_dependencies(std::string()).empty());
 
     std::string input{
         "/home/philippe/libs/include/tools.hpp\n"
@@ -68,8 +67,8 @@ BOOST_AUTO_TEST_CASE(case_decode_deps)
     expect.push_back("/home/philippe/libs/include/tools.hpp"s);
     expect.push_back("/usr/local/include/yaml-cpp"s);
 
-    BOOST_CHECK_EQUAL(decode_header_dependencies(input), expect);
+    CHECK(decode_header_dependencies(input) == expect);
 }
 
 
-BOOST_AUTO_TEST_SUITE_END();
+}

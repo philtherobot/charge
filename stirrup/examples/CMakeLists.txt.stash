@@ -6,6 +6,4 @@ if(WIN32)
     add_subdirectory(u32string)
 endif()
 
-add_subdirectory(plain_fmt)
-add_subdirectory(std_numpunct)
 add_subdirectory(transcode_bananas)

@@ -71,12 +71,12 @@ void file::close()
     }
 }
 
-input_stream file::input_stream()
+input_stream file::get_input_stream()
 {
     return stirrup::input_stream(std::make_unique<input_device>(*this));
 }
 
-output_stream file::output_stream()
+output_stream file::get_output_stream()
 {
     return stirrup::output_stream(std::make_unique<output_device>(*this));
 }

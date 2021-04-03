@@ -7,7 +7,7 @@
 #include <charge/exception.hpp>
 #include <charge/types.hpp>
 
-#include <boost/test/unit_test.hpp>
+#include <catch2/catch.hpp>
 
 #include <algorithm>
 
@@ -82,6 +82,9 @@ public:
 } // anonymous
 
 
+SCENARIO("[Charge] command_line") {
+    
+}
 BOOST_FIXTURE_TEST_SUITE(command_line, Fixture);
 
 
@@ -167,5 +170,3 @@ BOOST_FIXTURE_TEST_CASE(help, Fixture)
     BOOST_CHECK(!console_.str().empty());
 }
 
-
-BOOST_AUTO_TEST_SUITE_END();

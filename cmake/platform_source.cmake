@@ -1,5 +1,7 @@
 if (WIN32)
-    set(PLATFORM_SOURCE win)
+    set(PLATFORM windows)
+    set(PLATFORM_SOURCE windows)
 else ()
+    set(PLATFORM posix)
     set(PLATFORM_SOURCE posix)
 endif ()

@@ -14,7 +14,8 @@ struct StringMaker<std::u32string>
     }
 };
 
-template <std::size_t N>
+// The follwing conflicts with catch2 things
+/* template <std::size_t N>
 struct StringMaker<char32_t [N]>
 {
     static std::string convert(char32_t const * value)
@@ -22,7 +23,7 @@ struct StringMaker<char32_t [N]>
         return stirrup::repr(std::u32string(value));
     }
 };
-
+ */
 template <>
 struct StringMaker<char8_t>
 {

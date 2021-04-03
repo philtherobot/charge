@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(charge)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+conan_basic_setup(TARGETS)
 
 include("${CMAKE_SOURCE_DIR}/cmake/BuildType.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/msvc.cmake")
@@ -11,9 +11,10 @@ include("${CMAKE_SOURCE_DIR}/cmake/platform_source.cmake")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 enable_testing()
 
-add_subdirectory(charge)
-add_subdirectory(charge_engine)
+#add_subdirectory(charge)
+# add_subdirectory(charge_engine)
 add_subdirectory(stirrup)

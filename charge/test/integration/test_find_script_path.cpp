@@ -1,10 +1,5 @@
-#include <boost/test/unit_test.hpp>
+#include <catch2/catch.hpp>
 
-BOOST_AUTO_TEST_SUITE(suite_script_path);
-
-BOOST_AUTO_TEST_CASE(case_find_script_path)
-{
-  BOOST_CHECK_EQUAL(0, 1);
+SCENARIO("[Catch] find script path from script") {
+    CHECK(false); // todo: use charge to run the script and check its output
 }
-
-BOOST_AUTO_TEST_SUITE_END();

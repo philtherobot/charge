@@ -63,9 +63,14 @@ int main(int argc, char * argv[])
 
         print(U"counted {} bananas\n", banana_counter);
     }
-    catch (stirrup::exception const & ex)
+    catch (stirrup::runtime_error const & ex)
     {
-        print(U"exception: {}\n", ex.message());
+        print(U"runtime error: {}\n", ex.message());
+        return 1;
+    }
+    catch (stirrup::logic_error const & ex)
+    {
+        print(U"logic error: {}\n", ex.message());
         return 1;
     }
     catch (std::exception const & ex)

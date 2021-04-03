@@ -2,3 +2,6 @@
 .vs
 CMakeSettings.json
 cmake-build-*/
+build/
+build-*/
+.vscode/

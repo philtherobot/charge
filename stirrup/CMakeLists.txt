@@ -15,7 +15,7 @@ add_library(
     src/environment_variable_${PLATFORM_SOURCE}.cpp
     src/error.cpp
     src/file.cpp
-    src/file_windows.cpp  #// todo-php:  use ${PLATFORM_SOURCE}
+    src/file_${PLATFORM_SOURCE}.cpp
     src/format.cpp
     src/locale.cpp
     src/process_${PLATFORM_SOURCE}.cpp
@@ -23,12 +23,13 @@ add_library(
     src/stream.cpp
     src/stream_cooker_reader.cpp
     src/string.cpp
-    src/string_windows.cpp #// todo-php:  use ${PLATFORM_SOURCE}
+    src/string_${PLATFORM_SOURCE}.cpp
 )
 
 target_link_libraries(
     stirrup
-    ${CONAN_LIBS}
+    CONAN_PKG::fmt
+    CONAN_PKG::boost
 )
 
 target_include_directories(

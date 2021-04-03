@@ -1,4 +1,4 @@
-#include "stirrup\stirrup.hpp"
+#include "stirrup/stirrup.hpp"
 
 #include <iostream>
 #include <optional>
