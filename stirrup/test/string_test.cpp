@@ -1,12 +1,12 @@
-#include <catch2/catch.hpp>
-
 #include "stirrup/error.hpp"
 #include "stirrup/locale.hpp"
 #include "stirrup/string.hpp"
+#include "stirrup/test/installed_locales.hpp"
 #include "stirrup/test/string_string_maker.hpp"
 
-#include <map>
+#include <catch2/catch.hpp>
 
+using std::string;
 using std::u32string;
 using namespace stirrup;
 using std::locale;
@@ -14,32 +14,25 @@ using std::locale;
 namespace
 {
 
-std::map<std::string, std::string> installed_locales {
-    { "UTF8", "C.UTF-8" },
-  //  { "Windows Western", "en_US.1252" },
-//    { "IBM/PC", "en_US.437" },
-};
-
-//
-//class error_message_is
-//{
-//public:
-//    error_message_is(string const & expected_message)
-//        : expected_message_(expected_message)
-//    {}
-//
-//    bool operator()(std::runtime_error const & error)
-//    {
-//        return error.what() == expected_message_;
-//    }
-//
-//private:
-//    string expected_message_;
-//};
-//
+    //
+    //class error_message_is
+    //{
+    //public:
+    //    error_message_is(string const & expected_message)
+    //        : expected_message_(expected_message)
+    //    {}
+    //
+    //    bool operator()(std::runtime_error const & error)
+    //    {
+    //        return error.what() == expected_message_;
+    //    }
+    //
+    //private:
+    //    string expected_message_;
+    //};
+    //
 
 }
-
 
 //BOOST_AUTO_TEST_SUITE(suite_stirrup);
 //BOOST_AUTO_TEST_SUITE(suite_string);
@@ -97,7 +90,6 @@ std::map<std::string, std::string> installed_locales {
 
 using std::vector;
 
-
 SCENARIO("Unicode to ASCII representation")
 {
     WHEN("representing a Unicode character")
@@ -123,7 +115,7 @@ SCENARIO("Unicode to ASCII representation")
 
     WHEN("representing containers")
     {
-        vector<int> v{1,2,3};
+        vector<int> v{1, 2, 3};
         CHECK(repr(v) == "{1,2,3}");
     }
 }
@@ -142,35 +134,13 @@ SCENARIO("UTF-8 to ASCII representation")
     }
 }
 
-SCENARIO("locale to Unicode transcoding")
-{
-    auto const initial_locale = std::locale();
-
-    auto character_d8 = "\xD8";
-
-    //auto windows_latin1_locale_name = "en_US.850";
-    //auto windows_latin1_locale_name = "en_US";   //posix
-    //CHECK(transcode_from_locale(character_d8, std::locale(windows_latin1_locale_name)) == U"\u00CF");
-
-    CHECK(initial_locale == std::locale());
-
-    auto windows_greek_locale_name = "en_US.CP1253";
-    //CHECK(transcode_from_locale(character_d8, std::locale(windows_greek_locale_name)) == U"\u03A8");
-
-    CHECK(initial_locale == std::locale());
-
-    {
-        //locale_block set_and_restore_locale(std::locale("en_US.850"));
-        //CHECK(transcode_from_locale(character_d8) == U"\u00CF");
-    }
-}
-
 SCENARIO("wchar_t to Unicode transcoding")
 {
     CHECK(transcode_from_wstring(L"hello \u503c") == U"hello \u503c");
     CHECK(transcode_to_wstring(U"hello \u503c") == L"hello \u503c");
 
-    if constexpr (sizeof(wchar_t) < sizeof(char32_t)) {
+    if constexpr (sizeof(wchar_t) < sizeof(char32_t))
+    {
         // todo-php: check message, it should include the char that cannot be converted
         CHECK_THROWS_AS(transcode_to_wstring(U"hello \U0001F600"), stirrup::runtime_error);
     }
@@ -178,35 +148,36 @@ SCENARIO("wchar_t to Unicode transcoding")
 
 SCENARIO("text encoding conversions")
 {
-    if (installed_locales.contains("IBM/PC")) 
-    {
-        GIVEN("the IBM/PC codepage")
-        {
-            auto const ibm_codepage = locale(installed_locales["IBM/PC"]);
-            vector<char> top_right_corner = { char(0xBF) };
-            CHECK(decode_string(top_right_corner, ibm_codepage) == U"\u2510");
-            CHECK(encode_string(U"\u2510", ibm_codepage) == top_right_corner);
-        }
-    }
+    string const windows_western_locale_name = get_installed_locale_for("Windows Western");
 
-    if (installed_locales.contains("Windows Western")) 
+    if (windows_western_locale_name.empty())
+    {
+        WARN("Text encoding tests requiring Windows Western locale skipped.");
+    }
+    else
     {
         GIVEN("the Windows Western codepage")
         {
-            auto const western_codepage = locale(installed_locales["Windows Western"]);
-            vector<char> inverted_question_mark = {char(0xBF) };
+            auto const western_codepage = locale(windows_western_locale_name);
+            vector<char> inverted_question_mark = {char(0xBF)};
             CHECK(decode_string(inverted_question_mark, western_codepage) == U"\u00BF");
             CHECK(encode_string(U"\u00BF", western_codepage) == inverted_question_mark);
         }
     }
 
-    if (installed_locales.contains("UTF8")) 
+    string const utf8_locale_name = get_installed_locale_for("UTF8");
+
+    if (utf8_locale_name.empty())
+    {
+        WARN("Text encoding tests requiring UTF-8 locale skipped.");
+    }
+    else
     {
         GIVEN("UTF-8 encoded text")
         {
-            auto const utf8_codepage = locale(installed_locales["UTF8"]);
+            auto const utf8_codepage = locale(utf8_locale_name);
 
-            auto to_binary = [](char8_t const * string) {
+            auto to_binary = [](char8_t const *string) {
                 vector<char> result;
                 std::ranges::copy(std::u8string(string), back_inserter(result));
                 return result;

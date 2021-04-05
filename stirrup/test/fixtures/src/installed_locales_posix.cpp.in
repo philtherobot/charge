@@ -1,0 +1,24 @@
+#include "stirrup/test/installed_locales.hpp"
+
+#include <algorithm>
+#include <map>
+
+namespace stirrup
+{
+
+    using std::string;
+
+    string get_installed_locale_for(string const &key)
+    {
+        static std::map<string, string> installed_locales{
+            @INSTALLED_LOCALES@
+        };
+
+        auto const loc = installed_locales.find(key);
+        if (loc == std::end(installed_locales))
+        {
+            return {};
+        }
+        return loc->second;
+    }
+}
