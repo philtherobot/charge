@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 #include <string>
-#include "stirrup/string.hpp"
+#include "stirrup/repr.hpp"
 
 namespace Catch
 {

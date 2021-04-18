@@ -12,6 +12,7 @@ set(SOURCES
 #    format_test.cpp
 #    locale_test.cpp
     initialization.cpp
+    repr_test.cpp
 #    stream_test.cpp
     string_test.cpp
 )

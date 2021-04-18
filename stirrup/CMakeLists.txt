@@ -6,6 +6,7 @@ add_library(
     include/stirrup/format.hpp
     include/stirrup/locale.hpp
     include/stirrup/readable_stream.hpp
+    include/stirrup/repr.hpp
     include/stirrup/standard_streams.hpp
     include/stirrup/stirrup.hpp
     include/stirrup/stream.hpp
@@ -19,6 +20,7 @@ add_library(
     src/format.cpp
     src/locale.cpp
     src/process_${PLATFORM_SOURCE}.cpp
+    src/repr.cpp
     src/standard_streams.cpp
     src/stream.cpp
     src/stream_cooker_reader.cpp

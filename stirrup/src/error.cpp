@@ -1,6 +1,7 @@
 #include "stirrup/error.hpp"
 
 #include "stirrup/format.hpp"
+#include "stirrup/repr.hpp"
 #include "stirrup/string.hpp"
 
 #include <cstring>
