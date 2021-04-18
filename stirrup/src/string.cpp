@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <boost/range/algorithm/find_if.hpp>
 #include <cctype>
+#include <cstring>
 #include <cuchar>
-#include <fmt/format.h>
 
 namespace stirrup
 {
@@ -17,26 +17,9 @@ using std::begin;
 using std::size_t;
 using std::string;
 using std::u32string;
-using std::u8string;
-using std::vector;
 
 namespace
 {
-
-std::string repr_to_hex(char8_t value)
-{
-    return fmt::format("\\x{:02X}", uint_least8_t(value));
-}
-
-std::string repr_to_hex(char16_t value)
-{
-    return fmt::format("\\u{:04X}", uint_least16_t(value));
-}
-
-std::string repr_to_hex(char32_t value)
-{
-    return fmt::format("\\U{:08X}", uint_least32_t(value));
-}
 
 std::wstring transcode_wstring_from(char const * str, std::locale const & locale)
 {

@@ -48,6 +48,8 @@ u32string file::read(std::size_t user_read_size)
         back_inserter(vec)
     );
 
+ // todo-php: bad!  we could have read up to half a utf8 codepoint (like the first code unit of three)
+ // decoding will fail.
     return decode_string(vec, locale_);
 }
 
