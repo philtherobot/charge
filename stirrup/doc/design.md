@@ -13,7 +13,7 @@ Stirrup is primarily intended to support the creation of small programs.  Those 
 
 ### Target audience
 
-Stirrup should be usable by programmers with a little bit of C++ experience, by expert C++ programmers and everybody in between.  Because Stirrup is not the standard library, Stirrup may not be well suited to people being introduced to C++: the student would be learning a niche library instead of C++ itself.
+Stirrup should be usable by programmers with a little bit of C++ experience, by expert C++ programmers and everybody in between.  Because Stirrup is not the standard library, Stirrup may not be well suited to people being introduced to C++: the student would be learning Stirrup, which is a niche library, instead of C++ itself.
 
 ### Portability
 
@@ -23,7 +23,7 @@ We should note that the portability goals of Stirrup reach all the way to the en
 
 ### Internationalization
 
-This is the 21th century, at the time of writing, we are near the year 2021. People all over the world are using computers.  It is time we take text encoding seriously in C++.  It is thus a goal of Stirrup to bring proper text processing.  At a minimum, Stirrup must let the programmer:
+This is the 21th century, at the time of writing, we are near the year 2021. People all over the world are using computers.  It is time we take text encoding seriously in C++.  It is thus a goal of Stirrup to bring proper text processing support to C++.  At a minimum, Stirrup must let the programmer:
 - Operate with any the file names allowed by the operating system.
 - Input and output text is encoded according to the user's settings.  
 
@@ -55,7 +55,7 @@ In summary:
 // todo-php: explain why Stirrup uses u32string
 because we want type-safe programming, at least around strings, to help programmers not mess up text encodings, we should separate char*.  there is no way of knowing what encoding is a char*.  either we use a new string type that embed the encoding format or we use a u32string. 
 
-// todo-php: what's Stirrup's stance on multi-threading? 
+// todo-php: what's Stirrup's stance on multi-threading? no support - only single threaded
 // todo-php: type safety, what's the stance? 
 // todo-php: why and is it OK that Stirrup still uses so much of the C++ std lib?
 
@@ -65,6 +65,6 @@ Portable text files input and output is made difficult by differences in end-of-
 
 Stirrup wants to support binary file input/output.  This can be achieved by reading and writing plain `char*` types.  On the POSIX platforms, this works well.  Binary input/output under Windows requires that the file handle be set in the "binary" to avoid getting the `LF` character converted to a `CR` + `LF` pair.  This conversion will mess up the binary the program is trying to write.
 
-Stirrup makes the following decision": by default, all streams are text.  This matches the Windows C++ runtime-time decision and supports compatibility across platforms.  A program written in Stirrup with its streams API is portable and adapts to the platform it is running on.  Text files on Windows uses `CRLF` and `LF` on POSIX.
+Stirrup makes the following decision: by default, all streams are text.  This matches the Windows C++ runtime-time decision and supports compatibility across platforms.  A program written in Stirrup with its streams API is portable and adapts to the platform it is running on.  Text files on Windows uses `CRLF` and `LF` on POSIX.
 
 Binary stream input/output is possible through another API. 

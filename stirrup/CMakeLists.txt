@@ -40,5 +40,6 @@ target_include_directories(
     PRIVATE src
 )
 
+add_subdirectory(development)
 add_subdirectory(examples)
 add_subdirectory(test)

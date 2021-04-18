@@ -7,14 +7,7 @@ int main() {
 
 */
 
-/*
-#include <fmt/core.h>
 
-int main() {
-  fmt::print("Hello, world!\n");
-}
-
-*/
 #include <fmt/core.h>
 
 int main() {

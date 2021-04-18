@@ -15,6 +15,8 @@ int main(int argc, char * argv[])
         if (argc < 4)
         {
             print(U"Wrong number of arguments: {}\n", argc);
+            print(U"transcode_bananas replaces the letter \"a\" in the input file with Unicode bananas.\n");
+            print(U"example: ./transcode_bananas input_file en_US.iso88591 en_US.utf8\n");
             return 1;
         }
 

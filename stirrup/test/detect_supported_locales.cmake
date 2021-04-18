@@ -1,6 +1,4 @@
 
-message("Detect support locales")
-
 if(${PLATFORM} STREQUAL "posix")
     message(STATUS "Detecting available locales...")
     execute_process(COMMAND locale -a OUTPUT_VARIABLE installed_locales)

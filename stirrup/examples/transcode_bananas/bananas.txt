@@ -1,0 +1,2 @@
+Here is a UTF8 file with bananas.
+Transforms the letter "a" to bananas.

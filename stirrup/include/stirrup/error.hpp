@@ -28,7 +28,7 @@ private:
 // to them, except log.  Retrying is pointless
 // because if you know retrying can solve to issue, you
 // have some idea why things could fail, so that
-// would/should be a runtime_error instead.)
+// would/should be a runtime_error instead.
 class logic_error : public std::logic_error
 {
 public:
