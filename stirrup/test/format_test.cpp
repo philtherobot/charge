@@ -13,6 +13,7 @@ TEST_CASE("formatting values to string")
         CHECK(fmt::format(U"an integer {}", 21) == U"an integer 21");
         CHECK(fmt::format(U"a string {}", U"value") == U"a string value");
         CHECK(fmt::format(U"named argument {user}", fmt::arg(U"user", U"Philippe")) == U"named argument Philippe");
+        CHECK(fmt::format(U"padding -{:10}-", U"hello \u503c") == U"padding -hello \u503c   -");
     }
 }
 
