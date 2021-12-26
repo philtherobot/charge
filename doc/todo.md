@@ -62,7 +62,7 @@ Differences:
 - `ShellProcess` captures both STDOUT and STDERR, `exec` leaves them alone.
 - `ShellProcess` runs the command in a shell rather than directly as a process.
 
-`charge::exec` should be changed to support optionally capturing STDOUT & STDERR and the exit code.  It would look a lot like `ShellProcess`, being now a class an all.  Then `ShellProcess` could either derive from that and add launching the program inside the shell.  Or a new piece writes a different command line (that runs the command inside a shell) before we launch it with the new `charge::exec`.
+`charge::exec` should be changed to support optionally capturing STDOUT & STDERR and the exit code.  It would look a lot like `ShellProcess`, being now a class and all.  Then `ShellProcess` could either derive from that and add launching the program inside the shell.  Or a new piece writes a different command line (that runs the command inside a shell) before we launch it with the new `charge::exec`.
 
 I would still test `ShellProcess` with scripts, to be 100% certain it works. 
 
@@ -72,7 +72,7 @@ I would still test `ShellProcess` with scripts, to be 100% certain it works.
 Medium size.
 High priority.
 
-Compilation of Charge should be done at an higher level of warnings.  Change the CMake project.
+Compilation of Charge should be done at a higher level of warnings.  Change the CMake project.
 
 
 ## Document compiler defines for libraries in settings
@@ -136,7 +136,7 @@ Medium priority.
 The top-level README has a description of the options, but the reference, for completeness, also needs to cover them.  I have left a "To be completed" note in `reference.md`.
 
 
-## Programs in the the project share a similar main function
+## Programs in the project share a similar main function
 
 Medium size.
 Medium priority.

@@ -7,7 +7,7 @@ Let's first posit what are the various goals that Stirrup tries to meet.
 ### Usage scenarios
 
 Stirrup is primarily intended to support the creation of small programs.  Those small programs could be:
-- Programs that would normally be implemented with Python because there is a need for variables and some computation that cannot be easily done in Bash or Windows Batch.  Maybe because it genuinely is difficult or you do not know how to write the program in Python or a shell script language but you do know how to write it in C++. 
+- Programs that would best be implemented with a general purpose programming language because there is a need for variables, functions and classes.  These things cannot be easily done in Bash or Windows Batch.  Maybe because it genuinely is difficult or you do not know how to write the program in Python or a shell script language but you do know how to write it in C++. 
 - Programs that require lots of interaction with executables. Piping executables between themselves and with files, capturing the output, feeding input, etc.
 - Programs that manipulate the filesystem.  Copy, delete and list files for example.
 
@@ -17,15 +17,17 @@ Stirrup should be usable by programmers with a little bit of C++ experience, by 
 
 ### Portability
 
-Stirrup is multi-platform.  We want to avoid the issues related to differences in the toolchain and platform from one platform to another: the code written should be the same and have the same results regardless of the platform.
+Stirrup is multi-platform.  We want to avoid the issues related to difference in the toolchains and platforms from one platform to another: the code written should be the same and have the same results regardless of the platform.
 
-We should note that the portability goals of Stirrup reach all the way to the end-of-line style: Stirrup should take away the EOL issues as much as possible.  This supports the students who expect text files to be in their language and match their platform's end-of-line style.
+We should note that the portability goals of Stirrup reach all the way to the end-of-line style: Stirrup should take away the EOL issues as much as possible.
 
 ### Internationalization
 
 This is the 21th century, at the time of writing, we are near the year 2021. People all over the world are using computers.  It is time we take text encoding seriously in C++.  It is thus a goal of Stirrup to bring proper text processing.  At a minimum, Stirrup must let the programmer:
 - Operate with any the file names allowed by the operating system.
-- Input and output text is encoded according to the user's settings.  
+- Input and output text is encoded in UTF-8.
+
+Maybe, as a stretch goal, input and output text is encoded according to the user's settings.  
 
 ## Resulting design
 
@@ -33,7 +35,7 @@ We can start deriving broad design decisions given the goals set for Stirrup.
 
 ### Programming style
 
-Because Stirrup targets small, quickly written, maybe one-time-use programs, it resulting code should be terse and the functions and tools at your disposal should be powerful.
+Because Stirrup targets small, quickly written, maybe one-time-use programs, its resulting code should be terse and the functions and tools at your disposal should be powerful.
 
 Because Stirrup support multi-platform programming, Stirrup should let you write portable code by default.  Platform-specific details can be addressed with advanced tools in Stirrup.  Stirrup programs are portable at the expense of making assumptions and making some things harder. For example, standard input/output is text, not binary, by default.
 
@@ -65,6 +67,6 @@ Portable text files input and output is made difficult by differences in end-of-
 
 Stirrup wants to support binary file input/output.  This can be achieved by reading and writing plain `char*` types.  On the POSIX platforms, this works well.  Binary input/output under Windows requires that the file handle be set in the "binary" to avoid getting the `LF` character converted to a `CR` + `LF` pair.  This conversion will mess up the binary the program is trying to write.
 
-Stirrup makes the following decision": by default, all streams are text.  This matches the Windows C++ runtime-time decision and supports compatibility across platforms.  A program written in Stirrup with its streams API is portable and adapts to the platform it is running on.  Text files on Windows uses `CRLF` and `LF` on POSIX.
+Stirrup makes the following decision: by default, all streams are text.  This matches the Windows C++ runtime-time decision and supports compatibility across platforms.  A program written in Stirrup with its streams API is portable and adapts to the platform it is running on.  Text files on Windows uses `CRLF` and `LF` on POSIX.
 
 Binary stream input/output is possible through another API. 

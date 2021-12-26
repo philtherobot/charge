@@ -8,6 +8,10 @@
 namespace stirrup
 {
 
+std::wstring transcode_to_wstring(std::u32string const & str);
+std::u32string transcode_from(wchar_t const * str);
+
+// remainder is obsolete or needs revamping
 using string_list = std::vector<std::string>;
 std::string quote(std::string const & str);
 std::string quote_if_needed(std::string const & str);
@@ -21,8 +25,6 @@ std::u8string to_u8string(std::wstring const & str);
 std::u32string transcode_from_utf8(std::vector<char8_t> const & utf8_string);
 std::vector<char8_t> transcode_to_utf8(std::u32string const & string);
 
-std::u32string transcode_from_wstring(std::wstring const & str);
-std::wstring transcode_to_wstring(std::u32string const & str);
 
 // todo-php: first+last or range templated implementation for transcode_from_locale
 // it would be useful to implement file::read for example where the data is in an array without a term-zero

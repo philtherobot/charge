@@ -177,7 +177,7 @@ SCENARIO("locale to Unicode transcoding")
 
 SCENARIO("wchar_t to Unicode transcoding")
 {
-    CHECK(transcode_from_wstring(L"hello \u503c") == U"hello \u503c");
+    CHECK(transcode_from(L"hello \u503c") == U"hello \u503c");
     CHECK(transcode_to_wstring(U"hello \u503c") == L"hello \u503c");
 
     // todo-php: check message, it should include the char that cannot be converted

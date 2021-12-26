@@ -7,6 +7,8 @@ namespace stirrup
 {
 std::u32string make_errno_message(std::u32string const & from_function, int err);
 
+void throw_on_errno(int err);
+
 class exception : public std::exception
 {
 public:
@@ -27,9 +29,9 @@ public:
 };
 
 // Basic assumption in the program is violated.
-// There is no possible recovery before the
-// program has not planned for the assumption
-// to be false.
+// There is no possible recovery because the
+// program has not planned for the situation
+// that was detected.
 // Normally, these exceptions are not caught
 // because nobody knows what to do in reaction
 // to them.

@@ -93,6 +93,29 @@ wchar_t c32towc(char32_t c32)
 
 }
 
+std::u32string transcode_from(wchar_t const * str)
+{
+    const auto str_size = wcslen(str);
+
+    std::u32string result;
+    result.resize(str_size);
+
+    std::transform(
+        str, str + str_size, std::begin(result),
+        [](wchar_t wc) { return char32_t(wc); }
+    );
+
+    return result;
+}
+
+std::wstring transcode_to_wstring(std::u32string const & str)
+{
+    std::wstring result;
+    result.resize(str.size());
+    std::transform(std::begin(str), std::end(str), std::begin(result), c32towc);
+    return result;
+}
+
 string quote(string const & str)
 {
     return string("\"") + str + string("\"");
@@ -181,28 +204,9 @@ vector<char8_t> transcode_to_utf8(u32string const & unicode_string)
     return result;
 }
 
-std::u32string transcode_from_wstring(std::wstring const & str)
-{
-    std::u32string result;
-    result.resize(str.size());
-    std::transform(
-        std::begin(str), std::end(str), std::begin(result), [](wchar_t wc)
-        { return char32_t(wc); }
-    );
-    return result;
-}
-
-std::wstring transcode_to_wstring(std::u32string const & str)
-{
-    std::wstring result;
-    result.resize(str.size());
-    std::transform(std::begin(str), std::end(str), std::begin(result), c32towc);
-    return result;
-}
-
 std::u32string transcode_from_locale(char const * str, std::locale const & locale)
 {
-    return transcode_from_wstring(transcode_wstring_from(str, locale));
+    return transcode_from(transcode_wstring_from(str, locale).c_str());
 }
 
 // todo-php: the convert_from_ascii function is a little particular: what should we do?
