@@ -37,7 +37,7 @@ u32string getenv(u32string const & variable_name)
     wchar_t * buffer = nullptr;
     const auto error = _wdupenv_s(&buffer, nullptr, transcode_to_wstring(variable_name).c_str());
 
-    throw_on_errno(error);
+    throw_on_errno(U"stirrup::getenv", error);
 
     if (!buffer)
     {
@@ -52,7 +52,7 @@ u32string getenv(u32string const & variable_name)
 void putenv(std::u32string const &variable_name, std::u32string const &value)
 {
     const auto error = _wputenv_s(transcode_to_wstring(variable_name).c_str(), transcode_to_wstring(value).c_str());
-    throw_on_errno(error);
+    throw_on_errno(U"stirrup::putenv", error);
 }
 
 }

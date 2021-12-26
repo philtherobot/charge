@@ -1,24 +1,7 @@
 #include <catch2/catch.hpp>
 
 #include "stirrup/environment_variable.hpp"
-#include "stirrup/string.hpp"
-
-namespace Catch {
-template<>
-struct StringMaker<std::u32string> {
-    static std::string convert( std::u32string const& value ) {
-        return stirrup::repr(value);
-    }
-};
-
-template<int SZ>
-struct StringMaker<char32_t[SZ]> {
-    static std::string convert(char32_t const* value) {
-        return stirrup::repr(std::u32string(value));
-    }
-};
-
-}
+#include "stirrup/test/string_string_maker.hpp"
 
 SCENARIO("stirrup environment variables")
 {

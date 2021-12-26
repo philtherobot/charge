@@ -87,28 +87,6 @@ using std::locale;
 
 using std::vector;
 
-
-SCENARIO("UTF-8 string transcoding")
-{
-    WHEN("we transcode a UTF-8 string to a Unicode")
-    {
-        vector<char8_t> string = {'H', 'e', 'l', 'l', 'o', 0xE5, 0x80, 0xBC};
-        CHECK(transcode_from_utf8(string) == U"Hello\u503C");
-
-        vector<char8_t> contains_a_zero = {'H', '\0', 'l', 'l', 'o'};
-        CHECK(transcode_from_utf8(contains_a_zero) == U"H\0llo");
-    }
-
-    WHEN("we transcode a Unicode string to UTF-8")
-    {
-        u32string string = U"Hello\u503C";
-        CHECK(transcode_to_utf8(string) == vector<char8_t>{'H', 'e', 'l', 'l', 'o', 0xE5, 0x80, 0xBC});
-
-        u32string contains_a_zero{U'H', U'\0', U'l', U'l', U'o'};
-        CHECK(transcode_to_utf8(contains_a_zero) == vector<char8_t>{'H', '\0', 'l', 'l', 'o'});
-    }
-}
-
 SCENARIO("Unicode to ASCII representation")
 {
     WHEN("representing a Unicode character")
@@ -139,6 +117,40 @@ SCENARIO("Unicode to ASCII representation")
     }
 }
 
+SCENARIO("wchar_t to Unicode transcoding")
+{
+    CHECK(transcode_from(L"hello \u503c") == U"hello \u503c");
+    CHECK(transcode_to_wstring(U"hello \u503c") == L"hello \u503c");
+
+    CHECK_THROWS_MATCHES(
+        transcode_to_wstring(U"hello \U0001F600"),
+        stirrup::runtime_error,
+        Catch::Message("DerivedException::what"));
+}
+
+// Start obsolete or under reevaluation
+SCENARIO("UTF-8 string transcoding")
+{
+    WHEN("we transcode a string from UTF-8 to Unicode")
+    {
+        vector<char8_t> string = {'H', 'e', 'l', 'l', 'o', 0xE5, 0x80, 0xBC};
+        CHECK(transcode_from_utf8(string) == U"Hello\u503C");
+
+        vector<char8_t> contains_a_zero = {'H', '\0', 'l', 'l', 'o'};
+        CHECK(transcode_from_utf8(contains_a_zero) == U"H\0llo");
+    }
+
+    WHEN("we transcode a string from Unicode to UTF-8")
+    {
+        u32string string = U"Hello\u503C";
+        CHECK(transcode_to_utf8(string) == vector<char8_t>{'H', 'e', 'l', 'l', 'o', 0xE5, 0x80, 0xBC});
+
+        u32string contains_a_zero{U'H', U'\0', U'l', U'l', U'o'};
+        CHECK(transcode_to_utf8(contains_a_zero) == vector<char8_t>{'H', '\0', 'l', 'l', 'o'});
+    }
+}
+
+// most probably obsolete
 SCENARIO("UTF-8 to ASCII representation")
 {
     WHEN("representing a UTF-8 character")
@@ -153,6 +165,7 @@ SCENARIO("UTF-8 to ASCII representation")
     }
 }
 
+// most probably obsolete
 SCENARIO("locale to Unicode transcoding")
 {
     auto const initial_locale = std::locale();
@@ -175,15 +188,7 @@ SCENARIO("locale to Unicode transcoding")
     }
 }
 
-SCENARIO("wchar_t to Unicode transcoding")
-{
-    CHECK(transcode_from(L"hello \u503c") == U"hello \u503c");
-    CHECK(transcode_to_wstring(U"hello \u503c") == L"hello \u503c");
-
-    // todo-php: check message, it should include the char that cannot be converted
-    CHECK_THROWS_AS(transcode_to_wstring(U"hello \U0001F600"), stirrup::runtime_error);
-}
-
+// most probably obsolete
 SCENARIO("text encoding conversions")
 {
     GIVEN("the IBM/PC codepage (437)")
@@ -243,6 +248,7 @@ SCENARIO("text encoding conversions")
     }
 }
 
+// most probably obsolete
 // Note: the following is specific to Windows
 SCENARIO("getting the Windows codepage from a locale")
 {

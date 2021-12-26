@@ -5,9 +5,10 @@
 
 namespace stirrup
 {
+
 std::u32string make_errno_message(std::u32string const & from_function, int err);
 
-void throw_on_errno(int err);
+void throw_on_errno(std::u32string const & from_function, int err);
 
 class exception : public std::exception
 {
