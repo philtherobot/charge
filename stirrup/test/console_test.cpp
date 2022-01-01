@@ -88,7 +88,8 @@ class c_stream_reader
 {
 public:
 
-    c_stream_reader(FILE * fp, std::size_t accumulator_size, fread_t fread, feof_t feof, ferror_t ferror) :
+    c_stream_reader(FILE * fp, std::size_t accumulator_size, fread_t fread, feof_t feof, ferror_t ferror)
+        :
         fp_(fp), accumulator_size_(accumulator_size), fread_(fread), feof_(feof), ferror_(ferror)
     {
     }
@@ -145,7 +146,7 @@ public:
             if (nb_bytes != read_size)
             {
                 // Reached error or end of file.
-                if ( ferror_(fp_) && result.empty() )
+                if (ferror_(fp_) && result.empty())
                 {
                     // The message is to be improved, see above.
                     throw runtime_error(U"stream read error");
@@ -389,56 +390,76 @@ SCENARIO("input from the console")
 
 using std::runtime_error;
 
-
-SCENARIO("reading a C stream")
+class fake_c_stream
 {
-    binary_buffer::value_type const * stream_data = nullptr;
-    std::size_t stream_size = 0;
-    std::optional<std::size_t> error_when_size_equal_or_smaller;
-    bool fake_stream_has_error = false;
+public:
 
-    auto set_fake_stream = [&](char const data[])
+    void set_fake_stream(char const data[])
     {
-        stream_data = reinterpret_cast<decltype(stream_data)>(data);
-        stream_size = strlen(data);
-    };
+        stream_data_ = reinterpret_cast<decltype(stream_data_)>(data);
+        stream_size_ = strlen(data);
+    }
 
-    auto fake_fread = [&](void * buffer, std::size_t, std::size_t n, FILE *) -> int
+    int fread(void * buffer, std::size_t, std::size_t n, FILE *)
     {
-        if(error_when_size_equal_or_smaller)
+        if (error_when_size_equal_or_smaller_)
         {
-            assert_that(stream_size >= *error_when_size_equal_or_smaller);
-            n = std::min(n, stream_size - *error_when_size_equal_or_smaller);
+            assert_that(stream_size_ >= *error_when_size_equal_or_smaller_);
+            n = std::min(n, stream_size_ - *error_when_size_equal_or_smaller_);
         }
 
-        auto const read_size = std::min(n, stream_size);
-        memcpy(buffer, stream_data, read_size);
-        stream_data += read_size;
-        stream_size -= read_size;
+        auto const read_size = std::min(n, stream_size_);
+        memcpy(buffer, stream_data_, read_size);
+        stream_data_ += read_size;
+        stream_size_ -= read_size;
 
-        if(error_when_size_equal_or_smaller)
+        if (error_when_size_equal_or_smaller_)
         {
-            fake_stream_has_error = stream_size <= *error_when_size_equal_or_smaller;
+            has_error_ = stream_size_ <= *error_when_size_equal_or_smaller_;
         }
 
         return int(read_size);
-    };
+    }
 
-    auto fake_feof = [&](FILE *) -> int
+    int feof(FILE *)
     {
-        return stream_size == 0;
-    };
+        return stream_size_ == 0;
+    }
 
-    auto fake_ferror = [&](FILE *) -> int
+    int ferror(FILE *)
     {
-        return fake_stream_has_error;
-        //return error_when_size_equal_or_smaller && stream_size <= *error_when_size_equal_or_smaller;
-    };
+        return has_error_;
+    }
+
+    binary_buffer::value_type const * stream_data_ = nullptr;
+    std::size_t stream_size_ = 0;
+    std::optional<std::size_t> error_when_size_equal_or_smaller_;
+    bool has_error_ = false;
+};
+
+SCENARIO("reading a C stream")
+{
+    fake_c_stream fake_stream;
 
     FILE * fp = nullptr;
-    c_stream_reader reader(fp, 8, fake_fread, fake_feof, fake_ferror);
 
-    set_fake_stream("Hello world!");
+    c_stream_reader reader(
+        fp, 8,
+        [&](void * buffer, std::size_t element_size, std::size_t count, FILE * fp) -> int
+        {
+            return fake_stream.fread(buffer, element_size, count, fp);
+        },
+        [&](FILE * fp) -> int
+        {
+            return fake_stream.feof(fp);
+        },
+        [&](FILE * fp) -> int
+        {
+            return fake_stream.ferror(fp);
+        }
+    );
+
+    fake_stream.set_fake_stream("Hello world!");
 
     WHEN("read exactly the stream size")
     {
@@ -472,16 +493,16 @@ SCENARIO("reading a C stream")
 
     WHEN("stream has an error at the beginning")
     {
-        set_fake_stream("Hel");
-        error_when_size_equal_or_smaller = 3;
+        fake_stream.set_fake_stream("Hel");
+        fake_stream.error_when_size_equal_or_smaller_ = 3;
 
         CHECK_THROWS_MATCHES(reader.read(5), stirrup::runtime_error, Catch::Message("stream read error"));
     }
 
     WHEN("stream has an error after 3 bytes")
     {
-        set_fake_stream("1234567890");
-        error_when_size_equal_or_smaller = 7;
+        fake_stream.set_fake_stream("1234567890");
+        fake_stream.error_when_size_equal_or_smaller_ = 7;
 
         CHECK(reader.read(5) == U"123");
         CHECK(reader.accumulator_.empty());
@@ -492,15 +513,15 @@ SCENARIO("reading a C stream")
     WHEN("we atomically fread only part of a UTF-8 code point")
     {
         assert_that(reader.accumulator_size_ == 8);
-        set_fake_stream("1234567\xE5\x80\xBC" "123");
+        fake_stream.set_fake_stream("1234567\xE5\x80\xBC" "123");
 
         CHECK(reader.read(8) == U"1234567\u503C");
-        CHECK(reader.accumulator_ == binary_buffer{ '1', '2', '3' } );
+        CHECK(reader.accumulator_ == binary_buffer{'1', '2', '3'});
     }
 
     WHEN("stream ends with a partial UTF-8 code point")
     {
-        set_fake_stream("123\xE5\x80");
+        fake_stream.set_fake_stream("123\xE5\x80");
 
         CHECK(reader.read(8) == U"123");
         CHECK(reader.accumulator_ == binary_buffer{0xE5, 0x80});
@@ -511,7 +532,7 @@ SCENARIO("reading a C stream")
 
     WHEN("stream contains a partial UTF-8 code point")
     {
-        set_fake_stream("123\xE5\x80xyz");
+        fake_stream.set_fake_stream("123\xE5\x80xyz");
         CHECK_THROWS_MATCHES(reader.read(7), stirrup::runtime_error, Catch::Message("error converting from UTF-8"));
     }
 }
