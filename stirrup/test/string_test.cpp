@@ -7,6 +7,7 @@
 #include "stirrup/test/string_string_maker.hpp"
 
 using std::u32string;
+using std::u8string;
 using namespace stirrup;
 using namespace stirrup::windows;
 using std::locale;
@@ -112,47 +113,10 @@ SCENARIO("Unicode to ASCII representation")
 
     WHEN("representing containers")
     {
-        vector<int> v{1,2,3};
+        vector<int> v{1, 2, 3};
         CHECK(repr(v) == "{1,2,3}");
     }
-}
 
-SCENARIO("wchar_t to Unicode transcoding")
-{
-    CHECK(transcode_from(L"hello \u503c") == U"hello \u503c");
-    CHECK(transcode_to_wstring(U"hello \u503c") == L"hello \u503c");
-
-    CHECK_THROWS_MATCHES(
-        transcode_to_wstring(U"hello \U0001F600"),
-        stirrup::runtime_error,
-        Catch::Message("DerivedException::what"));
-}
-
-// Start obsolete or under reevaluation
-SCENARIO("UTF-8 string transcoding")
-{
-    WHEN("we transcode a string from UTF-8 to Unicode")
-    {
-        vector<char8_t> string = {'H', 'e', 'l', 'l', 'o', 0xE5, 0x80, 0xBC};
-        CHECK(transcode_from_utf8(string) == U"Hello\u503C");
-
-        vector<char8_t> contains_a_zero = {'H', '\0', 'l', 'l', 'o'};
-        CHECK(transcode_from_utf8(contains_a_zero) == U"H\0llo");
-    }
-
-    WHEN("we transcode a string from Unicode to UTF-8")
-    {
-        u32string string = U"Hello\u503C";
-        CHECK(transcode_to_utf8(string) == vector<char8_t>{'H', 'e', 'l', 'l', 'o', 0xE5, 0x80, 0xBC});
-
-        u32string contains_a_zero{U'H', U'\0', U'l', U'l', U'o'};
-        CHECK(transcode_to_utf8(contains_a_zero) == vector<char8_t>{'H', '\0', 'l', 'l', 'o'});
-    }
-}
-
-// most probably obsolete
-SCENARIO("UTF-8 to ASCII representation")
-{
     WHEN("representing a UTF-8 character")
     {
         CHECK(repr(u8'a') == "a");
@@ -165,6 +129,71 @@ SCENARIO("UTF-8 to ASCII representation")
     }
 }
 
+SCENARIO("wchar_t/Unicode transcoding")
+{
+    CHECK(transcode_from(L"hello \u503c") == U"hello \u503c");
+    CHECK(transcode_to_wstring(U"hello \u503c") == L"hello \u503c");
+
+    CHECK_THROWS_MATCHES(
+        transcode_to_wstring(U"hello \U0001F600"),
+        stirrup::runtime_error,
+        Catch::Message("symbol cannot be converted"));
+}
+
+SCENARIO("UTF-8 decoding from binary data")
+{
+    GIVEN("ASCII data")
+    {
+        binary_buffer buffer = {'H', 'e', 'l', 'l', 'o'};
+
+        WHEN("decoding all the data")
+        {
+            auto const string = decode_utf8(buffer, 10);
+            CHECK(string == U"Hello");
+            CHECK(buffer.empty());
+        }
+
+        WHEN("decoding only part of the data")
+        {
+            auto const string = decode_utf8(buffer, 3);
+            CHECK(string == U"Hel");
+            CHECK(buffer == binary_buffer{'l', 'o'});
+        }
+    }
+
+    GIVEN("UTF-8 data")
+    {
+        binary_buffer buffer = {'H', 'e', 'l', 'l', 'o', 0xE5, 0x80, 0xBC};
+
+        WHEN("decoding all the data")
+        {
+            auto const string = decode_utf8(buffer, 6);
+            CHECK(string == U"Hello\u503C");
+            CHECK(buffer.empty());
+        }
+
+        WHEN("decoding only part of the data")
+        {
+            auto const string = decode_utf8(buffer, 5);
+            CHECK(string == U"Hello");
+            CHECK(buffer == binary_buffer{0xE5, 0x80, 0xBC});
+        }
+    }
+
+    GIVEN("incomplete code point in UTF-8 data")
+    {
+        binary_buffer buffer = {'H', 'e', 'l', 'l', 'o', 0xE5, 0x80};
+
+        WHEN("decoding all the data")
+        {
+            auto const string = decode_utf8(buffer, 6);
+            CHECK(string == U"Hello");
+            CHECK(buffer == binary_buffer{0xE5, 0x80});
+        }
+    }
+}
+
+// Start obsolete or under reevaluation
 // most probably obsolete
 SCENARIO("locale to Unicode transcoding")
 {
@@ -194,7 +223,7 @@ SCENARIO("text encoding conversions")
     GIVEN("the IBM/PC codepage (437)")
     {
         auto const ibm_codepage = locale(".437");
-        vector<char> top_right_corner = { char(0xBF) };
+        vector<char> top_right_corner = {char(0xBF)};
         CHECK(decode_string(top_right_corner, ibm_codepage) == U"\u2510");
         CHECK(encode_string(U"\u2510", ibm_codepage) == top_right_corner);
     }
@@ -202,7 +231,7 @@ SCENARIO("text encoding conversions")
     GIVEN("the Windows Western codepage (1252)")
     {
         auto const western_codepage = locale(".1252");
-        vector<char> inverted_question_mark = {char(0xBF) };
+        vector<char> inverted_question_mark = {char(0xBF)};
         CHECK(decode_string(inverted_question_mark, western_codepage) == U"\u00BF");
         CHECK(encode_string(U"\u00BF", western_codepage) == inverted_question_mark);
     }
@@ -210,7 +239,7 @@ SCENARIO("text encoding conversions")
     GIVEN("the Windows Cyrillic codepage (1251)")
     {
         auto const cyrillic_codepage = locale(".1251");
-        vector<char> small_letter_yi = {char(0xBF) };
+        vector<char> small_letter_yi = {char(0xBF)};
         CHECK(decode_string(small_letter_yi, cyrillic_codepage) == U"\u0457");
         CHECK(encode_string(U"\u0457", cyrillic_codepage) == small_letter_yi);
     }
@@ -219,7 +248,8 @@ SCENARIO("text encoding conversions")
     {
         auto const utf8_codepage = locale(".UTF-8");
 
-        auto to_binary = [](char8_t const * string) {
+        auto to_binary = [](char8_t const * string)
+        {
             vector<char> result;
             std::ranges::copy(std::u8string(string), back_inserter(result));
             return result;
@@ -233,15 +263,15 @@ SCENARIO("text encoding conversions")
         CHECK(decode_string(hello_smiley, utf8_codepage) == U"hello\U0001F600");
         CHECK(encode_string(U"hello\U0001F600", utf8_codepage) == hello_smiley);
     }
-    // test long strings to overflow the function's buffer
+        // test long strings to overflow the function's buffer
 
     GIVEN("UTF-16 encoded text")
     {
-        vector<WCHAR> hello_top_right_corner{ 'h', 'e', 'l', 'l', 'o', L'\u2510'};
+        vector<WCHAR> hello_top_right_corner{'h', 'e', 'l', 'l', 'o', L'\u2510'};
         CHECK(stirrup::windows::decode_string(hello_top_right_corner) == U"hello\u2510");
         CHECK(stirrup::windows::encode_string(U"hello\u2510") == hello_top_right_corner);
 
-        vector<WCHAR> hello_smiley{ 'h', 'e', 'l', 'l', 'o', 0xD83D, 0xDE00};
+        vector<WCHAR> hello_smiley{'h', 'e', 'l', 'l', 'o', 0xD83D, 0xDE00};
         CHECK(stirrup::windows::decode_string(hello_smiley) == U"hello\U0001F600");
         CHECK(stirrup::windows::encode_string(U"hello\U0001F600") == hello_smiley);
         CHECK(repr(stirrup::windows::encode_string(U"hello\U0001F600")) == repr(hello_smiley));

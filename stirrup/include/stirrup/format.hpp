@@ -16,4 +16,5 @@ void print(S const & format, Args && ... args)
 {
     vprint(format, fmt::make_args_checked<Args...>(format, args...));
 }
+
 }

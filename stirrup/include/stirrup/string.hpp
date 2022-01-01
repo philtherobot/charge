@@ -8,14 +8,26 @@
 namespace stirrup
 {
 
+using binary_buffer = std::vector<unsigned char>;
+
+std::u32string decode_utf8(binary_buffer & b, std::size_t sz);
+binary_buffer encode_to_utf8(std::u32string const & s);
+
 std::wstring transcode_to_wstring(std::u32string const & str);
 std::u32string transcode_from(wchar_t const * str);
 
+// FIXME: repr return `std::string`, not the standard string type `u32string`
+// `repr` is used to convert exception message to ASCII.
+// `repr` is supposed to "stringify" anything inside the normal operation of the pgm
+// create a dedicated function to convert to ASCII for exceptions (must not throw itself)
+// change `repr` to return `u32string`
 std::string repr(char32_t unicode_character);
 
 std::string repr(std::u32string const & string);
 
 std::string repr(char32_t const * string);
+
+std::string repr(char8_t u8_byte);
 
 template <typename value>
 std::string repr(value v)
@@ -67,7 +79,5 @@ std::vector<char> encode_string(std::u32string const & string, std::locale const
 
 std::u32string convert_from_ascii(std::string const & plain_ascii_string);
 std::string convert_to_ascii(std::u32string const & string);
-
-std::string repr(char8_t u8_byte);
 
 }
