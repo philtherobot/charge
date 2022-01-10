@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <limits>
 #include <vector>
+#include <iostream>
 
 #include "stirrup/error.hpp"
 #include "stirrup/string.hpp"
@@ -15,6 +16,7 @@ namespace stirrup_dev
 
 using string_list = std::vector<std::u32string>;
 using stirrup::binary_buffer;
+using stirrup::encode_to_utf8;
 using stirrup::decode_utf8;
 using stirrup::runtime_error;
 
@@ -27,17 +29,23 @@ public:
         : held_device_(std::move(other.held_device_))
     {}
 
+    template <typename device>
+    /*implicit*/ stream(device & i)
+        :
+        held_device_(new holder<device>(i))
+    {}
+
+    template <typename device>
+    /*implicit*/ stream(device && i)
+        :
+        held_device_(new holder<device>(std::move(i)))
+    {}
+
     stream & operator=(stream && other)
     {
         std::swap(held_device_, other.held_device_);
         return *this;
     }
-
-    template <typename device>
-    explicit stream(device && i)
-        :
-        held_device_(new holder<device>(std::move(i)))
-    {}
 
     std::u32string read(std::size_t sz)
     {
@@ -49,6 +57,13 @@ public:
         return held_device_->write(t);
     }
 
+    template <typename Device>
+    Device * device()
+    {
+        holder <Device> * holder_most_derived = dynamic_cast<holder <Device> *>(held_device_.get());
+        if (!holder_most_derived) return nullptr;
+        return holder_most_derived->i_;
+    }
 
 private:
     // TODO: not too happy with name "holder"
@@ -64,14 +79,22 @@ private:
     class holder: public holder_itf
     {
     public:
-        holder(implementation && i)
-            : i_(std::move(i))
+        holder(implementation & i)
+            : i_(&i)
         {}
-        implementation i_;
+
+        holder(implementation && i)
+            :
+            moved_i_(std::move(i)),
+            i_(&(*moved_i_))
+        {}
+
+        std::optional<implementation> moved_i_;
+        implementation * i_;
         std::u32string read(std::size_t sz) override
-        { return i_.read(sz); }
+        { return i_->read(sz); }
         void write(std::u32string const & t) override
-        { i_.write(t); };
+        { i_->write(t); };
     };
 
     std::unique_ptr<holder_itf> held_device_;
@@ -88,7 +111,7 @@ class c_stream_reader
 {
 public:
 
-    c_stream_reader(FILE * fp, std::size_t accumulator_size, fread_t fread, feof_t feof, ferror_t ferror)
+    c_stream_reader(std::FILE * fp, std::size_t accumulator_size, fread_t fread, feof_t feof, ferror_t ferror)
         :
         fp_(fp), accumulator_size_(accumulator_size), fread_(fread), feof_(feof), ferror_(ferror)
     {
@@ -104,12 +127,7 @@ public:
             // See the other throw below.
             throw runtime_error(U"stream read error");
         }
-/*
-        if (feof_(fp_) && accumulator_.empty())
-        {
-            return {};
-        }
-*/
+
         std::u32string result;
 
         result = decode_utf8(accumulator_, requested_size);
@@ -163,7 +181,7 @@ public:
     std::size_t const accumulator_size_;
 
 private:
-    FILE * fp_;
+    std::FILE * fp_;
     fread_t fread_;
     feof_t feof_;
     ferror_t ferror_;
@@ -172,50 +190,48 @@ private:
 class stdio_device
 {
 public:
-    explicit stdio_device(FILE * fp)
-        : fp_(fp)
+    explicit stdio_device(std::FILE * fp)
+        : fp_(fp), reader_(fp_, 16 * 1024, &std::fread, &std::feof, &std::ferror)
     {}
 
     std::u32string read(std::size_t sz)
     {
-#if 0
-        binary_buffer b;
-        // TODO: avoid zero-init on buffer preparation of stdio_device::read
-        b.resize(16*1024);
-        // feof, ferror
-        // return {} when EOF
-        for(;;) {
-
-            auto const nb_bytes = fread(b.data(), 1, b.size(), fp_);
-
-            if(nb_bytes == b.size()) // full gulp
-            {
-                accumulate
-            }
-            else // error ?
-            {
-                if (feof(fp_))
-                {
-                    accumulate partial read
-                    return read_buffer_; // swap with empty
-                }
-
-                throw ferror(fp_);
-            }
-
-        }
-#endif
-        return {};
+        return reader_.read(sz);
     }
 
     void write(std::u32string const & t)
     {
-        //auto const utf8 = stirrup::encode_to_utf8(t);
-        //fwrite(utf8.data(), 1, utf8.size(), fp_);
+        auto const utf8 = stirrup::encode_to_utf8(t);
+        fwrite(utf8.data(), 1, utf8.size(), fp_);
     }
 
-    FILE * fp_ = nullptr;
-    binary_buffer read_buffer_;
+    std::FILE * fp_ = nullptr;
+
+    c_stream_reader
+        <
+            std::size_t(*)(void *, std::size_t, std::size_t, std::FILE *),
+            int (*)(std::FILE *),
+            int (*)(std::FILE *)
+        > reader_;
+};
+
+class string_device
+{
+public:
+    std::u32string read(std::size_t requested_size)
+    {
+        auto const read_size = std::min(requested_size, buffer_.size());
+        auto const result = buffer_.substr(0, read_size);
+        buffer_.erase(0, read_size);
+        return result;
+    }
+
+    void write(std::u32string const & t)
+    {
+        buffer_ += t;
+    }
+
+    std::u32string buffer_;
 };
 
 stream cout(stdio_device(stdout));
@@ -247,6 +263,14 @@ public:
         std::swap(fp_, other.fp_);
     }
 
+    static file open(path const & fn)
+    {
+        file f;
+        f.fp_ = fopen(fn.string().c_str(), "r");
+        f.stream = stirrup_dev::stream(stdio_device(f.fp_));
+        return f;
+    }
+
     static file overwrite(path const & fn)
     {
         file f;
@@ -257,6 +281,11 @@ public:
 
     ~file()
     {
+        close();
+    }
+
+    void close()
+    {
         if (fp_)
         {
             fclose(fp_);
@@ -264,9 +293,9 @@ public:
         }
     }
 
-    void seek();
-    std::size_t tell() const;
-    std::size_t size() const;
+//    void seek();
+//    std::size_t tell() const;
+//    std::size_t size() const;
 
     stream stream;
 
@@ -278,7 +307,8 @@ public:
 private:
     file()
     {}
-    FILE * fp_ = nullptr; // to implement seek tell & etc  (or keep the whole stdio_device)
+
+    std::FILE * fp_ = nullptr; // to implement seek tell & etc  (or keep the whole stdio_device)
 };
 
 std::u32string read_all(file & s)
@@ -320,13 +350,6 @@ std::u32string read_all(process & s)
 // PROBLEM: WE HAVE TO KNOW WHAT WE REDIRECT __BEFORE__ THE PROCESS IS CREATED!!!
 // we probably have to do a lazy implementation.
 process create_process(/*pgm + args*/);
-
-class pipe;  // it is a device that can go in a stream
-
-pipe operator|(stream && source, stream && dest); // returns a connection between s & d
-// s.read() -> d.write, IE d.write(s.read())
-
-pipe operator|(pipe && source, stream && dest); // returns a connection between s & d
 
 void examples()
 {
@@ -400,7 +423,7 @@ public:
         stream_size_ = strlen(data);
     }
 
-    int fread(void * buffer, std::size_t, std::size_t n, FILE *)
+    std::size_t fread(void * buffer, std::size_t, std::size_t n, std::FILE *)
     {
         if (error_when_size_equal_or_smaller_)
         {
@@ -421,12 +444,12 @@ public:
         return int(read_size);
     }
 
-    int feof(FILE *)
+    int feof(std::FILE *)
     {
         return stream_size_ == 0;
     }
 
-    int ferror(FILE *)
+    int ferror(std::FILE *)
     {
         return has_error_;
     }
@@ -441,19 +464,19 @@ SCENARIO("reading a C stream")
 {
     fake_c_stream fake_stream;
 
-    FILE * fp = nullptr;
+    std::FILE * fp = nullptr;
 
     c_stream_reader reader(
         fp, 8,
-        [&](void * buffer, std::size_t element_size, std::size_t count, FILE * fp) -> int
+        [&](void * buffer, std::size_t element_size, std::size_t count, std::FILE * fp) -> std::size_t
         {
             return fake_stream.fread(buffer, element_size, count, fp);
         },
-        [&](FILE * fp) -> int
+        [&](std::FILE * fp) -> int
         {
             return fake_stream.feof(fp);
         },
-        [&](FILE * fp) -> int
+        [&](std::FILE * fp) -> int
         {
             return fake_stream.ferror(fp);
         }
@@ -571,13 +594,27 @@ SCENARIO("output to file")
 {
     temporary_directory_fixture fixture;
 
-    CAPTURE(fixture.path_);
+    auto const fn = fixture.path_ / "output";
 
-    auto file = file::overwrite(fixture.path_ / "output");
+    auto file = file::overwrite(fn);
 
     SECTION("writing text")
     {
-        file.write(U"some text");
+        file.write(U"some UTF-8 \u503C" " data that looks\nto be on two lines");
+        file.close();
+
+        std::FILE * f = std::fopen(fn.string().c_str(), "r");
+
+        binary_buffer actual_data;
+        std::size_t block_size = 1024;
+        actual_data.resize(block_size);
+        auto const data_size = std::fread(actual_data.data(), 1, block_size, f);
+        std::fclose(f);
+
+        char const * const expected_data = "some UTF-8 \xE5\x80\xBC" " data that looks\nto be on two lines";
+        std::size_t expected_data_size = std::strlen(expected_data);
+        REQUIRE(data_size == expected_data_size);
+        CHECK(0 == std::memcmp(actual_data.data(), expected_data, expected_data_size));
     }
 
     SECTION("formatting text")
@@ -586,17 +623,143 @@ SCENARIO("output to file")
     }
 }
 
-#if 0
 SCENARIO("input from file")
 {
-    file file;
+    temporary_directory_fixture fixture;
+
+    auto const fn = fixture.path_ / "test_input";
+
+    std::FILE * f = std::fopen(fn.string().c_str(), "w+");
+    std::fputs("some UTF-8 \xE5\x80\xBC" " data that looks\nto be on two lines", f);
+    std::fclose(f);
+
+    auto file = file::open(fn);
+
     SECTION("reading text")
     {
-        const auto text = file.read();
-        //const auto all = read_all(file);
+        auto text = file.stream.read(4);
+        CHECK(text == U"some");
+
+        text = file.stream.read(400);
+        CHECK(text == U" UTF-8 \u503C data that looks\nto be on two lines");
+
+        CHECK(file.stream.read(400).empty());
     }
 }
-#endif
+
+SCENARIO("input and output from a string_device")
+{
+    string_device dev;
+
+    CHECK(dev.read(10).empty());
+    dev.write(U"some input");
+    CHECK(dev.read(4) == U"some");
+    CHECK(dev.read(4) == U" inp");
+    CHECK(dev.read(4) == U"ut");
+    CHECK(dev.read(4).empty());
+}
+
+class fake_device
+{
+public:
+    fake_device() : construction_story_{U"default construction"} {}
+    fake_device(fake_device && other) : construction_story_{U"move construction"} { other.was_moved_from_ = true; }
+
+    std::u32string const construction_story_;
+    bool was_moved_from_ = false;
+
+    std::u32string read(std::size_t)
+    { return {}; }
+    void write(std::u32string const &)
+    {}
+};
+
+SCENARIO("creating stream from device")
+{
+    fake_device dev;
+
+    WHEN("creating a stream that references a device")
+    {
+        stream ref(dev);
+
+        THEN("the stream refers to the same device object")
+        {
+            auto held_device = ref.device<fake_device>();
+            REQUIRE(held_device);
+
+            CHECK(held_device->construction_story_ == U"default construction");
+            CHECK(held_device == &dev);
+
+            CHECK_FALSE(dev.was_moved_from_);
+        }
+    }
+
+    WHEN("creating a stream that owns device")
+    {
+        stream take{ std::move(dev) };
+
+        THEN("the stream has the moved device and the original is gutted")
+        {
+            auto held_device = take.device<fake_device>();
+            REQUIRE(held_device);
+
+            CHECK(held_device->construction_story_ == U"move construction");
+            CHECK_FALSE(held_device->was_moved_from_);
+            CHECK(held_device != &dev);
+
+            CHECK(dev.was_moved_from_);
+        }
+    }
+}
+
+class pipe
+{
+public:
+    pipe(stream & input, stream & output)
+        : input_(input), output_(output)
+    {}
+
+    void flow()
+    {
+        std::size_t block_size = 16 * 1024;
+
+        std::u32string d;
+        while (d = input_.read(block_size), !d.empty())
+        {
+            output_.write(d);
+        }
+    }
+
+private:
+    stream & input_;
+    stream & output_;
+};
+
+pipe operator|(stream && source, stream && dest); // returns a connection between s & d
+// s.read() -> d.write, IE d.write(s.read())
+
+pipe operator|(pipe && source, stream && dest); // returns a connection between s & d
+
+
+SCENARIO("connecting two streams via a pipe")
+{
+    string_device input_dev;
+    string_device output_dev;
+
+    input_dev.write(U"some data");
+
+    stream s{input_dev};
+    stream t{output_dev};
+
+    auto p = pipe(s, t);
+
+    CHECK(output_dev.read(1024).empty());
+
+    p.flow();
+
+    CHECK(output_dev.read(1024) == U"some data");
+    CHECK(input_dev.read(1024).empty());
+}
 
 #if 0
 SCENARIO("process channels"){

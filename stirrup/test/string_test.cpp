@@ -193,6 +193,15 @@ SCENARIO("UTF-8 decoding from binary data")
     }
 }
 
+SCENARIO("encoding to UTF-8")
+{
+    binary_buffer const actual = encode_to_utf8(U"Hello \u503C world");
+
+    REQUIRE(actual.size() == 15);
+    char const * const expected_data = "Hello \xE5\x80\xBC world";
+    CHECK(0 == std::memcmp(actual.data(), expected_data, actual.size()));
+}
+
 // Start obsolete or under reevaluation
 // most probably obsolete
 SCENARIO("locale to Unicode transcoding")

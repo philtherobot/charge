@@ -226,7 +226,7 @@ std::u32string decode_utf8(binary_buffer & b, std::size_t sz)
     return result;
 }
 
-/*
+
 binary_buffer encode_to_utf8(u32string const & unicode_string)
 {
     binary_buffer result;
@@ -253,7 +253,7 @@ binary_buffer encode_to_utf8(u32string const & unicode_string)
 
     return result;
 }
-*/
+
 
 // remainder is obsolete or needs revamping
 std::u8string to_u8string(std::string const & str)
