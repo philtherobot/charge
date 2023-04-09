@@ -1,6 +1,9 @@
 #include "stirrup/environment_variable.hpp"
 
-#include <cstdlib>
+#include "stirrup/error.hpp"
+#include "stirrup/string.hpp"
+
+#include <stdlib.h>
 #include <stdexcept>
 
 using namespace std;
@@ -29,25 +32,27 @@ private:
 
 }
 
-string getenv(string const & variable_name)
+u32string getenv(u32string const & variable_name)
 {
-    char * buffer = nullptr;
-    const auto error = _dupenv_s(&buffer, nullptr, variable_name.c_str());
+    wchar_t * buffer = nullptr;
+    const auto error = _wdupenv_s(&buffer, nullptr, transcode_to_wstring(variable_name).c_str());
 
-    if (error)
-    {
-        // todo-php: use make_errno_error_message
-        throw runtime_error("_dupenv_s failure");
-    }
+    throw_on_errno(U"stirrup::getenv", error);
 
     if (!buffer)
     {
-        return string();
+        return {};
     }
 
     auto_free_block auto_free(buffer);
 
-    return buffer;
+    return transcode_from(buffer);
+}
+
+void putenv(std::u32string const &variable_name, std::u32string const &value)
+{
+    const auto error = _wputenv_s(transcode_to_wstring(variable_name).c_str(), transcode_to_wstring(value).c_str());
+    throw_on_errno(U"stirrup::putenv", error);
 }
 
 }

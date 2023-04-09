@@ -29,5 +29,4 @@ void print(stirrup::format_string<T...> fmt, T&&... args) {
     return stirrup::vprint(fmt, vargs);
 }
 
-
 }

@@ -6,13 +6,19 @@
 using namespace stirrup;
 using std::string;
 
-TEST_CASE("making error messages")
+TEST_CASE("handling errno-type errors")
 {
     SECTION("make_errno_message")
     {
         CHECK(
             make_errno_message(U"getthis", EINVAL) == U"system error (errno) 22 (Invalid argument) in function getthis"
         );
+    }
+
+    SECTION("throw_on_errno")
+    {
+        CHECK_NOTHROW(throw_on_errno(U"getthis", 0));
+        CHECK_THROWS_AS(throw_on_errno(U"getthis", EINVAL), stirrup::runtime_error);
     }
 }
 

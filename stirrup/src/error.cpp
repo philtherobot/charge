@@ -20,6 +20,14 @@ u32string make_errno_message(u32string const & from_function, int err)
     );
 }
 
+void throw_on_errno(u32string const & from_function, int err)
+{
+    if(err)
+    {
+        throw runtime_error(make_errno_message(from_function, err));
+    }
+}
+
 exception::exception(const std::u32string & message)
     : std::exception(repr(message).c_str()), message_(message)
 {}

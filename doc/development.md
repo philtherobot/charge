@@ -40,7 +40,7 @@ We could launch a sub command line box that loads `vcvarsall.bat` before launchi
 
 This is complicated and certainly slower.  `vcvarsall` is not exactly fast.  We need a cmd batch script to launch both `vcvarsall` and `cl` in the same environment.
 
-There might be a faster way to initialize the MSVC toolchain.  But that seems potentially dependant on the MSVC version.
+There might be a faster way to initialize the MSVC toolchain.  But that seems potentially dependent on the MSVC version.
 
 
 ### Purge command
