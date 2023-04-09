@@ -8,6 +8,8 @@
 namespace stirrup
 {
 
+using str = std::u32string;
+
 using string_list = std::vector<std::string>;
 std::string quote(std::string const & str);
 std::string quote_if_needed(std::string const & str);

@@ -1,8 +1,8 @@
 [requires]
-boost/1.74.0
-Catch2/2.11.1@catchorg/stable
-fmt/7.1.2
-yaml-cpp/0.6.3
+boost/1.81.0
+catch2/2.13.10
+fmt/9.1.0
+yaml-cpp/0.7.0
 
 [generators]
 cmake

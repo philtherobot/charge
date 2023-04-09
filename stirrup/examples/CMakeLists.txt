@@ -1,7 +1,2 @@
-add_subdirectory(console_input)
-add_subdirectory(get_windows_user_cp)
-add_subdirectory(hello)
-add_subdirectory(is_windows_utf16)
 add_subdirectory(transcode_bananas)
-add_subdirectory(std_numpunct)
 add_subdirectory(u32string)

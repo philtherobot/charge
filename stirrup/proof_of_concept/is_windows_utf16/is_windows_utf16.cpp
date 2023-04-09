@@ -22,8 +22,11 @@ int main()
 
     std::cout << "returned " << e << '\n';
 
-    // e is 2 and there are two WCHAR in result: 0xD83D and 0xDE00.
+    // Variable e is equal to 2 and there are two WCHAR in result: 0xD83D and 0xDE00.
     // Those are correct UTF-16 for U0001F600.
-    // The answer to "does windows do utf-16?" is yes.  WCHAR
-    // is actually UTF-16, not UCS-2.
+    // The answer to "does windows do utf-16?" is yes.
+    // WCHAR is actually UTF-16, not UCS-2.
+    // Emojis will be encoded as two code units.
+    // Under Windows, wstring::size is not, in all cases,
+    // the actual number of symbols in a string.
 }

@@ -10,7 +10,17 @@ int main(int argc, char * argv[])
 {
     try
     {
-        print(U"transcode_bananas\n");
+        print(U"{}", U"transcode_bananas\n");
+
+        print(U"{}", U"First argument is a file\n");
+        print(U"{}", U"Second argument is the file's text encoding, ex \".1252\"\n");
+        print(U"{}", U"Third argument is the output text encoding, ex \".UTF-8\"\n");
+        print(U"{}", U"Optional fourth argument is the output file\n");
+        print(U"{}", U"\nIt will replace the letter \"A\" with bananas.\n"
+                     "So your output encoding needs to support emojis.\n"
+                     "If the output file is not specified, then the console\n"
+                     "must have the correct encoding.  See \"chcp 65001\"\n\n"
+        );
 
         if (argc < 4)
         {
@@ -46,13 +56,13 @@ int main(int argc, char * argv[])
                 }
                 return false;
             },
-            U'\U0001F34C'
+            U'\U0001F34C' // banana
         );
 
         if (output_file_name.empty())
         {
             stdout_file.set_locale(locale(output_encoding));
-            print(input_content);
+            print(U"{}", input_content);
         }
         else
         {

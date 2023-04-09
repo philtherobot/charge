@@ -5,11 +5,9 @@
 namespace stirrup
 {
 
-void vprint(std::u32string_view format,
-    fmt::basic_format_args<fmt::buffer_context<fmt::type_identity_t<char32_t>>> args
-)
+void vprint(fmt::basic_string_view<char32_t> fmt, stirrup::format_args args)
 {
-    sout.write(fmt::vformat(format, args));
+    sout.write(fmt::vformat(fmt, args));
 }
 
 }
