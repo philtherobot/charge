@@ -16,3 +16,4 @@ enable_testing()
 
 add_subdirectory(charge)
 add_subdirectory(charge_engine)
+add_subdirectory(stirrup)

@@ -12,24 +12,7 @@ namespace test
 
 boost::filesystem::path make_absolute_path(boost::filesystem::path const & generic_path);
 
-
-template <typename ExceptionType, typename Callable>
-boost::optional<ExceptionType> catch_exception(Callable c)
-{
-    try
-    {
-        c();
-    }
-    catch (ExceptionType const & ex)
-    {
-        return ex;
-    }
-    return boost::optional<ExceptionType>();
-}
-
-
 } // test
 } // charge
 
 #endif
-

@@ -1,6 +1,8 @@
 
 #include "../src/process.hpp"
 
+#include <stirrup/stirrup.hpp>
+
 #include <boost/algorithm/string/join.hpp>
 
 #include <iostream>
@@ -8,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-int main_really(std::vector<std::string> const & args)
+int stirrup::main(std::vector<std::string> && args)
 {
     charge::ShellProcess p;
 
@@ -28,24 +30,3 @@ int main_really(std::vector<std::string> const & args)
     return p.exit_code();
 }
 
-int main(int argc, char ** argv)
-{
-    try
-    {
-        std::vector<std::string> args;
-        for (int i = 0; i < argc; ++i)
-        {
-            args.push_back(argv[i]);
-        }
-        return main_really(std::move(args));
-    }
-    catch (std::exception const & ex)
-    {
-        std::cerr << "exception: " << ex.what() << '\n';
-    }
-    catch (...)
-    {
-        std::cerr << "unknown exception type\n";
-    }
-    return 1;
-}

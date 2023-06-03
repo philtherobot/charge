@@ -47,7 +47,8 @@ add_executable(run_process
     run_process.cpp)
 
 target_link_libraries(run_process
-    charge_engine)
+    charge_engine
+    stirrup)
 
 
 # exec testing is done through another standalone
@@ -57,4 +58,5 @@ add_executable(run_exec
     run_exec.cpp)
 
 target_link_libraries(run_exec
-    charge_engine)
+    charge_engine
+    stirrup)
