@@ -87,12 +87,9 @@ BOOST_FIXTURE_TEST_SUITE(command_line, Fixture);
 
 BOOST_AUTO_TEST_CASE(case_no_script)
 {
-    BOOST_CHECK(
-        charge::test::catch_exception<charge::CommandLineArgumentError>(
-            [&]() {
-                run_command_line(StringList{});
-            }
-            )
+    BOOST_CHECK_THROW(
+        run_command_line(StringList{}),
+        charge::CommandLineArgumentError
     );
 }
 

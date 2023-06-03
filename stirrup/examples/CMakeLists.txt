@@ -1,2 +1,0 @@
-add_subdirectory(transcode_bananas)
-add_subdirectory(u32string)

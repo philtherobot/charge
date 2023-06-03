@@ -1,1 +1,0 @@
-add_executable(fread_semantics fread_semantics.cpp)

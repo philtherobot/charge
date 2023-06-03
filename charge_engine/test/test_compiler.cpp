@@ -120,14 +120,7 @@ BOOST_AUTO_TEST_SUITE(suite_compiler);
 BOOST_FIXTURE_TEST_CASE(configure_no_compiler_installed, CompilerFamiliesFixture)
 {
     MockNoProgramDetector detector;
-
-    BOOST_CHECK(
-        charge::test::catch_exception<charge::CompilerDetectionError>(
-            [&]() {
-                charge::configure(detector);
-            }
-        )
-    );
+    BOOST_CHECK_THROW(charge::configure(detector), charge::CompilerDetectionError);
 }
 
 

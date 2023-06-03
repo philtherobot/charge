@@ -6,6 +6,6 @@
 *.txt text
 *.cmake text
 *.md text
-*.sh text
+*.sh text eol=lf
 
 charge_engine/test/exec_win/** text eol=crlf

@@ -31,6 +31,13 @@ BOOST_AUTO_TEST_CASE(case_one_header_library)
         StringList{ "/home/phil/include/boost" });
 }
 
+bool is_boost_test_not_found(LibraryNotConfiguredError const & ex)
+{
+    return
+        ex.what() == "library boost_test is not configured"s &&
+        ex.library() == "boost_test"s;
+}
+
 BOOST_AUTO_TEST_CASE(case_library_not_found)
 {
     Config config(YAML::Load(
@@ -42,19 +49,11 @@ BOOST_AUTO_TEST_CASE(case_library_not_found)
     auto pgm("// chargetrick import boost_test\n"s);
     std::istringstream is(pgm);
 
-    boost::optional<LibraryNotConfiguredError> opt_ex(
-        test::catch_exception<LibraryNotConfiguredError>(
-            [&] {find_imports(config, is); }
-            )
+    BOOST_CHECK_EXCEPTION(
+        find_imports(config, is),
+        LibraryNotConfiguredError,
+        is_boost_test_not_found
     );
-
-    BOOST_REQUIRE(opt_ex);
-
-    BOOST_CHECK_EQUAL(
-        std::string((*opt_ex).what()),
-        "library boost_test is not configured");
-
-    BOOST_CHECK_EQUAL((*opt_ex).library(), "boost_test");
 }
 
 BOOST_AUTO_TEST_CASE(case_library_not_configured_error)
@@ -72,4 +71,3 @@ BOOST_AUTO_TEST_CASE(case_library_not_configured_error)
 }
 
 BOOST_AUTO_TEST_SUITE_END();
-
