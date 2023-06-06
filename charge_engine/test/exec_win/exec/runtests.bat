@@ -1,9 +1,9 @@
 @ECHO.
 @ECHO ## Test cases for charge::exec
 
-@SET test_pgm="%BIN_UNDER_TEST_PATH%\run_exec.exe"
+@SET test_pgm="%CHARGE_BINARY_DIR%\bin\run_exec.exe"
 @IF NOT EXIST %test_pgm% (
-    @ECHO Cannot find %%BIN_UNDER_TEST_PATH%%\run_exec.exe
+    @ECHO Cannot find %CHARGE_BINARY_DIR%\bin\run_exec.exe
     @EXIT /B 2
 )
 
@@ -14,7 +14,7 @@
 @ECHO ### exec repeats passed arguments to program
 @%test_pgm% "%COMSPEC%" /c repeat_args.bat a b c > "%capture_fn%"
 @comp "%capture_fn%" expected_result_repeats_arguments.txt /M >NUL
-@IF ERRORLEVEL 0 GOTO error
+@IF %ERRORLEVEL% NEQ 0 GOTO error
 @ECHO Test passed
 
 
@@ -22,7 +22,7 @@
 @ECHO ### exec repeats quoted arguments
 @%test_pgm% "%COMSPEC%" /c repeat_args.bat a "b c" > "%capture_fn%"
 @comp "%capture_fn%" expected_result_repeats_quoted_arguments.txt /M >NUL
-@IF ERRORLEVEL 1 GOTO error
+@IF %ERRORLEVEL% NEQ 0 GOTO error
 @ECHO Test passed
 
 @ECHO.

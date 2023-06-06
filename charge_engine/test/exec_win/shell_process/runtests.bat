@@ -1,9 +1,9 @@
 @ECHO.
 @ECHO ## Test cases for ShellProcess
 
-@SET test_pgm="%BIN_UNDER_TEST_PATH%\run_process.exe"
+@SET test_pgm="%CHARGE_BINARY_DIR%\bin\run_process.exe"
 @IF NOT EXIST %test_pgm% (
-    @ECHO Cannot find %%BIN_UNDER_TEST_PATH%%\run_process.exe
+    @ECHO Cannot find %CHARGE_BINARY_DIR%\bin\run_process.exe
     @EXIT /B 2
 )
 

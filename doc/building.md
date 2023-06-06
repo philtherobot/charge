@@ -38,7 +38,7 @@ os_build=Windows
 arch=x86_64
 arch_build=x86_64
 compiler=Visual Studio
-compiler.version=16
+compiler.version=17
 build_type=Release
 
 [options]
@@ -49,14 +49,12 @@ build_type=Release
 Then:
 
 ```
-conan install .. -pr release-vc16
+conan install .. -pr release-vc17
 ```
 
 ### Testing the process control functions
 
-To complete all the tests, the BAT script `charge_engine/test/exec_win/runtests.bat` must be executed.  This test scripts requires that:
+To complete all the tests, the BAT script located in the CMake build directory at `test_exec_win/runtests.bat` must be executed.  This test script requires that:
 - The target `run_exec` is compiled.
 - The target `run_process` is compiled.
 - cscript.exe be available on PATH.
-- The environment variable `BUILD_ROOT` be set to either `cmake-build-debug` or `cmake-build-release`.
- 

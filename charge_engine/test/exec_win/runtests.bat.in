@@ -1,4 +1,6 @@
 
+@SET CHARGE_BINARY_DIR=@CMAKE_BINARY_DIR@
+
 @ECHO.
 @ECHO # Windows platform process-launching tests
 

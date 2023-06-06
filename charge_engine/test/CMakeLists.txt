@@ -60,3 +60,8 @@ add_executable(run_exec
 target_link_libraries(run_exec
     charge_engine
     stirrup)
+
+
+file(COPY exec_win/ DESTINATION ${CMAKE_BINARY_DIR}/test_exec_win)
+
+configure_file(exec_win/runtests.bat.in ${CMAKE_BINARY_DIR}/test_exec_win/runtests.bat)
