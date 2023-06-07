@@ -3,9 +3,21 @@
 
 ## Configuration
 
-The configuration file is located at `$HOME/.charge` (`%USERPROFILE%\.charge` on Windows).
+The configuration file `config` is located at `$HOME/.charge` (`%USERPROFILE%\.charge` on Windows).
 
 The configuration file is a [YAML](https://yaml.org/) file.
+
+```yaml
+compiler:
+  command: cl
+  family: msvc
+
+libraries:
+  somelib:
+    header_path: C:\dev\some\include
+    lib_path: C:\dev\some\lib
+    static_library: somelib.lib
+```
 
 ### Top level keys
 
@@ -22,7 +34,7 @@ The top level key `compiler` contains these keys:
   - `msvc`
   - `gcc`
 
-- `command`: the shell string for the compiler exectuble.  Example: `/usr/bin/g++4.9`.
+- `command`: the shell string for the compiler execatuble.  Example: `/usr/bin/g++4.9`.
 
 
 #### Libraries
@@ -42,6 +54,17 @@ Use a `static_library` key to link with a static library.  The value is the file
 ### Import library
 
 The `import` trick makes Charge compile the script with the configured library (see Configuration).
+
+```c++
+// chargetrick import somelib
+#include <iostream>
+#include <some/some.h>
+
+int main()
+{
+    std::cout << some::add(2,3) << ", AKA five\n";
+}
+```
 
 ## Command-line options
 
